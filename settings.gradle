@@ -1,0 +1,12 @@
+rootProject.name = 'miop'
+
+include 'miop-common'
+include 'miop-jvm'
+
+include 'miop-javafx'
+
+
+project(':miop-common').projectDir = file('core/common')
+project(':miop-jvm').projectDir = file('core/jvm')
+
+project(':miop-javafx').projectDir = file('integration/javafx')

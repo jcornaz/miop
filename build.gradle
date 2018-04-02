@@ -1,0 +1,54 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects {
+    group 'com.github.jcornaz.miop'
+    version '0.0.1-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+}
+
+project(':miop-common') {
+    apply plugin: 'kotlin-platform-common'
+
+    dependencies {
+        compile "org.jetbrains.kotlin:kotlin-stdlib-common"
+        compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$coroutines_version"
+
+        testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common"
+        testCompile "org.jetbrains.kotlin:kotlin-test-common"
+    }
+}
+
+project(':miop-jvm') {
+    apply plugin: 'kotlin-platform-jvm'
+
+    dependencies {
+        compile "org.jetbrains.kotlin:kotlin-stdlib"
+        compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+
+        expectedBy project(":miop-common")
+
+        testCompile "org.jetbrains.kotlin:kotlin-test-junit"
+        testCompile "org.jetbrains.kotlin:kotlin-test"
+    }
+}
+
+project(':miop-javafx') {
+    apply plugin: 'kotlin'
+
+    dependencies {
+        compile project(':miop-jvm')
+    }
+}
