@@ -22,6 +22,8 @@ allprojects {
 project(':miop-common') {
     apply plugin: 'kotlin-platform-common'
 
+    kotlin.experimental.coroutines 'enable'
+
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-stdlib-common"
         compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$coroutines_version"
@@ -33,6 +35,8 @@ project(':miop-common') {
 
 project(':miop-jvm') {
     apply plugin: 'kotlin-platform-jvm'
+
+    kotlin.experimental.coroutines 'enable'
 
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-stdlib"
@@ -48,7 +52,10 @@ project(':miop-jvm') {
 project(':miop-javafx') {
     apply plugin: 'kotlin'
 
+    kotlin.experimental.coroutines 'enable'
+
     dependencies {
         compile project(':miop-jvm')
+        compile "org.jetbrains.kotlinx:kotlinx-coroutines-javafx:$coroutines_version"
     }
 }
