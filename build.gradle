@@ -48,14 +48,3 @@ project(':miop-jvm') {
         testCompile "org.jetbrains.kotlin:kotlin-test"
     }
 }
-
-project(':miop-javafx') {
-    apply plugin: 'kotlin'
-
-    kotlin.experimental.coroutines 'enable'
-
-    dependencies {
-        compile project(':miop-jvm')
-        compile "org.jetbrains.kotlinx:kotlinx-coroutines-javafx:$coroutines_version"
-    }
-}
