@@ -7,12 +7,8 @@ import kotlin.coroutines.experimental.CoroutineContext
 public object Channels {
 
     public fun <T> merge(vararg sources: ReceiveChannel<T>): ReceiveChannel<T> = produce(Unconfined) {
-        val context = coroutineContext + CoroutineExceptionHandler { _, throwable ->
-            close(throwable)
-        }
-
         sources.forEach { source ->
-            launch(context) {
+            launch(coroutineContext) {
                 source.consumeEach { send(it) }
             }
         }
