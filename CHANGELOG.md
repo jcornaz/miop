@@ -1,0 +1,15 @@
+# Change log
+
+## 0.0.1 (2018-04-03)
+### Builders
+* Add `emptyReceiveChannel(): ReceiveChannel<T>`
+* Add `receiveChannelOf(vararg values: T): ReceiveChannel<T>`
+
+### Merge operators
+* Add `merge` and `mergeWith`
+* Add `combineLatest` and `combineLatestWith`
+* Add `switchMap`
+
+### Subscribables
+* Add `SubscribableValue` and `SubscribableVariable`
+* Add `map`, `switchMap` and `combine` operators for `SubscribableValue`
