@@ -6,12 +6,15 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
     }
 }
 
 allprojects {
     group 'com.github.jcornaz.miop'
     version '0.0.1-SNAPSHOT'
+
+    apply plugin: 'org.jetbrains.dokka'
 
     repositories {
         mavenCentral()
@@ -37,6 +40,26 @@ project(':miop-jvm') {
     apply plugin: 'kotlin-platform-jvm'
 
     kotlin.experimental.coroutines 'enable'
+
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.kotlin.srcDirs
+    }
+
+    task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+        outputFormat = "javadoc"
+        outputDirectory = "$buildDir/dokkaJavadoc"
+    }
+
+    task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
+        from dokkaJavadoc.outputDirectory
+        classifier = 'javadoc'
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
+    }
 
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-stdlib"
