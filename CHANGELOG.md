@@ -1,5 +1,7 @@
 # Change log
 
+## 0.0.2-SNAPSHOT (Unreleased)
+
 ## 0.0.1 (2018-04-03)
 ### Builders
 * Add `emptyReceiveChannel(): ReceiveChannel<T>`
