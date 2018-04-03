@@ -1,16 +1,24 @@
 package com.github.jcornaz.miop.experimental
 
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.cancelAndJoin
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.consumeEach
-import kotlinx.coroutines.experimental.channels.produce
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.channels.*
 import kotlin.coroutines.experimental.CoroutineContext
 
 public object Channels {
+
+    public fun <T> merge(vararg sources: ReceiveChannel<T>): ReceiveChannel<T> = produce(Unconfined) {
+        val context = coroutineContext + CoroutineExceptionHandler { _, throwable ->
+            close(throwable)
+        }
+
+        sources.forEach { source ->
+            launch(context) {
+                source.consumeEach { send(it) }
+            }
+        }
+    }
+
+
     public fun <T1, T2, R> combineLatest(
             source1: ReceiveChannel<T1>,
             source2: ReceiveChannel<T2>,
@@ -18,20 +26,27 @@ public object Channels {
             capacity: Int = Channel.CONFLATED,
             combine: suspend (T1, T2) -> R
     ): ReceiveChannel<R> = produce(context, capacity) {
-        try {
-            var v1 = source1.receive()
-            var v2 = source2.receive()
+        var v1: T1? = null
+        var v2: T2? = null
 
-            send(combine(v1, v2))
+        var hasV1 = false
+        var hasV2 = false
 
-            launch(coroutineContext) { source1.consumeEach { v1 = it; send(combine(it, v2)) } }
-            launch(coroutineContext) { source2.consumeEach { v2 = it; send(combine(v1, it)) } }
-        } catch (t: Throwable) {
-            source1.cancel()
-            source2.cancel()
+        merge(
+                source1.map { { v1 = it; hasV1 = true; hasV2 } },
+                source2.map { { v2 = it; hasV2 = true; hasV1 } }
+        ).consumeEach { fct ->
+            if (fct()) {
+                
+                @Suppress("UNCHECKED_CAST")
+                send(combine(v1 as T1, v2 as T2))
+            }
         }
     }
 }
+
+public fun <T> ReceiveChannel<T>.mergeWith(vararg others: ReceiveChannel<T>): ReceiveChannel<T> =
+        Channels.merge(this, *others)
 
 public fun <T1, T2, R> ReceiveChannel<T1>.combineLatestWith(
         other: ReceiveChannel<T2>,
