@@ -8,6 +8,7 @@ import javafx.beans.value.ChangeListener
 import javafx.beans.value.ObservableValue
 import kotlinx.coroutines.experimental.CancellationException
 import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.cancel
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.channels.consumeEach
 import kotlinx.coroutines.experimental.javafx.JavaFx
@@ -15,9 +16,10 @@ import kotlinx.coroutines.experimental.launch
 import java.lang.ref.WeakReference
 
 public fun <T> SubscribableVariable<in T>.bind(observable: ObservableValue<T?>, nullValue: T): Job = launch(JavaFx) {
+    val ref = WeakReference(this@bind)
 
     val listener = ChangeListener<T?> { _, _, newValue ->
-        value = newValue ?: nullValue
+        ref.get()?.let { it.value = newValue ?: nullValue } ?: coroutineContext.cancel()
     }
 
     observable.addListener(listener)
