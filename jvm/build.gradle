@@ -23,12 +23,18 @@ artifacts {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib"
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
-
     expectedBy project(":miop-common")
 
-    testCompile "junit:junit:4.12"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+
+    testCompile "junit:junit:$junit_version"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit"
     testCompile "org.jetbrains.kotlin:kotlin-test"
+}
+
+test {
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }

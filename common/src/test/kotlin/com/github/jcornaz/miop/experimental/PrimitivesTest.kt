@@ -1,10 +1,10 @@
 package com.github.jcornaz.miop.experimental
 
 import kotlinx.coroutines.experimental.CancellationException
+import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.launch
 import kotlin.test.Test
-import kotlin.test.assertTrue
 
 
 class PrimitivesTest : AsyncTest() {
@@ -14,18 +14,23 @@ class PrimitivesTest : AsyncTest() {
         expect(1)
         val job = launch(Unconfined) {
             expect(2)
-            try {
-                awaitCancel() // should suspend
-
-                @Suppress("UNREACHABLE_CODE") // assert that it is unreachable
-                unreachable()
-            } catch (t: Throwable) {
-                assertTrue { t is CancellationException }
-            }
+            assertThrows<CancellationException> { awaitCancel() }
             expect(4)
         }
         expect(3)
         job.cancel()
         finish(5)
+    }
+
+    @Test
+    fun `awaitCancel should throw if the coroutines is already cancelled`() {
+        expect(1)
+        launch(Unconfined) {
+            expect(2)
+            coroutineContext[Job]!!.cancel()
+            assertThrows<CancellationException> { awaitCancel() }
+            expect(3)
+        }
+        finish(4)
     }
 }
