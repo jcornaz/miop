@@ -1,6 +1,8 @@
 # Change log
 
 ## 0.0.2-SNAPSHOT (Unreleased)
+### Dependencies
+* Bump to kotlin 1.2.41
 
 ## 0.0.1 (2018-04-03)
 ### Builders

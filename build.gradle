@@ -7,6 +7,7 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
     }
 }
 
@@ -15,6 +16,7 @@ allprojects {
     version '0.0.2-SNAPSHOT'
 
     apply plugin: 'org.jetbrains.dokka'
+    apply plugin: 'com.github.ben-manes.versions'
 
     repositories {
         mavenCentral()
