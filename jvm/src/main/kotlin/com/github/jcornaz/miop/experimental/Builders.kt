@@ -8,6 +8,10 @@ private val EmptyReceiveChannel = produce<Nothing>(Unconfined) { }
 
 public fun <E> emptyReceiveChannel(): ReceiveChannel<E> = EmptyReceiveChannel
 
-public fun <E> receiveChannelOf(vararg values: E): ReceiveChannel<E> = produce(Unconfined, values.size) {
-    for (value in values) send(value)
+public fun <E> receiveChannelOf(vararg values: E): ReceiveChannel<E> {
+    if (values.isEmpty()) return emptyReceiveChannel()
+
+    return produce(Unconfined, values.size) {
+        for (value in values) send(value)
+    }
 }
