@@ -26,6 +26,9 @@ public object SubscribableValues {
     }
 }
 
+/**
+ * Returns a [SubscribableValue] containing the results of applying the given transform function to each value of the source.
+ */
 public fun <T, R> SubscribableValue<T>.map(transform: (T) -> R): SubscribableValue<R> = object : SubscribableValue<R> {
     override val value: R get() = transform(this@map.value)
 
