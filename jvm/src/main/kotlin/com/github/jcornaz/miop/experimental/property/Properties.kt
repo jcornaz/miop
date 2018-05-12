@@ -1,5 +1,6 @@
 package com.github.jcornaz.miop.experimental.property
 
+import com.github.jcornaz.miop.experimental.distinctUntilChanged
 import com.github.jcornaz.miop.experimental.receiveChannelOf
 import kotlinx.coroutines.experimental.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
@@ -74,5 +75,5 @@ public fun <T> SubscribableVariable(initialValue: T): SubscribableVariable<T> = 
             broadcast.offer(newValue)
         }
 
-    override fun openSubscription() = broadcast.openSubscription()
+    override fun openSubscription() = broadcast.openSubscription().distinctUntilChanged()
 }
