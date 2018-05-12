@@ -1,7 +1,8 @@
 # Change log
 
 ## 0.0.2-SNAPSHOT (Unreleased)
-### Terminal operators
+### Operators
+* **[BREAKING CHANGE]** remove the `capacity` argument from `combineLatest` 
 * Add `launchConsumeEach` to launch a consumer coroutine
 
 ### Dependencies
