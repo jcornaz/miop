@@ -1,9 +1,7 @@
 package com.github.jcornaz.miop.experimental
 
-import kotlinx.coroutines.experimental.Unconfined
+import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
 import kotlin.test.*
 
 class BuildersTest : AsyncTest() {

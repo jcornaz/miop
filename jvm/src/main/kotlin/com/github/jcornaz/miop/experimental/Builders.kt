@@ -6,12 +6,14 @@ import kotlinx.coroutines.experimental.channels.produce
 
 private val EmptyReceiveChannel = produce<Nothing>(Unconfined) { }
 
+/**
+ * Return a closed empty [ReceiveChannel]
+ */
 public fun <E> emptyReceiveChannel(): ReceiveChannel<E> = EmptyReceiveChannel
 
-public fun <E> receiveChannelOf(vararg values: E): ReceiveChannel<E> {
-    if (values.isEmpty()) return emptyReceiveChannel()
-
-    return produce(Unconfined, values.size) {
-        for (value in values) send(value)
-    }
+/**
+ * Return a [ReceiveChannel] with the given elements in its buffer
+ */
+public fun <E> receiveChannelOf(vararg values: E): ReceiveChannel<E> = produce(Unconfined, values.size) {
+    for (value in values) send(value)
 }
