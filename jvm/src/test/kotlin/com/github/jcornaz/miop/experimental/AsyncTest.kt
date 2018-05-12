@@ -35,7 +35,7 @@ actual abstract class AsyncTest {
         assertTrue(stepCount.incrementAndGet() == step, "unexpected step count (expected $step, but ${stepCount.get()} was found")
     }
 
-    protected actual fun unreachable() {
-        exception = AssertionError("Unreachable code reached")
+    protected actual fun unreachable(createMessage: () -> String) {
+        exception = AssertionError(createMessage())
     }
 }

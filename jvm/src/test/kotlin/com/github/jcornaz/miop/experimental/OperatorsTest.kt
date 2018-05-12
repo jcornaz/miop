@@ -3,13 +3,20 @@ package com.github.jcornaz.miop.experimental
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.experimental.channels.ClosedSendChannelException
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class OperatorsTest : AsyncTest() {
+
+    @BeforeTest
+    fun `No exception should be delivered to the uncaught exception handler`() {
+        Thread.setDefaultUncaughtExceptionHandler { _, t -> unreachable { "Exception \"$t\" delivered to the uncaught exception handler" } }
+    }
 
     @Test
     fun `merge should give the elements as soon as received`() = runBlocking {
@@ -70,10 +77,6 @@ class OperatorsTest : AsyncTest() {
 
     @Test
     fun `if a source merged by mergeWith fails, the result should fail and the other sources should be cancelled`() = runBlocking {
-
-        // The exception should not be delivered to the uncaught exception handler
-        Thread.setDefaultUncaughtExceptionHandler { _, _ -> unreachable() }
-
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
         val result = source1.mergeWith(source2)
@@ -141,10 +144,6 @@ class OperatorsTest : AsyncTest() {
 
     @Test
     fun `if a source merged by combineLatest fails, the result should fail and the other sources should be cancelled`() = runBlocking {
-
-        // The exception should not be delivered to the uncaught exception handler
-        Thread.setDefaultUncaughtExceptionHandler { _, _ -> unreachable() }
-
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
         val result = source1.combineLatestWith(source2) { v1, v2 -> v1 to v2 }
@@ -155,6 +154,84 @@ class OperatorsTest : AsyncTest() {
         assertTrue(result.isClosedForReceive, "result should be closed for receive")
 
         assertThrows<ClosedReceiveChannelException> { source1.receive() }
+        assertEquals("my exception", assertThrows<Exception> { result.receive() }.message)
+    }
+
+    @Test
+    fun `switchMap should emit items of the new source only`() = runBlocking {
+        val sources = (0..2).map { Channel<Char>(2) }
+        val switch = Channel<Int>()
+        val result = switch.switchMap { sources[it] }
+
+        expect(1)
+        launch(Unconfined) {
+            expect(2)
+            assertEquals('a', result.receive())
+            assertEquals('b', result.receive())
+            expect(5)
+            assertEquals('c', result.receive())
+            assertEquals('d', result.receive())
+            expect(7)
+            assertEquals('y', result.receive())
+            expect(9)
+            assertEquals('e', result.receive())
+            assertEquals('f', result.receive())
+            expect(11)
+            assertThrows<ClosedReceiveChannelException> { result.receive() }
+            expect(14)
+        }
+
+        expect(3)
+        sources[0].send('a')
+        sources[0].send('b')
+        sources[1].send('c')
+        sources[1].send('d')
+        sources[2].send('e')
+        sources[2].send('f')
+        expect(4)
+        switch.send(0) // start the first source
+        expect(6)
+        switch.send(1) // start the second source
+        expect(8)
+        assertThrows<ClosedSendChannelException> { sources[0].send('x') } // the first source should have been cancelled
+        sources[1].send('y')
+        expect(10)
+        sources[1].close() // should have no impact
+        switch.send(2) // start the third source
+        expect(12)
+        switch.close() // should have no impact
+        expect(13)
+        sources[2].close() // should close the result as the switch is closed
+        finish(15)
+    }
+
+    @Test
+    fun `switchMap on an empty channel should return an empty channel`() = runBlocking<Unit> {
+        val result = emptyReceiveChannel<Int>().switchMap { receiveChannelOf(1, 2, 3) }
+
+        assertTrue(result.isClosedForReceive)
+        assertThrows<ClosedReceiveChannelException> { result.receive() }
+    }
+
+    @Test
+    fun `cancelling a channel created by mergeMap should cancel the current source`() = runBlocking<Unit> {
+        val source = Channel<Int>()
+        val result = receiveChannelOf(1).switchMap { source }
+
+        result.cancel()
+
+        assertTrue(source.isClosedForReceive)
+        assertThrows<ClosedReceiveChannelException> { source.receive() }
+    }
+
+    @Test
+    fun `if a source returned by switchMap fails, the result should fail with the same exception`() = runBlocking {
+        val source = Channel<Int>()
+        val result = receiveChannelOf(1).switchMap { source }
+
+        source.close(Exception("my exception"))
+
+        assertTrue(result.isClosedForReceive)
         assertEquals("my exception", assertThrows<Exception> { result.receive() }.message)
     }
 }

@@ -1,7 +1,10 @@
 package com.github.jcornaz.miop.experimental
 
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.CoroutineExceptionHandler
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.channels.*
+import kotlinx.coroutines.experimental.launch
 import kotlin.coroutines.experimental.CoroutineContext
 
 /**
@@ -31,11 +34,15 @@ public object Channels {
     }
 
     /**
-     * Each time a source send an element, it is combined with the latest sent element of the other source and send through the result channel.
+     * Return a [ReceiveChannel] which combine the most recently emitted items from each sources.
      *
      * Cancelling the result channel will cancel all the sources.
      *
      * If one source is closed with an exception, the result channel will be closed with the same exception and all other sources will be cancelled.
+     *
+     * @param context Context on which execute [combine]
+     * @param capacity Capacity of the result channel (conflated by default)
+     * @param combine Function to combine elements from the sources
      */
     public fun <T1, T2, R> combineLatest(
             source1: ReceiveChannel<T1>,
@@ -74,11 +81,15 @@ public fun <T> ReceiveChannel<T>.mergeWith(vararg others: ReceiveChannel<T>): Re
         Channels.merge(this, *others)
 
 /**
- * Each time a source send an element, it is combined with the latest sent element of the other source and send through the result channel.
+ * Return a [ReceiveChannel] which combine the most recently emitted items from each sources.
  *
  * Cancelling the result channel will cancel all the sources.
  *
  * If one source is closed with an exception, the result channel will be closed with the same exception and all other sources will be cancelled.
+ *
+ * @param context Context on which execute [combine]
+ * @param capacity Capacity of the result channel (conflated by default)
+ * @param combine Function to combine elements from the sources
  */
 public fun <T1, T2, R> ReceiveChannel<T1>.combineLatestWith(
         other: ReceiveChannel<T2>,
@@ -87,12 +98,32 @@ public fun <T1, T2, R> ReceiveChannel<T1>.combineLatestWith(
         combine: suspend (T1, T2) -> R
 ): ReceiveChannel<R> = Channels.combineLatest(this, other, context, capacity, combine)
 
+/**
+ * Return a [ReceiveChannel] which emits the items of the latest result of [transform] which is called for each elements of this channel.
+ *
+ * Each time a new element is received from this channel, the previous result of [transform] is cancelled, and [transform] is called to get the new source to consume and to send elements the result of [switchMap]
+ *
+ * Cancelling the result channel will cancel the current source (latest result of [transform]).
+ *
+ * If the current source source is closed with an exception, the result channel will be closed with the same exception.
+ */
 public fun <T, R> ReceiveChannel<T>.switchMap(transform: (T) -> ReceiveChannel<R>): ReceiveChannel<R> = produce(Unconfined) {
+
+    // Necessary to not deliver the exception to the uncaught exception handler
+    val context = coroutineContext + CoroutineExceptionHandler { _, throwable ->
+        if (throwable !== SwitchedToNewSourceException) {
+            close(throwable)
+        }
+    }
+
     var job: Job? = null
     consumeEach { element ->
-        job?.cancelAndJoin()
-        job = launch(coroutineContext) {
+        job?.cancel(SwitchedToNewSourceException)
+        job?.join()
+        job = launch(context) {
             transform(element).consumeEach { send(it) }
         }
     }
 }
+
+private object SwitchedToNewSourceException : Exception()
