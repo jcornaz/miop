@@ -91,4 +91,51 @@ class PropertyOperatorsTest : AsyncTest() {
         yield() // to child
         finish(10)
     }
+
+    @Test
+    fun `switchMap should always reflect the latest result of transform`() = runBlocking {
+        val source1 = SubscribableValue(1)
+        val source2 = SubscribableVariable(2)
+        val switch = SubscribableVariable(0)
+        val result = switch.switchMap { listOf(source1, source2)[it] }
+
+        expect(1)
+        launch(coroutineContext, CoroutineStart.UNDISPATCHED) {
+            expect(2)
+            val sub = result.openSubscription()
+            assertEquals(1, sub.receive())
+            expect(3)
+            assertEquals(2, sub.receive()) // suspend
+            expect(6)
+            assertEquals(42, sub.receive()) // suspend
+            expect(9)
+            assertEquals(1, sub.receive()) // suspend
+            expect(12)
+            assertEquals(42, sub.receive()) // suspend
+            expect(15)
+        }
+
+        expect(4)
+        assertEquals(1, result.value)
+        switch.value = 1
+        assertEquals(2, result.value)
+        expect(5)
+        yield() // to child
+        expect(7)
+        source2.value = 42
+        assertEquals(42, result.value)
+        expect(8)
+        yield() // to child
+        expect(10)
+        switch.value = 0
+        assertEquals(1, result.value)
+        expect(11)
+        yield() // to child
+        expect(13)
+        switch.value = 1
+        assertEquals(42, result.value)
+        expect(14)
+        yield() // to child
+        finish(16)
+    }
 }
