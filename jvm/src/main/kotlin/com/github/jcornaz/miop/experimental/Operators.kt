@@ -30,6 +30,13 @@ public object Channels {
         }
     }
 
+    /**
+     * Each time a source send an element, it is combined with the latest sent element of the other source and send through the result channel.
+     *
+     * Cancelling the result channel will cancel all the sources.
+     *
+     * If one source is closed with an exception, the result channel will be closed with the same exception and all other sources will be cancelled.
+     */
     public fun <T1, T2, R> combineLatest(
             source1: ReceiveChannel<T1>,
             source2: ReceiveChannel<T2>,
@@ -66,6 +73,13 @@ public object Channels {
 public fun <T> ReceiveChannel<T>.mergeWith(vararg others: ReceiveChannel<T>): ReceiveChannel<T> =
         Channels.merge(this, *others)
 
+/**
+ * Each time a source send an element, it is combined with the latest sent element of the other source and send through the result channel.
+ *
+ * Cancelling the result channel will cancel all the sources.
+ *
+ * If one source is closed with an exception, the result channel will be closed with the same exception and all other sources will be cancelled.
+ */
 public fun <T1, T2, R> ReceiveChannel<T1>.combineLatestWith(
         other: ReceiveChannel<T2>,
         context: CoroutineContext = Unconfined,
