@@ -91,6 +91,15 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
+    fun `it should be possible to use merge with finite channel`() = runBlocking<Unit> {
+        val result = receiveChannelOf(1).mergeWith(receiveChannelOf(2))
+
+        assertEquals(1, result.receive())
+        assertEquals(2, result.receive())
+        assertThrows<ClosedReceiveChannelException> { result.receive() }
+    }
+
+    @Test
     fun `combine latest should give the combined elements`() = runBlocking {
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
@@ -155,6 +164,14 @@ class OperatorsTest : AsyncTest() {
 
         assertThrows<ClosedReceiveChannelException> { source1.receive() }
         assertEquals("my exception", assertThrows<Exception> { result.receive() }.message)
+    }
+
+    @Test
+    fun `it should be possible to use combine latest with finite channel`() = runBlocking<Unit> {
+        val result = receiveChannelOf(1).combineLatestWith(receiveChannelOf('a')) { v1, v2 -> v1 to v2 }
+
+        assertEquals(1 to 'a', result.receive())
+        assertThrows<ClosedReceiveChannelException> { result.receive() }
     }
 
     @Test

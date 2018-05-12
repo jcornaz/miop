@@ -1,7 +1,10 @@
 package com.github.jcornaz.miop.experimental
 
 import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.channels.*
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.experimental.channels.consumeEach
+import kotlinx.coroutines.experimental.channels.map
+import kotlinx.coroutines.experimental.channels.produce
 import kotlin.coroutines.experimental.CoroutineContext
 
 /**
@@ -38,16 +41,14 @@ public object Channels {
      * If one source is closed with an exception, the result channel will be closed with the same exception and all other sources will be cancelled.
      *
      * @param context Context on which execute [combine]
-     * @param capacity Capacity of the result channel (conflated by default)
      * @param combine Function to combine elements from the sources
      */
     public fun <T1, T2, R> combineLatest(
             source1: ReceiveChannel<T1>,
             source2: ReceiveChannel<T2>,
             context: CoroutineContext = Unconfined,
-            capacity: Int = Channel.CONFLATED,
             combine: suspend (T1, T2) -> R
-    ): ReceiveChannel<R> = produce(context, capacity) {
+    ): ReceiveChannel<R> = produce(context) {
         var v1: T1? = null
         var v2: T2? = null
 
@@ -85,15 +86,13 @@ public fun <T> ReceiveChannel<T>.mergeWith(vararg others: ReceiveChannel<T>): Re
  * If one source is closed with an exception, the result channel will be closed with the same exception and all other sources will be cancelled.
  *
  * @param context Context on which execute [combine]
- * @param capacity Capacity of the result channel (conflated by default)
  * @param combine Function to combine elements from the sources
  */
 public fun <T1, T2, R> ReceiveChannel<T1>.combineLatestWith(
         other: ReceiveChannel<T2>,
         context: CoroutineContext = Unconfined,
-        capacity: Int = Channel.CONFLATED,
         combine: suspend (T1, T2) -> R
-): ReceiveChannel<R> = Channels.combineLatest(this, other, context, capacity, combine)
+): ReceiveChannel<R> = Channels.combineLatest(this, other, context, combine)
 
 /**
  * Return a [ReceiveChannel] which emits the items of the latest result of [transform] which is called for each elements of this channel.
