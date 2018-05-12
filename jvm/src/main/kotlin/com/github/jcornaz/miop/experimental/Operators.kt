@@ -1,10 +1,7 @@
 package com.github.jcornaz.miop.experimental
 
-import kotlinx.coroutines.experimental.CoroutineExceptionHandler
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.Unconfined
+import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.*
-import kotlinx.coroutines.experimental.launch
 import kotlin.coroutines.experimental.CoroutineContext
 
 /**
@@ -108,22 +105,17 @@ public fun <T1, T2, R> ReceiveChannel<T1>.combineLatestWith(
  * If the current source source is closed with an exception, the result channel will be closed with the same exception.
  */
 public fun <T, R> ReceiveChannel<T>.switchMap(transform: (T) -> ReceiveChannel<R>): ReceiveChannel<R> = produce(Unconfined) {
-
-    // Necessary to not deliver the exception to the uncaught exception handler
-    val context = coroutineContext + CoroutineExceptionHandler { _, throwable ->
-        if (throwable !== SwitchedToNewSourceException) {
-            close(throwable)
-        }
-    }
-
     var job: Job? = null
     consumeEach { element ->
-        job?.cancel(SwitchedToNewSourceException)
-        job?.join()
-        job = launch(context) {
-            transform(element).consumeEach { send(it) }
+        job?.cancelAndJoin()
+        job = launch(coroutineContext) {
+            try {
+                transform(element).consumeEach { send(it) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (t: Throwable) {
+                close(t)
+            }
         }
     }
 }
-
-private object SwitchedToNewSourceException : Exception()

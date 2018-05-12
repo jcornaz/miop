@@ -27,12 +27,12 @@ actual abstract class AsyncTest {
 
     protected actual fun expect(step: Int) {
         assertFalse(isFinished.get(), "expect($step) has been called after finish(${stepCount.get()}")
-        assertTrue(stepCount.incrementAndGet() == step, "unexpected step count (expected $step, but ${stepCount.get()} was found")
+        assertTrue(stepCount.incrementAndGet() == step, "unexpected step count (expected ${stepCount.get()}, but $step was found)")
     }
 
     protected actual fun finish(step: Int) {
         assertTrue(isFinished.compareAndSet(false, true), "finish has been called twice")
-        assertTrue(stepCount.incrementAndGet() == step, "unexpected step count (expected $step, but ${stepCount.get()} was found")
+        assertTrue(stepCount.incrementAndGet() == step, "unexpected step count (expected ${stepCount.get()}, but $step was found)")
     }
 
     protected actual fun unreachable(createMessage: () -> String) {
