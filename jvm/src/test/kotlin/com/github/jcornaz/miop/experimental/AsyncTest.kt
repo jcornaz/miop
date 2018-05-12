@@ -21,18 +21,18 @@ actual abstract class AsyncTest {
 
     @AfterTest
     fun tearDown() {
-        assertTrue((stepCount.get() == 0) xor isFinished.get())
+        if (stepCount.get() > 0) assertTrue(isFinished.get(), "finish() was not called")
         exception?.let { throw it }
     }
 
     protected actual fun expect(step: Int) {
-        assertFalse(isFinished.get())
-        assertTrue(stepCount.incrementAndGet() == step)
+        assertFalse(isFinished.get(), "expect($step) has been called after finish(${stepCount.get()}")
+        assertTrue(stepCount.incrementAndGet() == step, "unexpected step count (expected $step, but ${stepCount.get()} was found")
     }
 
     protected actual fun finish(step: Int) {
-        assertTrue(isFinished.compareAndSet(false, true))
-        assertTrue(stepCount.incrementAndGet() == step)
+        assertTrue(isFinished.compareAndSet(false, true), "finish has been called twice")
+        assertTrue(stepCount.incrementAndGet() == step, "unexpected step count (expected $step, but ${stepCount.get()} was found")
     }
 
     protected actual fun unreachable() {

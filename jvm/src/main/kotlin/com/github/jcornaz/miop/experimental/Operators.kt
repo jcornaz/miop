@@ -4,16 +4,31 @@ import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.*
 import kotlin.coroutines.experimental.CoroutineContext
 
+/**
+ * Operators for [ReceiveChannel]
+ */
 public object Channels {
 
+    /**
+     * Return a [ReceiveChannel] through which elements of all given sources are sent as soon as received.
+     *
+     * Cancelling the result channel will cancel all the sources.
+     *
+     * If one source is closed with an exception, the result channel will be closed with the same exception and all other sources will be cancelled.
+     */
     public fun <T> merge(vararg sources: ReceiveChannel<T>): ReceiveChannel<T> = produce(Unconfined) {
+
+        // Necessary to not deliver the exception to the uncaught exception handler
+        val context = coroutineContext + CoroutineExceptionHandler { _, throwable ->
+            coroutineContext[Job]!!.cancel(throwable)
+        }
+
         sources.forEach { source ->
-            launch(coroutineContext) {
+            launch(context) {
                 source.consumeEach { send(it) }
             }
         }
     }
-
 
     public fun <T1, T2, R> combineLatest(
             source1: ReceiveChannel<T1>,
@@ -33,7 +48,7 @@ public object Channels {
                 source2.map { { v2 = it; hasV2 = true; hasV1 } }
         ).consumeEach { fct ->
             if (fct()) {
-                
+
                 @Suppress("UNCHECKED_CAST")
                 send(combine(v1 as T1, v2 as T2))
             }
@@ -41,6 +56,13 @@ public object Channels {
     }
 }
 
+/**
+ * Return a [ReceiveChannel] through which elements of all given sources (including this channel) are sent as soon as received.
+ *
+ * Cancelling the result channel will cancel all the sources.
+ *
+ * If one source is closed with an exception, the result channel will be closed with the same exception and all other sources will be cancelled.
+ */
 public fun <T> ReceiveChannel<T>.mergeWith(vararg others: ReceiveChannel<T>): ReceiveChannel<T> =
         Channels.merge(this, *others)
 
