@@ -251,4 +251,21 @@ class OperatorsTest : AsyncTest() {
         assertTrue(result.isClosedForReceive)
         assertEquals("my exception", assertThrows<Exception> { result.receive() }.message)
     }
+
+    @Test
+    fun `launchConsumeEach should consume the channel`() = runBlocking {
+        val result = mutableListOf<Int>()
+
+        val channel = receiveChannelOf(1, 2, 3)
+
+        val job = channel.launchConsumeEach {
+            result += it
+        }
+
+        job.join()
+
+        assertEquals(listOf(1, 2, 3), result)
+
+        assertTrue(channel.isClosedForReceive)
+    }
 }
