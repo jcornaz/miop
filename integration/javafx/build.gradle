@@ -1,0 +1,40 @@
+apply plugin: 'kotlin-platform-jvm'
+
+kotlin.experimental.coroutines 'enable'
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.kotlin.srcDirs
+}
+
+task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+    outputFormat = "javadoc"
+    outputDirectory = "$buildDir/dokkaJavadoc"
+}
+
+task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
+    from dokkaJavadoc.outputDirectory
+    classifier = 'javadoc'
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+dependencies {
+    compile project(':miop-jvm')
+
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-javafx:$coroutines_version"
+
+    testCompile "junit:junit:$junit_version"
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit"
+    testCompile "org.jetbrains.kotlin:kotlin-test"
+}
+
+test {
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
