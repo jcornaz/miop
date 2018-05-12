@@ -1,10 +1,7 @@
 package com.github.jcornaz.miop.experimental.property
 
 import com.github.jcornaz.miop.experimental.AsyncTest
-import kotlinx.coroutines.experimental.CoroutineStart
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
-import kotlinx.coroutines.experimental.yield
+import kotlinx.coroutines.experimental.*
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -47,5 +44,22 @@ class BindingTest : AsyncTest() {
         expect(10)
         yield()
         finish(12)
+    }
+
+    @Test
+    fun `it should be possible to cancel a binding with a parent job`() = runBlocking {
+        val source = SubscribableVariable(0)
+        val target = SubscribableVariable(0)
+
+        val job = Job()
+
+        target.bind(source, job)
+
+        assertEquals(0, target.value)
+        source.value = 1
+        assertEquals(1, target.value)
+        job.cancel() // should stop the binding
+        source.value = 2
+        assertEquals(1, target.value)
     }
 }
