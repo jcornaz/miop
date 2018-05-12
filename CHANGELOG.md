@@ -1,6 +1,9 @@
 # Change log
 
 ## 0.0.2-SNAPSHOT (Unreleased)
+### Terminal operators
+* Add `launchConsumeEach` to launch a consumer coroutine
+
 ### Dependencies
 * Bump to kotlin 1.2.41
 

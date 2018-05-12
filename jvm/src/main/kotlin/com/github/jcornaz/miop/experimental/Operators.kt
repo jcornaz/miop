@@ -5,6 +5,7 @@ import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.channels.consumeEach
 import kotlinx.coroutines.experimental.channels.map
 import kotlinx.coroutines.experimental.channels.produce
+import netscape.javascript.JSObject
 import kotlin.coroutines.experimental.CoroutineContext
 
 /**
@@ -117,4 +118,18 @@ public fun <T, R> ReceiveChannel<T>.switchMap(transform: (T) -> ReceiveChannel<R
             }
         }
     }
+}
+
+/**
+ * Launches new coroutine which consume the channel and execute [action] for each element.
+ *
+ * It allows to write `channel.launchConsumeEach { ... }` instead of `launch { channel.consumeEach { ... } }`
+ */
+public fun <E> ReceiveChannel<E>.launchConsumeEach(
+        context: CoroutineContext = DefaultDispatcher,
+        start: CoroutineStart = CoroutineStart.DEFAULT,
+        parent: Job? = null,
+        action: suspend (E) -> Unit
+): Job = launch(context, start, parent) {
+    consumeEach { action(it) }
 }
