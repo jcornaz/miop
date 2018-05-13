@@ -4,8 +4,6 @@ import com.github.jcornaz.miop.experimental.launchConsumeEach
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.selects.whileSelect
 
 /**
  * Start a coroutine which keep the variable up-to-date

@@ -26,9 +26,8 @@ fun <T> SubscribableVariable<in T>.bind(source: ObservableValue<out T>, parent: 
     }
 }
 
-fun <T> Property<in T>.bind(source: SubscribableValue<T>): Job = bind(source.openSubscription())
+fun <T> Property<in T>.bind(source: SubscribableValue<T>, parent: Job? = null): Job =
+        bind(source.openSubscription(), parent)
 
 fun <T> Property<in T>.bind(source: ReceiveChannel<T>, parent: Job? = null): Job =
-        source.launchConsumeEach(JavaFx, parent = parent) {
-            value = it
-        }
+        source.launchConsumeEach(JavaFx, parent = parent) { value = it }
