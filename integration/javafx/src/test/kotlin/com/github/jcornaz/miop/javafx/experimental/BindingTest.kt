@@ -1,6 +1,8 @@
-package com.github.jcornaz.miop.experimental.property
+package com.github.jcornaz.miop.javafx.experimental
 
 import com.github.jcornaz.miop.experimental.AsyncTest
+import com.github.jcornaz.miop.experimental.property.SubscribableVariable
+import javafx.beans.property.SimpleIntegerProperty
 import kotlinx.coroutines.experimental.*
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -8,16 +10,16 @@ import kotlin.test.assertEquals
 class BindingTest : AsyncTest() {
 
     @Test
-    fun `bind should keep the target variable up-to-date when the source change`() = runBlocking {
-        val source = SubscribableVariable(0)
-        val target = SubscribableVariable(0)
+    fun `bind from observable value should keep the target variable up-to-date when the source change`() = runBlocking {
+        val source = SimpleIntegerProperty(0)
+        val target = SubscribableVariable<Number?>(0)
 
         val job = target.bind(source)
 
         expect(1)
         launch(coroutineContext, CoroutineStart.UNDISPATCHED) {
             expect(2)
-            val sub = target.openValueSubscription()
+            val sub = target.openSubscription()
             assertEquals(0, sub.receive())
             expect(3)
             assertEquals(1, sub.receive())
@@ -48,8 +50,8 @@ class BindingTest : AsyncTest() {
 
     @Test
     fun `it should be possible to cancel a binding with a parent job`() = runBlocking {
-        val source = SubscribableVariable(0)
-        val target = SubscribableVariable(0)
+        val source = SimpleIntegerProperty(0)
+        val target = SubscribableVariable<Number?>(0)
 
         val job = Job()
 
@@ -61,29 +63,5 @@ class BindingTest : AsyncTest() {
         job.cancel() // should stop the binding
         source.value = 2
         assertEquals(1, target.value)
-    }
-
-    @Test(timeout = 1000)
-    fun `bindBidirectional should keep up-to-date both variable`() {
-        val variable1 = SubscribableVariable(0)
-        val variable2 = SubscribableVariable(0)
-
-        val job = variable2.bindBidirectional(variable1)
-
-        assertEquals(0, variable1.value)
-        assertEquals(0, variable1.value)
-
-        variable1.value = 1
-        assertEquals(1, variable1.value)
-        assertEquals(1, variable2.value)
-        variable2.value = 2
-        assertEquals(2, variable1.value)
-        assertEquals(2, variable2.value)
-
-        job.cancel()
-
-        variable1.value = 3
-        assertEquals(3, variable1.value)
-        assertEquals(2, variable2.value)
     }
 }

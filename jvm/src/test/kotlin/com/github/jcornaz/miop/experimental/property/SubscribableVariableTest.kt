@@ -17,7 +17,7 @@ class SubscribableVariableTest : AsyncTest() {
         assertEquals(42, variable)
         launch(coroutineContext, start = CoroutineStart.UNDISPATCHED) {
             expect(2)
-            val sub = subscribable.openSubscription()
+            val sub = subscribable.openValueSubscription()
             assertEquals(42, sub.receive())
             expect(3)
             assertEquals(24, sub.receive()) // suspend
@@ -38,8 +38,8 @@ class SubscribableVariableTest : AsyncTest() {
         val subscribable = SubscribableVariable(42)
         launch(Unconfined) {
             expect(2)
-            assertEquals(42, subscribable.openSubscription().first())
-            assertEquals(42, subscribable.openSubscription().first())
+            assertEquals(42, subscribable.openValueSubscription().first())
+            assertEquals(42, subscribable.openValueSubscription().first())
             expect(3)
         }
         finish(4)
