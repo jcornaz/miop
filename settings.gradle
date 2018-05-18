@@ -2,8 +2,16 @@ rootProject.name = 'miop'
 
 include 'miop-common'
 include 'miop-jvm'
+
+include 'miop-test-common'
+include 'miop-test-jvm'
+
 include 'miop-javafx'
 
 project(':miop-common').projectDir = file('core/common')
 project(':miop-jvm').projectDir = file('core/jvm')
+
+project(':miop-test-common').projectDir = file('test/common')
+project(':miop-test-jvm').projectDir = file('test/jvm')
+
 project(':miop-javafx').projectDir = file('integration/javafx')
