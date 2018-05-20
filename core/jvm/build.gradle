@@ -2,6 +2,15 @@ apply plugin: 'kotlin-platform-jvm'
 
 kotlin.experimental.coroutines 'enable'
 
+configurations {
+    testArtifacts.extendsFrom testRuntime
+}
+
+task testJar(type: Jar) {
+    classifier "test"
+    from sourceSets.test.output
+}
+
 task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.kotlin.srcDirs
@@ -20,6 +29,7 @@ task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
 artifacts {
     archives sourcesJar
     archives javadocJar
+    testArtifacts testJar
 }
 
 dependencies {

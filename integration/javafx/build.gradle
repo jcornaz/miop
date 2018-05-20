@@ -31,6 +31,7 @@ dependencies {
     testCompile "junit:junit:$junit_version"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
     testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testCompile project(path: ':miop-jvm', configuration: 'testArtifacts')
 }
 
 test {
