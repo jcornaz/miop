@@ -14,7 +14,7 @@ import kotlinx.coroutines.experimental.javafx.JavaFx
 import kotlinx.coroutines.experimental.launch
 
 public fun <T> SubscribableValue<T>.asObservableValue(): ObservableValue<out T> = SubscribableValueAdapter(this)
-public fun <T> SubscribableVariable<T?>.asProperty(): Property<T> = SubscribableVariableAdapter(this)
+public fun <T> SubscribableVariable<T?>.asProperty(): Property<T?> = SubscribableVariableAdapter(this)
 public fun <T> ObservableValue<out T>.asSubscribableValue(): SubscribableValue<T?> = ObservableValueAdapter(this)
 public fun <T> Property<T>.asSubscribableVariable(): SubscribableVariable<T?> = PropertyAdapter(this)
 
