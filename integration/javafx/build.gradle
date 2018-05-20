@@ -28,10 +28,10 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.jetbrains.kotlinx:kotlinx-coroutines-javafx:$coroutines_version"
 
+    testCompile project(':miop-internal-test-jvm')
     testCompile "junit:junit:$junit_version"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
     testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testCompile project(path: ':miop-jvm', configuration: 'testArtifacts')
 }
 
 test {

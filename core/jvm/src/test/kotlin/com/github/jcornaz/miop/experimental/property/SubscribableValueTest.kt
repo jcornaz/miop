@@ -1,7 +1,7 @@
 package com.github.jcornaz.miop.experimental.property
 
-import com.github.jcornaz.miop.experimental.AsyncTest
-import com.github.jcornaz.miop.experimental.assertThrows
+import com.github.jcornaz.miop.internal.test.AsyncTest
+import com.github.jcornaz.miop.internal.test.assertThrows
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.experimental.channels.first

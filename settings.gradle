@@ -5,7 +5,13 @@ include 'miop-jvm'
 
 include 'miop-javafx'
 
+include 'miop-internal-test-common'
+include 'miop-internal-test-jvm'
+
 project(':miop-common').projectDir = file('core/common')
 project(':miop-jvm').projectDir = file('core/jvm')
 
 project(':miop-javafx').projectDir = file('integration/javafx')
+
+project(':miop-internal-test-common').projectDir = file('internal/test/common')
+project(':miop-internal-test-jvm').projectDir = file('internal/test/jvm')

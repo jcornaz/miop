@@ -2,15 +2,6 @@ apply plugin: 'kotlin-platform-jvm'
 
 kotlin.experimental.coroutines 'enable'
 
-configurations {
-    testArtifacts.extendsFrom testRuntime
-}
-
-task testJar(type: Jar) {
-    classifier "test"
-    from sourceSets.test.output
-}
-
 task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.kotlin.srcDirs
@@ -29,7 +20,6 @@ task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
 artifacts {
     archives sourcesJar
     archives javadocJar
-    testArtifacts testJar
 }
 
 dependencies {
@@ -38,9 +28,7 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
 
-    testCompile "junit:junit:$junit_version"
-    testCompile "org.jetbrains.kotlin:kotlin-test-junit"
-    testCompile "org.jetbrains.kotlin:kotlin-test"
+    testCompile project(':miop-internal-test-jvm')
 }
 
 test {

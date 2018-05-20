@@ -1,4 +1,4 @@
-package com.github.jcornaz.miop.experimental
+package com.github.jcornaz.miop.internal.test
 
 expect abstract class AsyncTest() {
     protected fun expect(step: Int)

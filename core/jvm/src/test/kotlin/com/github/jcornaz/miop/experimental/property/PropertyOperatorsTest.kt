@@ -1,6 +1,6 @@
 package com.github.jcornaz.miop.experimental.property
 
-import com.github.jcornaz.miop.experimental.AsyncTest
+import com.github.jcornaz.miop.internal.test.AsyncTest
 import kotlinx.coroutines.experimental.CoroutineStart
 import kotlinx.coroutines.experimental.channels.toList
 import kotlinx.coroutines.experimental.launch

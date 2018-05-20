@@ -1,4 +1,4 @@
-package com.github.jcornaz.miop.experimental
+package com.github.jcornaz.miop.internal.test
 
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
