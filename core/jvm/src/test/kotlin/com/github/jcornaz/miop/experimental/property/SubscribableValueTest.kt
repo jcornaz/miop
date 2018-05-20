@@ -20,7 +20,7 @@ class SubscribableValueTest : AsyncTest() {
         assertEquals(42, value)
         launch(Unconfined) {
             expect(2)
-            val sub = subscribable.openValueSubscription()
+            val sub = subscribable.openSubscription()
             assertEquals(42, sub.receive())
             expect(3)
             assertThrows<ClosedReceiveChannelException> { sub.receive() }
@@ -35,8 +35,8 @@ class SubscribableValueTest : AsyncTest() {
         val subscribable = SubscribableValue(42)
         launch(Unconfined) {
             expect(2)
-            assertEquals(42, subscribable.openValueSubscription().first())
-            assertEquals(42, subscribable.openValueSubscription().first())
+            assertEquals(42, subscribable.openSubscription().first())
+            assertEquals(42, subscribable.openSubscription().first())
             expect(3)
         }
         finish(4)

@@ -17,7 +17,7 @@ class BindingTest : AsyncTest() {
         expect(1)
         launch(coroutineContext, CoroutineStart.UNDISPATCHED) {
             expect(2)
-            val sub = target.openValueSubscription()
+            val sub = target.openSubscription()
             assertEquals(0, sub.receive())
             expect(3)
             assertEquals(1, sub.receive())
