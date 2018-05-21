@@ -27,20 +27,20 @@ class BindingTest : AsyncTest() {
         }
 
         expect(4)
-        assertEquals(0, target.value)
-        source.value = 1
-        assertEquals(1, target.value)
+        assertEquals(0, target.get())
+        source.set(1)
+        assertEquals(1, target.get())
         expect(5)
         yield()
         expect(7)
         job.cancel() // should stop the binding
-        source.value = 2
-        assertEquals(1, target.value)
+        source.set(2)
+        assertEquals(1, target.get())
         expect(8)
         yield()
         expect(9)
         target.bind(source) // rebind
-        assertEquals(2, target.value)
+        assertEquals(2, target.get())
         expect(10)
         yield()
         finish(12)
@@ -55,35 +55,35 @@ class BindingTest : AsyncTest() {
 
         target.bind(source, job)
 
-        assertEquals(0, target.value)
-        source.value = 1
-        assertEquals(1, target.value)
+        assertEquals(0, target.get())
+        source.set(1)
+        assertEquals(1, target.get())
         job.cancel() // should stop the binding
-        source.value = 2
-        assertEquals(1, target.value)
+        source.set(2)
+        assertEquals(1, target.get())
     }
 
     @Test(timeout = 1000)
-    fun `bindBidirectional should keep up-to-date both variable`() {
+    fun `bindBidirectional should keep up-to-date both variable`() = runBlocking {
         val variable1 = SubscribableVariable(0)
         val variable2 = SubscribableVariable(0)
 
         val job = variable2.bindBidirectional(variable1)
 
-        assertEquals(0, variable1.value)
-        assertEquals(0, variable1.value)
+        assertEquals(0, variable1.get())
+        assertEquals(0, variable1.get())
 
-        variable1.value = 1
-        assertEquals(1, variable1.value)
-        assertEquals(1, variable2.value)
-        variable2.value = 2
-        assertEquals(2, variable1.value)
-        assertEquals(2, variable2.value)
+        variable1.set(1)
+        assertEquals(1, variable1.get())
+        assertEquals(1, variable2.get())
+        variable2.set(2)
+        assertEquals(2, variable1.get())
+        assertEquals(2, variable2.get())
 
         job.cancel()
 
-        variable1.value = 3
-        assertEquals(3, variable1.value)
-        assertEquals(2, variable2.value)
+        variable1.set(3)
+        assertEquals(3, variable1.get())
+        assertEquals(2, variable2.get())
     }
 }

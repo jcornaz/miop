@@ -12,9 +12,7 @@ class SubscribableVariableTest : AsyncTest() {
     fun `basic scenario`() = runBlocking {
         expect(1)
         val subscribable = SubscribableVariable(42)
-        var variable by subscribable
-        assertEquals(42, subscribable.value)
-        assertEquals(42, variable)
+        assertEquals(42, subscribable.get())
         launch(coroutineContext, start = CoroutineStart.UNDISPATCHED) {
             expect(2)
             val sub = subscribable.openSubscription()
@@ -24,9 +22,8 @@ class SubscribableVariableTest : AsyncTest() {
             expect(6)
         }
         expect(4)
-        variable = 24
-        assertEquals(24, subscribable.value)
-        assertEquals(24, variable)
+        subscribable.set(24)
+        assertEquals(24, subscribable.get())
         expect(5)
         yield() // to child
         finish(7)

@@ -2,7 +2,6 @@ package com.github.jcornaz.miop.experimental
 
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.*
-import netscape.javascript.JSObject
 import kotlin.coroutines.experimental.CoroutineContext
 
 /**
@@ -101,7 +100,7 @@ public fun <T1, T2, R> ReceiveChannel<T1>.combineLatestWith(
  *
  * If the current source source is closed with an exception, the result channel will be closed with the same exception.
  */
-public fun <T, R> ReceiveChannel<T>.switchMap(transform: (T) -> ReceiveChannel<R>): ReceiveChannel<R> = produce(Unconfined) {
+public fun <T, R> ReceiveChannel<T>.switchMap(transform: suspend (T) -> ReceiveChannel<R>): ReceiveChannel<R> = produce(Unconfined) {
     var job: Job? = null
     consumeEach { element ->
         job?.cancelAndJoin()

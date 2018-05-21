@@ -19,7 +19,7 @@ fun <T> SubscribableVariable<in T>.bind(source: SubscribableValue<T>, parent: Jo
  * @return job of the coroutine. Shall be used to cancel the binding.
  */
 fun <T> SubscribableVariable<in T>.bind(source: ReceiveChannel<T>, parent: Job? = null): Job =
-        source.launchConsumeEach(Unconfined, parent = parent) { value = it }
+        source.launchConsumeEach(Unconfined, parent = parent) { set(it) }
 
 /**
  * Start a coroutine which keep both variables up-to-date

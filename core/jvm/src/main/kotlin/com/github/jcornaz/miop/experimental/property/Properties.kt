@@ -4,9 +4,7 @@ import com.github.jcornaz.miop.experimental.distinctUntilChanged
 import com.github.jcornaz.miop.experimental.receiveChannelOf
 import kotlinx.coroutines.experimental.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlin.properties.ReadOnlyProperty
-import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KProperty
+import kotlinx.coroutines.experimental.channels.first
 
 /**
  * Interface for a value holder where the value may change over time.
@@ -15,10 +13,7 @@ import kotlin.reflect.KProperty
  *
  * The channel returned by [openSubscription] is "conflated" and start by the current value if any.
  */
-public interface SubscribableValue<out T> : ReadOnlyProperty<Any?, T> {
-
-    /** Current value */
-    public val value: T
+public interface SubscribableValue<out T> {
 
     /**
      * Subscribes and returns a channel to receive all values, starting by the current one.
@@ -26,12 +21,8 @@ public interface SubscribableValue<out T> : ReadOnlyProperty<Any?, T> {
      */
     public fun openSubscription(): ReceiveChannel<T>
 
-    /**
-     * Returns the current value.
-     *
-     * @see value
-     */
-    public override fun getValue(thisRef: Any?, property: KProperty<*>): T = value
+    /** Returns the current value. May suspend until the value is available */
+    suspend fun get(): T = openSubscription().first()
 }
 
 /**
@@ -39,27 +30,17 @@ public interface SubscribableValue<out T> : ReadOnlyProperty<Any?, T> {
  *
  * Provide ability to get and set the current value with [value].
  */
-public interface SubscribableVariable<T> : SubscribableValue<T>, ReadWriteProperty<Any?, T> {
+public interface SubscribableVariable<T> : SubscribableValue<T> {
 
-    /** Current value */
-    public override var value: T
-
-    public override fun getValue(thisRef: Any?, property: KProperty<*>): T = value
-
-    /**
-     * Set the current value
-     */
-    public override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
-        this.value = value
-    }
+    /** Set a new value */
+    suspend fun set(value: T)
 }
 
 /**
  * Create an instance of [SubscribableValue] with the given [value]
  */
 public fun <T> SubscribableValue(value: T): SubscribableValue<T> = object : SubscribableValue<T> {
-    override val value: T get() = value
-
+    override suspend fun get(): T = value
     override fun openSubscription() = receiveChannelOf(value)
 }
 
@@ -69,11 +50,11 @@ public fun <T> SubscribableValue(value: T): SubscribableValue<T> = object : Subs
 public fun <T> SubscribableVariable(initialValue: T): SubscribableVariable<T> = object : SubscribableVariable<T> {
     private val broadcast = ConflatedBroadcastChannel(initialValue)
 
-    override var value: T
-        get() = broadcast.value
-        set(newValue) {
-            broadcast.offer(newValue)
-        }
+    override suspend fun get(): T = broadcast.value
+
+    override suspend fun set(value: T) {
+        broadcast.send(value)
+    }
 
     override fun openSubscription() = broadcast.openSubscription().distinctUntilChanged()
 }

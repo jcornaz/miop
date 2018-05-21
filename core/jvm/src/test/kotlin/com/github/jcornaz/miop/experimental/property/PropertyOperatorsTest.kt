@@ -14,7 +14,7 @@ class PropertyOperatorsTest : AsyncTest() {
     @Test(timeout = 1000)
     fun `combining constants should return a subscribable constant`() = runBlocking {
         val subscribable = SubscribableValue(6).combineWith(SubscribableValue(9)) { x, y -> x * y }
-        assertEquals(54, subscribable.value)
+        assertEquals(54, subscribable.get())
         assertEquals(listOf(54), subscribable.openSubscription().toList())
         assertEquals(listOf(54), subscribable.openSubscription().toList())
     }
@@ -25,7 +25,7 @@ class PropertyOperatorsTest : AsyncTest() {
         val y = SubscribableVariable(1)
         val result = x.combineWith(y) { vx, vy -> vx * vy }
 
-        assertEquals(1, result.value)
+        assertEquals(1, result.get())
 
         expect(1)
         launch(coroutineContext, CoroutineStart.UNDISPATCHED) {
@@ -40,13 +40,13 @@ class PropertyOperatorsTest : AsyncTest() {
         }
 
         expect(4)
-        x.value = 6
-        assertEquals(6, result.value)
+        x.set(6)
+        assertEquals(6, result.get())
         expect(5)
         yield() // to child
         expect(7)
-        y.value = 9
-        assertEquals(54, result.value)
+        y.set(9)
+        assertEquals(54, result.get())
         expect(8)
         yield() // to child
         finish(10)
@@ -55,7 +55,7 @@ class PropertyOperatorsTest : AsyncTest() {
     @Test(timeout = 1000)
     fun `mapping a subscribable constant should return a subscribable constant`() = runBlocking {
         val subscribable = SubscribableValue(21).map { it * 2 }
-        assertEquals(42, subscribable.value)
+        assertEquals(42, subscribable.get())
         assertEquals(listOf(42), subscribable.openSubscription().toList())
         assertEquals(listOf(42), subscribable.openSubscription().toList())
     }
@@ -65,7 +65,7 @@ class PropertyOperatorsTest : AsyncTest() {
         val x = SubscribableVariable(1)
         val result = x.map { it * 2 }
 
-        assertEquals(2, result.value)
+        assertEquals(2, result.get())
 
         expect(1)
         launch(coroutineContext, CoroutineStart.UNDISPATCHED) {
@@ -80,13 +80,13 @@ class PropertyOperatorsTest : AsyncTest() {
         }
 
         expect(4)
-        x.value = 2
-        assertEquals(4, result.value)
+        x.set(2)
+        assertEquals(4, result.get())
         expect(5)
         yield() // to child
         expect(7)
-        x.value = 3
-        assertEquals(6, result.value)
+        x.set(3)
+        assertEquals(6, result.get())
         expect(8)
         yield() // to child
         finish(10)
@@ -116,24 +116,24 @@ class PropertyOperatorsTest : AsyncTest() {
         }
 
         expect(4)
-        assertEquals(1, result.value)
-        switch.value = 1
-        assertEquals(2, result.value)
+        assertEquals(1, result.get())
+        switch.set(1)
+        assertEquals(2, result.get())
         expect(5)
         yield() // to child
         expect(7)
-        source2.value = 42
-        assertEquals(42, result.value)
+        source2.set(42)
+        assertEquals(42, result.get())
         expect(8)
         yield() // to child
         expect(10)
-        switch.value = 0
-        assertEquals(1, result.value)
+        switch.set(0)
+        assertEquals(1, result.get())
         expect(11)
         yield() // to child
         expect(13)
-        switch.value = 1
-        assertEquals(42, result.value)
+        switch.set(1)
+        assertEquals(42, result.get())
         expect(14)
         yield() // to child
         finish(16)
