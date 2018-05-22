@@ -9,7 +9,7 @@ import kotlin.test.assertEquals
 class AdapterTest : AsyncTest() {
 
     @Test
-    fun `subscribable adapter should reflect the subscribable variable`() = runBlocking {
+    fun `ObservableValue as SusbcribableValue adapter should reflect the subscribable`() = runBlocking {
         val property = SimpleIntegerProperty(1)
         val subscribable = property.asSubscribableValue()
 
@@ -17,9 +17,19 @@ class AdapterTest : AsyncTest() {
 
         property.value = 2
         assertEquals(2, subscribable.get())
-
-        property.value = 42
-        assertEquals(42, subscribable.get())
     }
 
+    @Test
+    fun `Property as SusbcribableVariable adapter should reflect the subscribable`() = runBlocking {
+        val property = SimpleIntegerProperty(1)
+        val subscribable = property.asSubscribableVariable()
+
+        assertEquals(1, subscribable.get())
+
+        property.value = 2
+        assertEquals(2, subscribable.get())
+
+        subscribable.set(42)
+        assertEquals(42, property.value)
+    }
 }
