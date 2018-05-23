@@ -1,12 +1,10 @@
 apply plugin: 'kotlin-platform-jvm'
+apply plugin: 'java-library'
 
 dependencies {
     expectedBy project(":miop-internal-test-common")
 
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
 
-    compile "junit:junit:$junit_version"
-    compile "org.jetbrains.kotlin:kotlin-test-junit"
-    compile "org.jetbrains.kotlin:kotlin-test"
+    implementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
 }

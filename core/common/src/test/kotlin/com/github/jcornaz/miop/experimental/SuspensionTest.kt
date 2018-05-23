@@ -8,8 +8,7 @@ import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.launch
 import kotlin.test.Test
 
-
-class PrimitivesTest : AsyncTest() {
+class SuspensionTest : AsyncTest() {
 
     @Test
     fun `awaitCancel should suspend until the cancellation of the coroutines`() {
