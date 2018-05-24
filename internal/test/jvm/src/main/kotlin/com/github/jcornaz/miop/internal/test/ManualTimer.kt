@@ -1,6 +1,7 @@
 package com.github.jcornaz.miop.internal.test
 
 import com.github.jcornaz.miop.internal.test.ManualTimer.TimeerCommand.*
+import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.actor
 import kotlinx.coroutines.experimental.channels.consumeEach
@@ -9,9 +10,9 @@ import kotlin.coroutines.experimental.Continuation
 
 
 actual class ManualTimer {
-    private val actor = actor<TimeerCommand>(capacity = Channel.UNLIMITED) {
+    private val actor = actor<TimeerCommand>(Unconfined, Channel.UNLIMITED) {
 
-        val suspendedContinuations = mutableMapOf<Int, MutableCollection<Continuation<Unit>>>()
+        val pendingContinuations = mutableMapOf<Int, MutableCollection<Continuation<Unit>>>()
         var currentTime = 0
 
         try {
@@ -21,19 +22,19 @@ actual class ManualTimer {
                         if (command.time <= currentTime) {
                             command.continuation.resume(Unit)
                         } else {
-                            suspendedContinuations.getOrPut(command.time) { mutableListOf() }.add(command.continuation)
+                            pendingContinuations.getOrPut(command.time) { mutableListOf() }.add(command.continuation)
                         }
                     }
                     is AdvanceTo -> {
                         if (command.time > currentTime) {
                             currentTime = command.time
-                            suspendedContinuations.keys.filter { it <= command.time }.forEach {
-                                suspendedContinuations.remove(it)?.forEach { it.resume(Unit) }
+                            pendingContinuations.keys.filter { it <= command.time }.forEach {
+                                pendingContinuations.remove(it)?.forEach { it.resume(Unit) }
                             }
                         }
                     }
                     is Terminate -> {
-                        if (suspendedContinuations.isEmpty()) {
+                        if (pendingContinuations.isEmpty()) {
                             command.continuation.resume(Unit)
                         } else {
                             command.continuation.resumeWithException(AssertionError("The timer has been terminated before all suspended code was resumed"))
@@ -43,9 +44,10 @@ actual class ManualTimer {
                 }
             }
         } finally {
-            suspendedContinuations.forEach { (time, continuations) ->
+            pendingContinuations.forEach { (time, continuations) ->
                 continuations.forEach { it.resumeWithException(AssertionError("Unreached time: $time")) }
             }
+            pendingContinuations.clear()
         }
     }
 
@@ -66,5 +68,4 @@ actual class ManualTimer {
         class AdvanceTo(val time: Int) : TimeerCommand()
         class Terminate(val continuation: Continuation<Unit>) : TimeerCommand()
     }
-
 }
