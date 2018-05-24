@@ -47,7 +47,7 @@ class AdapterTest {
     }
 
     @Test
-    fun `Property#asSubscribableVariable should return an adapter reflecting the reflect the property`() = runBlocking {
+    fun `Property#asSubscribableVariable should return an adapter reflecting the property`() = runBlocking {
         val property = SimpleIntegerProperty(1)
         val subscribable = property.asSubscribableVariable()
 
