@@ -1,15 +1,27 @@
 package com.github.jcornaz.miop.javafx.experimental
 
-import com.github.jcornaz.miop.internal.test.AsyncTest
+import com.github.jcornaz.miop.internal.test.ManualTimer
 import javafx.beans.property.SimpleIntegerProperty
-import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
-import kotlinx.coroutines.experimental.yield
+import org.junit.After
 import org.junit.Test
+import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 
-class AdapterTest : AsyncTest() {
+class AdapterTest {
+
+    private lateinit var timer: ManualTimer
+
+    @BeforeTest
+    fun setupTimer() {
+        timer = ManualTimer()
+    }
+
+    @After
+    fun terminateTimer() = runBlocking {
+        timer.terminate()
+    }
 
     @Test
     fun `ObservableValue#asSubscribableValue() should return an adapter reflecting the observable`() = runBlocking {
@@ -18,23 +30,18 @@ class AdapterTest : AsyncTest() {
 
         assertEquals(1, subscribable.get())
 
-        expect(1)
-        launch(Unconfined) {
-            expect(2)
+        launch(coroutineContext) {
             val sub = subscribable.openSubscription()
 
             assertEquals(1, sub.receive())
-            expect(3)
+            timer.advanceTo(1)
             assertEquals(2, sub.receive())
-            expect(6)
         }
 
-        expect(4)
+        timer.await(1)
+
         property.value = 2
         assertEquals(2, subscribable.get())
-        expect(5)
-        yield()
-        finish(7)
     }
 
     @Test
@@ -44,33 +51,24 @@ class AdapterTest : AsyncTest() {
 
         assertEquals(1, subscribable.get())
 
-        expect(1)
-        launch(Unconfined) {
-            expect(2)
+        launch(coroutineContext) {
             val sub = subscribable.openSubscription()
 
             assertEquals(1, sub.receive())
-            expect(3)
+            timer.advanceTo(1)
             assertEquals(2, sub.receive())
-            expect(6)
+            timer.advanceTo(2)
             assertEquals(42, sub.receive())
-            expect(9)
         }
 
-        expect(4)
+        timer.await(1)
+
         property.value = 2
         assertEquals(2, subscribable.get())
-        expect(5)
 
-        yield()
+        timer.await(2)
 
-        expect(7)
         subscribable.set(42)
         assertEquals(42, property.value)
-        expect(8)
-
-        yield()
-
-        finish(10)
     }
 }
