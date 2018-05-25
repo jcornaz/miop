@@ -36,8 +36,8 @@ dependencies {
 
 test {
     testLogging {
-        events "passed", "skipped", "failed"
-
         showStandardStreams = true
+        exceptionFormat = 'full'
+        events "passed", "skipped", "failed"
     }
 }
