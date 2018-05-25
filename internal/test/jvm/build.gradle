@@ -1,13 +1,8 @@
-apply plugin: 'kotlin-platform-jvm'
-apply plugin: 'java-library'
-
-kotlin.experimental.coroutines 'enable'
+apply from: rootProject.file('gradle/jvm.gradle')
 
 dependencies {
     expectedBy project(":miop-internal-test-common")
 
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
-
-    implementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
 }

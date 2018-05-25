@@ -1,8 +1,5 @@
-apply plugin: 'kotlin-platform-common'
-
-kotlin.experimental.coroutines 'enable'
+apply from: rootProject.file('gradle/common.gradle')
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
 }
