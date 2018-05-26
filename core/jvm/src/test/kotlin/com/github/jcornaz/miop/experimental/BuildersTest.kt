@@ -49,4 +49,34 @@ class BuildersTest : AsyncTest() {
         assertTrue(channel.isClosedForReceive)
         assertThrows<ClosedReceiveChannelException> { channel.receive() }
     }
+
+    @Test
+    fun `Iterable#openSubscription() should emits all elements of the iterable`() {
+        val channel = listOf(1, 2, 3).openSubscription(capacity = 3)
+
+        expect(1)
+        launch(Unconfined) {
+            expect(2)
+            assertEquals(1, channel.receive())
+            assertEquals(2, channel.receive())
+            assertEquals(3, channel.receive())
+            expect(3)
+        }
+        expect(4)
+    }
+
+    @Test
+    fun `Sequence#openSubscription() should emits all elements of the iterable`() {
+        val channel = sequenceOf(1, 2, 3).openSubscription(capacity = 3)
+
+        expect(1)
+        launch(Unconfined) {
+            expect(2)
+            assertEquals(1, channel.receive())
+            assertEquals(2, channel.receive())
+            assertEquals(3, channel.receive())
+            expect(3)
+        }
+        expect(4)
+    }
 }
