@@ -1,10 +1,22 @@
 # Change log
 
 ## 0.0.2-SNAPSHOT (Unreleased)
-### Operators
-* **[BREAKING CHANGE]** remove the `capacity` argument from `combineLatest` 
-* Add `launchConsumeEach` to launch a consumer coroutine
 
+### Breaking changes
+* remove the `capacity` argument from `combineLatest`
+* `value` property provided `SubscritbableValue` and `SubscribableVariabel` is removed in favor of suspending `get()` and `set()` methods
+* `SubscribableValue` and `SubscribableVariable` no longer implement `ReadOnlyProperty` and `ReadWriteProperty`
+
+### New features
+* Add `launchConsumeEach` to launch a consumer coroutine
+* Add `SubscribableVariable.bind()` function to easily bind subscribable variables
+
+### JavaFx integration
+Add `miop-javafx` module, which provide: 
+* `ObservableValue.openValueSubscription()` extension function
+* `ObservableValue.asSusbcribableValue()` adapter
+* `Property.asSubscribableVariable()` adapter
+ 
 ### Dependencies
 * Bump to kotlin 1.2.41
 
