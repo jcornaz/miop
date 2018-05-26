@@ -31,6 +31,9 @@ public fun <T, R> SubscribableValue<T>.map(transform: suspend (T) -> R): Subscri
     override fun openSubscription() = this@map.openSubscription().map { transform(it) }
 }
 
+/**
+ * Returns a [SubscribableValue] containing backed by the latest result of [transform] which is called for each value of this subscribable value.
+ */
 public fun <T, R> SubscribableValue<T>.switchMap(transform: suspend (T) -> SubscribableValue<R>): SubscribableValue<R> = object : SubscribableValue<R> {
     override fun openSubscription() = this@switchMap.openSubscription().switchMap { transform(it).openSubscription() }
 }
