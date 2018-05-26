@@ -17,6 +17,8 @@ actual abstract class AsyncTest {
         stepCount.set(0)
         isFinished.set(false)
         exception = null
+
+        Thread.setDefaultUncaughtExceptionHandler { _, t -> unreachable { "Exception \"$t\" delivered to the uncaught exception handler" } }
     }
 
     @AfterTest
