@@ -12,10 +12,11 @@
 * Add `SubscribableVariable.bind()` function to easily bind subscribable variables
 * Add `distinctUntilChanged` operator
 * Add `IoPool` dispatcher
+* Add `openSubscription` extension function on `Iterable` and `Sequence`
 
 ### JavaFx integration
 Add `miop-javafx` module, which provide: 
-* `ObservableValue.openValueSubscription()` extension function
+* `openValueSubscription()` extension function on `ObservableValue`
 * `ObservableValue.asSusbcribableValue()` adapter
 * `Property.asSubscribableVariable()` adapter
  
