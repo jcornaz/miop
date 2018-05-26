@@ -1,6 +1,7 @@
 # Change log
 
-## 0.0.2-SNAPSHOT (Unreleased)
+## 0.0.2 (2018-05-26)
+Improvement operators and integration for `SubscribableValue` and `SubscribableVariable` as well as few new features  
 
 ### Breaking changes
 * remove the `capacity` argument from `combineLatest`
@@ -24,6 +25,8 @@ Add `miop-javafx` module, which provide:
 * Bump to kotlin 1.2.41
 
 ## 0.0.1 (2018-04-03)
+First bunch of operators
+
 ### Builders
 * Add `emptyReceiveChannel(): ReceiveChannel<T>`
 * Add `receiveChannelOf(vararg values: T): ReceiveChannel<T>`
