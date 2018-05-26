@@ -2,23 +2,22 @@ package com.github.jcornaz.miop.experimental
 
 import com.github.jcornaz.miop.internal.test.AsyncTest
 import com.github.jcornaz.miop.internal.test.assertThrows
+import com.nhaarman.mockito_kotlin.atLeastOnce
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.never
+import com.nhaarman.mockito_kotlin.verify
 import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.experimental.channels.ClosedSendChannelException
+import kotlinx.coroutines.experimental.channels.*
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
+import org.mockito.Mockito
+import org.mockito.verification.VerificationMode
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class OperatorsTest : AsyncTest() {
-
-    @BeforeTest
-    fun `No exception should be delivered to the uncaught exception handler`() {
-        Thread.setDefaultUncaughtExceptionHandler { _, t -> unreachable { "Exception \"$t\" delivered to the uncaught exception handler" } }
-    }
 
     @Test
     fun `merge should give the elements as soon as received`() = runBlocking {
@@ -269,5 +268,27 @@ class OperatorsTest : AsyncTest() {
         assertEquals(listOf(1, 2, 3), result)
 
         assertTrue(channel.isClosedForReceive)
+    }
+
+    @Test
+    fun `distinctUntilChanged should not send twice the same value in a row`() = runBlocking {
+        val receivedValues = receiveChannelOf(1, 2, 2, 2, 3, 2, 1, 1).distinctUntilChanged().toList()
+
+        assertEquals(listOf(1, 2, 3, 2, 1), receivedValues)
+    }
+
+    @Test
+    fun `distinctUntilChanged should emit the upstream error if any`() = runBlocking {
+        val exception = assertThrows<Exception> { produce<Int> { throw Exception("my exception") }.distinctUntilChanged().first() }
+        assertEquals("my exception", exception.message)
+    }
+
+    @Test
+    fun `cancelling the result of distinctUntilChanged should cancel the upstream channel`() = runBlocking<Unit> {
+        val source = mock<ReceiveChannel<Int>>()
+        val result = source.distinctUntilChanged()
+        verify(source, never()).cancel()
+        result.cancel()
+        verify(source, atLeastOnce()).cancel()
     }
 }

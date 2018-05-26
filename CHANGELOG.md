@@ -10,6 +10,7 @@
 ### New features
 * Add `launchConsumeEach` to launch a consumer coroutine
 * Add `SubscribableVariable.bind()` function to easily bind subscribable variables
+* Add `distinctUntilChanged` operator
 
 ### JavaFx integration
 Add `miop-javafx` module, which provide: 
