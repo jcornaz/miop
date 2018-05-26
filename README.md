@@ -11,6 +11,8 @@ Reactive operator collection for coroutines channels which are not yet included 
 ### Builders
 * `emptyReceiveChannel(): ReceiveChannel<T>`
 * `receiveChannelOf(vararg values: T): ReceiveChannel<T>`
+* `Iterable<T>.openSubscription(): ReceiveChannel<T>`
+* `Sequence<T>.openSubscription(): ReceiveChannel<T>`
 
 ### Merge operators
 * `merge` and `mergeWith`
@@ -20,6 +22,12 @@ Reactive operator collection for coroutines channels which are not yet included 
 ### Subscribables
 * `SubscribableValue` and `SubscribableVariable`
 * `map`, `switchMap` and `combine` operators for `SubscribableValue`
+* `bind` subscribable variable together
+
+### JavaFx integration (module 'miop-javafx')
+* `openValueSubscription(): ReceiveChannel<T>` extension function on `ObservableValue<T>` 
+* `ObservableValue.asSubscribvableValue()` adapter 
+* `Property.asSubscribableVariable()` adapter 
 
 ### Incoming operators
 * `buffer`, `conflate`
