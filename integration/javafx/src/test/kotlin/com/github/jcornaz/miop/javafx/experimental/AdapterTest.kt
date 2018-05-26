@@ -7,8 +7,8 @@ import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.coroutines.experimental.withContext
 import org.junit.After
-import org.junit.Test
 import org.junit.Before
+import org.junit.Test
 import kotlin.test.assertEquals
 
 class AdapterTest {
@@ -26,7 +26,7 @@ class AdapterTest {
     }
 
     @Test
-    fun ObservableValueAsSubscribableValueShouldReturnAnAdapterReflectingTheObservable() = runBlocking {
+    fun `ObservableValue#asSubscribableValue should return an adapter reflecting the observable`() = runBlocking {
         val property = SimpleIntegerProperty(1)
         val subscribable = property.asSubscribableValue()
 
@@ -47,7 +47,7 @@ class AdapterTest {
     }
 
     @Test
-    fun PropertyAsSubscribableVariableShouldReturnAnAdapterReflectingTheProperty() = runBlocking {
+    fun `Property#asSubscribableVariable should return an adapter reflecting the property`() = runBlocking {
         val property = SimpleIntegerProperty(1)
         val subscribable = property.asSubscribableVariable()
 
