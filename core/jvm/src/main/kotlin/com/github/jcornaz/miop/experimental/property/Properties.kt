@@ -44,6 +44,10 @@ public fun <T> SubscribableValue(value: T): SubscribableValue<T> = object : Subs
     override fun openSubscription() = receiveChannelOf(value)
 }
 
+internal fun <T> SubscribableValue(openSubscription: () -> ReceiveChannel<T>): SubscribableValue<T> = object : SubscribableValue<T> {
+    override fun openSubscription() = openSubscription().distinctUntilChanged()
+}
+
 /**
  * Create an instance of [SubscribableVariable] initialized with the given [initialValue]
  */

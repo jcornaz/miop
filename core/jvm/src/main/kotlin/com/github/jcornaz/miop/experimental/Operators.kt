@@ -133,7 +133,7 @@ public fun <E> ReceiveChannel<E>.launchConsumeEach(
 /**
  * Returns a [ReceiveChannel] which emits the element of this channel, unless the element is equal to the last emitted element.
  *
- * Example: for the source: [1, 2, 2, 1, 2] [distinctUntilChanged] will emit: [1, 2, 1, 2]
+ * Example: for the source: 1, 2, 2, 1, 2 [distinctUntilChanged] will emit: 1, 2, 1, 2
  */
 public fun <E> ReceiveChannel<E>.distinctUntilChanged(): ReceiveChannel<E> = produce(Unconfined) {
     consume {
