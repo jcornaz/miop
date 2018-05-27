@@ -8,8 +8,8 @@ import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
 import kotlinx.coroutines.experimental.withContext
 
-class SubscribableArrayList<E>(
-        elements: Collection<E>,
+public class SubscribableArrayList<E>(
+        elements: Collection<E> = emptyList(),
         initialCapacity: Int = elements.size,
         broadcastCapacity: Int = 1
 ) : SubscribableMutableList<E> {
