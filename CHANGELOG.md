@@ -1,5 +1,10 @@
 # Change log
 
+## 0.0.3 (Unreleased)
+### Update dependencies
+* kotlin: 1.2.50
+* kotlinx.coroutines: 0.23.3
+
 ## 0.0.2 (2018-05-26)
 Improvement operators and integration for `SubscribableValue` and `SubscribableVariable` as well as few new features  
 
