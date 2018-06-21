@@ -3,6 +3,7 @@ package com.github.jcornaz.miop.experimental.property
 import com.github.jcornaz.miop.internal.test.AsyncTest
 import kotlinx.coroutines.experimental.*
 import org.junit.Test
+import kotlin.coroutines.experimental.coroutineContext
 import kotlin.test.assertEquals
 
 class BindingTest : AsyncTest() {

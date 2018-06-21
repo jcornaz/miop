@@ -6,6 +6,7 @@ import kotlinx.coroutines.experimental.CancellationException
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.launch
+import kotlin.coroutines.experimental.coroutineContext
 import kotlin.test.Test
 
 class SuspensionTest : AsyncTest() {
