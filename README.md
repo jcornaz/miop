@@ -29,10 +29,13 @@ Reactive operator collection for coroutines channels which are not yet included 
 * `ObservableValue.asSubscribvableValue()` adapter 
 * `Property.asSubscribableVariable()` adapter 
 
-### Incoming operators
-* `buffer`, `conflate`
-* `debounce`
-* `mergeMap`
+## Incoming features
+* multiplatform support (jvm/javascript)
+* new operators
+  * `buffer`, `conflate`
+  * `debounce`
+  * `mergeMap`
+  * `chunked` and `windowed`
 
 ## Add the library to your project
 Artifacts are accessible for build tools with [Jitpack](https://jitpack.io/#jcornaz/miop).
