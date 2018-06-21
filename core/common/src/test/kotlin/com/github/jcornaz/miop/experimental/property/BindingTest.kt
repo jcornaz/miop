@@ -1,15 +1,16 @@
 package com.github.jcornaz.miop.experimental.property
 
 import com.github.jcornaz.miop.internal.test.AsyncTest
+import com.github.jcornaz.miop.internal.test.runTest
 import kotlinx.coroutines.experimental.*
-import org.junit.Test
 import kotlin.coroutines.experimental.coroutineContext
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class BindingTest : AsyncTest() {
 
     @Test
-    fun `bind should keep the target variable up-to-date when the source change`() = runBlocking {
+    fun `bind should keep the target variable up-to-date when the source change`() = runTest {
         val source = SubscribableVariable(0)
         val target = SubscribableVariable(0)
 
@@ -48,7 +49,7 @@ class BindingTest : AsyncTest() {
     }
 
     @Test
-    fun `it should be possible to cancel a binding with a parent job`() = runBlocking {
+    fun `it should be possible to cancel a binding with a parent job`() = runTest {
         val source = SubscribableVariable(0)
         val target = SubscribableVariable(0)
 
@@ -64,8 +65,8 @@ class BindingTest : AsyncTest() {
         assertEquals(1, target.get())
     }
 
-    @Test(timeout = 1000)
-    fun `bindBidirectional should keep up-to-date both variable`() = runBlocking {
+    @Test
+    fun `bindBidirectional should keep up-to-date both variable`() = runTest {
         val variable1 = SubscribableVariable(0)
         val variable2 = SubscribableVariable(0)
 

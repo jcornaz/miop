@@ -2,6 +2,7 @@ package com.github.jcornaz.miop.experimental
 
 import com.github.jcornaz.miop.internal.test.AsyncTest
 import com.github.jcornaz.miop.internal.test.assertThrows
+import com.github.jcornaz.miop.internal.test.runTest
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.ClosedReceiveChannelException
 import kotlin.test.*
@@ -9,7 +10,7 @@ import kotlin.test.*
 class BuildersTest : AsyncTest() {
 
     @Test
-    fun `emptyReceiveChannel should return a channel already closed`() = runBlocking<Unit> {
+    fun `emptyReceiveChannel should return a channel already closed`() = runTest {
         val channel = emptyReceiveChannel<Int>()
 
         assertFalse(channel.isEmpty)
@@ -42,7 +43,7 @@ class BuildersTest : AsyncTest() {
     }
 
     @Test
-    fun `receiveChannelOf should return an already closed channel if no element is given`() = runBlocking<Unit> {
+    fun `receiveChannelOf should return an already closed channel if no element is given`() = runTest {
         val channel = receiveChannelOf<Int>()
 
         assertFalse(channel.isEmpty)

@@ -3,7 +3,6 @@ package com.github.jcornaz.miop.experimental.property
 import com.github.jcornaz.miop.experimental.Channels
 import com.github.jcornaz.miop.experimental.switchMap
 import kotlinx.coroutines.experimental.channels.map
-import kotlin.coroutines.experimental.coroutineContext
 
 /**
  * Operators for [SubscribableValue]

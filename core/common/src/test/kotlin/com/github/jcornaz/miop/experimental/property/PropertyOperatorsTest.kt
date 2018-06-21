@@ -1,10 +1,10 @@
 package com.github.jcornaz.miop.experimental.property
 
 import com.github.jcornaz.miop.internal.test.AsyncTest
+import com.github.jcornaz.miop.internal.test.runTest
 import kotlinx.coroutines.experimental.CoroutineStart
 import kotlinx.coroutines.experimental.channels.toList
 import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.coroutines.experimental.yield
 import kotlin.coroutines.experimental.coroutineContext
 import kotlin.test.Test
@@ -12,8 +12,8 @@ import kotlin.test.assertEquals
 
 class PropertyOperatorsTest : AsyncTest() {
 
-    @Test(timeout = 1000)
-    fun `combining constants should return a subscribable constant`() = runBlocking {
+    @Test
+    fun `combining constants should return a subscribable constant`() = runTest {
         val subscribable = SubscribableValue(6).combineWith(SubscribableValue(9)) { x, y -> x * y }
         assertEquals(54, subscribable.get())
         assertEquals(listOf(54), subscribable.openSubscription().toList())
@@ -21,7 +21,7 @@ class PropertyOperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `updating the source of a combined subcribable should update the combined value`() = runBlocking {
+    fun `updating the source of a combined subcribable should update the combined value`() = runTest {
         val x = SubscribableVariable(1)
         val y = SubscribableVariable(1)
         val result = x.combineWith(y) { vx, vy -> vx * vy }
@@ -53,8 +53,8 @@ class PropertyOperatorsTest : AsyncTest() {
         finish(10)
     }
 
-    @Test(timeout = 1000)
-    fun `mapping a subscribable constant should return a subscribable constant`() = runBlocking {
+    @Test
+    fun `mapping a subscribable constant should return a subscribable constant`() = runTest {
         val subscribable = SubscribableValue(21).map { it * 2 }
         assertEquals(42, subscribable.get())
         assertEquals(listOf(42), subscribable.openSubscription().toList())
@@ -62,7 +62,7 @@ class PropertyOperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `updating the source of a mapped subcribable should update the mapped value`() = runBlocking {
+    fun `updating the source of a mapped subcribable should update the mapped value`() = runTest {
         val x = SubscribableVariable(1)
         val result = x.map { it * 2 }
 
@@ -94,7 +94,7 @@ class PropertyOperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `switchMap should always reflect the latest result of transform`() = runBlocking {
+    fun `switchMap should always reflect the latest result of transform`() = runTest {
         val source1 = SubscribableValue(1)
         val source2 = SubscribableVariable(2)
         val switch = SubscribableVariable(0)
