@@ -14,6 +14,7 @@ import kotlinx.coroutines.experimental.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import kotlin.coroutines.experimental.coroutineContext
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -34,12 +35,14 @@ class JavaFxUtilsTest {
     @Test(timeout = 10_000)
     @Suppress("UNCHECKED_CAST")
     fun `ObservableValue#openSubscription should add listener to the observable value`() = runBlocking {
+        val context = coroutineContext + JavaFx
+
         val observable = mock<ObservableValue<Int>> {
             on { value } doReturn 42
             on { addListener(any<ChangeListener<in Int>>()) }.thenAnswer {
                 val listener = it.getArgument(0) as ChangeListener<in Int>
 
-                launch(coroutineContext + JavaFx) {
+                launch(context) {
                     timer.await(1)
                     listener.changed(it.mock as ObservableValue<out Int>, 42, 1)
 

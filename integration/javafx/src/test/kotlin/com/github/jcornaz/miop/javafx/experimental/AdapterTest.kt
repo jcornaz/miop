@@ -9,6 +9,7 @@ import kotlinx.coroutines.experimental.withContext
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import kotlin.coroutines.experimental.coroutineContext
 import kotlin.test.assertEquals
 
 class AdapterTest {

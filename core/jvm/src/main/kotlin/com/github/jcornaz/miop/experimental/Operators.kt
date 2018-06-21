@@ -3,6 +3,7 @@ package com.github.jcornaz.miop.experimental
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.*
 import kotlin.coroutines.experimental.CoroutineContext
+import kotlin.coroutines.experimental.coroutineContext
 
 /**
  * Operators for [ReceiveChannel]
@@ -17,10 +18,11 @@ public object Channels {
      * If one source is closed with an exception, the result channel will be closed with the same exception and all other sources will be cancelled.
      */
     public fun <T> merge(vararg sources: ReceiveChannel<T>): ReceiveChannel<T> = produce(Unconfined) {
+        val job = coroutineContext[Job]!!
 
         // Necessary to not deliver the exception to the uncaught exception handler
         val context = coroutineContext + CoroutineExceptionHandler { _, throwable ->
-            coroutineContext[Job]!!.cancel(throwable)
+            job.cancel(throwable)
         }
 
         sources.forEach { source ->
