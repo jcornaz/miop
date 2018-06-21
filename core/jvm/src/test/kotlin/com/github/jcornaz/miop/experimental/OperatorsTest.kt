@@ -2,17 +2,20 @@ package com.github.jcornaz.miop.experimental
 
 import com.github.jcornaz.miop.internal.test.AsyncTest
 import com.github.jcornaz.miop.internal.test.assertThrows
+import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.atLeastOnce
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
 import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.channels.*
+import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.experimental.channels.first
+import kotlinx.coroutines.experimental.channels.produce
+import kotlinx.coroutines.experimental.channels.toList
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
-import org.mockito.Mockito
-import org.mockito.verification.VerificationMode
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -72,8 +75,8 @@ class OperatorsTest : AsyncTest() {
         assertTrue(source1.isClosedForReceive)
         assertTrue(source2.isClosedForReceive)
 
-        assertThrows<ClosedReceiveChannelException> { source1.receive() }
-        assertThrows<ClosedReceiveChannelException> { source2.receive() }
+        assertThrows<Exception> { source1.receive() }
+        assertThrows<Exception> { source2.receive() }
     }
 
     @Test
@@ -87,7 +90,7 @@ class OperatorsTest : AsyncTest() {
         assertTrue(source1.isClosedForReceive, "other source should be closed for receive")
         assertTrue(result.isClosedForReceive, "result should be closed for receive")
 
-        assertThrows<ClosedReceiveChannelException> { source1.receive() }
+        assertThrows<Exception> { source1.receive() }
         assertEquals("my exception", assertThrows<Exception> { result.receive() }.message)
     }
 
@@ -148,8 +151,8 @@ class OperatorsTest : AsyncTest() {
         assertTrue(source1.isClosedForReceive)
         assertTrue(source2.isClosedForReceive)
 
-        assertThrows<ClosedReceiveChannelException> { source1.receive() }
-        assertThrows<ClosedReceiveChannelException> { source2.receive() }
+        assertThrows<Exception> { source1.receive() }
+        assertThrows<Exception> { source2.receive() }
     }
 
     @Test
@@ -163,7 +166,7 @@ class OperatorsTest : AsyncTest() {
         assertTrue(source1.isClosedForReceive, "other source should be closed for receive")
         assertTrue(result.isClosedForReceive, "result should be closed for receive")
 
-        assertThrows<ClosedReceiveChannelException> { source1.receive() }
+        assertThrows<Exception> { source1.receive() }
         assertEquals("my exception", assertThrows<Exception> { result.receive() }.message)
     }
 
@@ -211,7 +214,7 @@ class OperatorsTest : AsyncTest() {
         expect(6)
         switch.send(1) // start the second source
         expect(8)
-        assertThrows<ClosedSendChannelException> { sources[0].send('x') } // the first source should have been cancelled
+        assertThrows<Exception> { sources[0].send('x') } // the first source should have been cancelled
         sources[1].send('y')
         expect(10)
         sources[1].close() // should have no impact
@@ -228,7 +231,7 @@ class OperatorsTest : AsyncTest() {
         val result = emptyReceiveChannel<Int>().switchMap { receiveChannelOf(1, 2, 3) }
 
         assertTrue(result.isClosedForReceive)
-        assertThrows<ClosedReceiveChannelException> { result.receive() }
+        assertThrows<Exception> { result.receive() }
     }
 
     @Test
@@ -239,7 +242,7 @@ class OperatorsTest : AsyncTest() {
         result.cancel()
 
         assertTrue(source.isClosedForReceive)
-        assertThrows<ClosedReceiveChannelException> { source.receive() }
+        assertThrows<Exception> { source.receive() }
     }
 
     @Test
@@ -287,8 +290,9 @@ class OperatorsTest : AsyncTest() {
     fun `cancelling the result of distinctUntilChanged should cancel the upstream channel`() = runBlocking<Unit> {
         val source = mock<ReceiveChannel<Int>>()
         val result = source.distinctUntilChanged()
+        verify(source, never()).cancel(any())
         verify(source, never()).cancel()
         result.cancel()
-        verify(source, atLeastOnce()).cancel()
+        verify(source, atLeastOnce()).cancel(any())
     }
 }
