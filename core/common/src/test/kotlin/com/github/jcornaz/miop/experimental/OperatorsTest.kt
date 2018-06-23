@@ -6,9 +6,9 @@ import com.github.jcornaz.miop.internal.test.runTest
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.channels.*
 import kotlinx.coroutines.experimental.launch
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlinx.coroutines.experimental.selects.SelectClause1
+import kotlinx.coroutines.experimental.suspendAtomicCancellableCoroutine
+import kotlin.test.*
 
 class OperatorsTest : AsyncTest() {
 
@@ -131,7 +131,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `cancelling a channel merged by combineLatest should cancel all the sources`() = runTest<Unit> {
+    fun `cancelling a channel merged by combineLatest should cancel all the sources`() = runTest {
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
         val result = source1.combineLatestWith(source2) { v1, v2 -> v1 to v2 }
@@ -161,7 +161,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `it should be possible to use combine latest with finite channel`() = runTest<Unit> {
+    fun `it should be possible to use combine latest with finite channel`() = runTest {
         val result = receiveChannelOf(1).combineLatestWith(receiveChannelOf('a')) { v1, v2 -> v1 to v2 }
 
         assertEquals(1 to 'a', result.receive())
@@ -217,7 +217,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `switchMap on an empty channel should return an empty channel`() = runTest<Unit> {
+    fun `switchMap on an empty channel should return an empty channel`() = runTest {
         val result = emptyReceiveChannel<Int>().switchMap { receiveChannelOf(1, 2, 3) }
 
         assertTrue(result.isClosedForReceive)
@@ -225,7 +225,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `cancelling a channel created by mergeMap should cancel the current source`() = runTest<Unit> {
+    fun `cancelling a channel created by mergeMap should cancel the current source`() = runTest {
         val source = Channel<Int>()
         val result = receiveChannelOf(1).switchMap { source }
 
@@ -278,11 +278,28 @@ class OperatorsTest : AsyncTest() {
 
     @Test
     fun `cancelling the result of distinctUntilChanged should cancel the upstream channel`() = runTest {
-        val source = mock<ReceiveChannel<Int>>()
+        var isCancelled = false
+        val source = object : ReceiveChannel<Int> {
+            override val isClosedForReceive: Boolean get() = isCancelled
+            override val isEmpty: Boolean get() = !isCancelled
+            override val onReceive: SelectClause1<Int> get() = throw UnsupportedOperationException()
+            override val onReceiveOrNull: SelectClause1<Int?> get() = throw UnsupportedOperationException()
+
+            override fun cancel(cause: Throwable?): Boolean {
+                val wasCancelled = isCancelled
+                isCancelled = true
+                return wasCancelled
+            }
+
+            override fun iterator(): ChannelIterator<Int> = throw UnsupportedOperationException()
+            override fun poll(): Int? = null
+            override suspend fun receive(): Int = if (isCancelled) throw ClosedReceiveChannelException(null) else suspendAtomicCancellableCoroutine { }
+            override suspend fun receiveOrNull(): Int? = throw UnsupportedOperationException()
+        }
+
         val result = source.distinctUntilChanged()
-        verify(source, never()).cancel(any())
-        verify(source, never()).cancel()
+        assertFalse(isCancelled)
         result.cancel()
-        verify(source, atLeastOnce()).cancel(any())
+        assertTrue(isCancelled)
     }
 }
