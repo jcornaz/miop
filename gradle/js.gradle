@@ -1,10 +1,10 @@
-apply plugin: 'kotlin-platform-common'
+apply plugin: 'kotlin-platform-js'
 
 kotlin.experimental.coroutines 'enable'
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$coroutines_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutines_version"
 
     testCompile "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
     testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlin_version"
