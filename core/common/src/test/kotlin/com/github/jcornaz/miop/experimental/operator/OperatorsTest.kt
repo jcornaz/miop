@@ -1,14 +1,15 @@
-package com.github.jcornaz.miop.experimental
+package com.github.jcornaz.miop.experimental.operator
 
+import com.github.jcornaz.miop.experimental.*
 import com.github.jcornaz.miop.internal.test.AsyncTest
 import com.github.jcornaz.miop.internal.test.assertThrows
 import com.github.jcornaz.miop.internal.test.runTest
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.channels.*
 import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.selects.SelectClause1
-import kotlinx.coroutines.experimental.suspendAtomicCancellableCoroutine
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class OperatorsTest : AsyncTest() {
 
@@ -278,28 +279,10 @@ class OperatorsTest : AsyncTest() {
 
     @Test
     fun cancellingTheResultOfDistinctUntilChangedShouldCancelTheUpstreamChannel() = runTest {
-        var isCancelled = false
-        val source = object : ReceiveChannel<Int> {
-            override val isClosedForReceive: Boolean get() = isCancelled
-            override val isEmpty: Boolean get() = !isCancelled
-            override val onReceive: SelectClause1<Int> get() = throw UnsupportedOperationException()
-            override val onReceiveOrNull: SelectClause1<Int?> get() = throw UnsupportedOperationException()
+        val source = Channel<Int>()
+        source.distinctUntilChanged().cancel(DummyException("something went wrong"))
 
-            override fun cancel(cause: Throwable?): Boolean {
-                val wasCancelled = isCancelled
-                isCancelled = true
-                return wasCancelled
-            }
-
-            override fun iterator(): ChannelIterator<Int> = throw UnsupportedOperationException()
-            override fun poll(): Int? = null
-            override suspend fun receive(): Int = if (isCancelled) throw ClosedReceiveChannelException(null) else suspendAtomicCancellableCoroutine { }
-            override suspend fun receiveOrNull(): Int? = throw UnsupportedOperationException()
-        }
-
-        val result = source.distinctUntilChanged()
-        assertFalse(isCancelled)
-        result.cancel()
-        assertTrue(isCancelled)
+        val exception = assertThrows<DummyException> { source.receive() }
+        assertEquals("something went wrong", exception.message)
     }
 }
