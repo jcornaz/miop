@@ -282,7 +282,6 @@ class OperatorsTest : AsyncTest() {
         val source = Channel<Int>()
         source.distinctUntilChanged().cancel(DummyException("something went wrong"))
 
-        val exception = assertThrows<DummyException> { source.receive() }
-        assertEquals("something went wrong", exception.message)
+        assertThrows<Exception> { source.send(0) }
     }
 }

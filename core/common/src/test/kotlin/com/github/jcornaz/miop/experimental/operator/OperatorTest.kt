@@ -5,7 +5,6 @@ import com.github.jcornaz.miop.internal.test.runTest
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 abstract class OperatorTest {
 
@@ -16,7 +15,6 @@ abstract class OperatorTest {
         val source = Channel<Int>()
         source.operator().cancel(DummyException("something went wrong"))
 
-        val exception = assertThrows<DummyException> { source.receive() }
-        assertEquals("something went wrong", exception.message)
+        assertThrows<Exception> { source.send(0) }
     }
 }
