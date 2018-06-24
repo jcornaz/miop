@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 class SubscribableValueTest : AsyncTest() {
 
     @Test
-    fun `openSubscription should be closed once the value sent`() = runTest {
+    fun openSubscriptionShouldBeClosedOnceTheValueSent() = runTest {
         expect(1)
         val subscribable = SubscribableValue(42)
         assertEquals(42, subscribable.get())
@@ -29,7 +29,7 @@ class SubscribableValueTest : AsyncTest() {
     }
 
     @Test
-    fun `openSubscription should always return the given value`() {
+    fun openSubscriptionShouldAlwaysReturnTheGivenValue() {
         expect(1)
         val subscribable = SubscribableValue(42)
         launch(Unconfined) {

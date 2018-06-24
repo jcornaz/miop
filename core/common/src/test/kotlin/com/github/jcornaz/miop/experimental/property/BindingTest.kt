@@ -10,7 +10,7 @@ import kotlin.test.assertEquals
 class BindingTest : AsyncTest() {
 
     @Test
-    fun `bind should keep the target variable up-to-date when the source change`() = runTest {
+    fun bindShouldKeepTheTargetVariableUpToDateWhenTheSourceChange() = runTest {
         val source = SubscribableVariable(0)
         val target = SubscribableVariable(0)
 
@@ -49,7 +49,7 @@ class BindingTest : AsyncTest() {
     }
 
     @Test
-    fun `it should be possible to cancel a binding with a parent job`() = runTest {
+    fun itShouldBePossibleToCancelABindingWithAParentJob() = runTest {
         val source = SubscribableVariable(0)
         val target = SubscribableVariable(0)
 
@@ -66,7 +66,7 @@ class BindingTest : AsyncTest() {
     }
 
     @Test
-    fun `bindBidirectional should keep up-to-date both variable`() = runTest {
+    fun bindBidirectionalShouldKeepUpToDateBothVariable() = runTest {
         val variable1 = SubscribableVariable(0)
         val variable2 = SubscribableVariable(0)
 

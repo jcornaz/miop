@@ -12,7 +12,7 @@ import kotlin.test.Test
 class SuspensionTest : AsyncTest() {
 
     @Test
-    fun `awaitCancel should suspend until the cancellation of the coroutines`() {
+    fun awaitCancelShouldSuspendUntilTheCancellationOfTheCoroutines() {
         expect(1)
         val job = launch(Unconfined) {
             expect(2)
@@ -25,7 +25,7 @@ class SuspensionTest : AsyncTest() {
     }
 
     @Test
-    fun `awaitCancel should throw if the coroutines is already cancelled`() {
+    fun awaitCancelShouldThrowIfTheCoroutinesIsAlreadyCancelled() {
         expect(1)
         launch(Unconfined) {
             expect(2)

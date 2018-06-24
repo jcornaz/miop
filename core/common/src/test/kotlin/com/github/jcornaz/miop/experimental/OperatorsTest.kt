@@ -13,7 +13,7 @@ import kotlin.test.*
 class OperatorsTest : AsyncTest() {
 
     @Test
-    fun `merge should give the elements as soon as received`() = runTest {
+    fun mergeShouldGiveTheElementsAsSoonAsReceived() = runTest {
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
         val result = source1.mergeWith(source2)
@@ -55,7 +55,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `cancelling a channel merged by mergeWith should cancel all the sources`() = runTest {
+    fun cancellingAChannelMergedByMergeWithShouldCancelAllTheSources() = runTest {
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
         val result = source1.mergeWith(source2)
@@ -70,7 +70,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `if a source merged by mergeWith fails, the result should fail and the other sources should be cancelled`() = runTest {
+    fun ifASourceMergedByMergeWithFailsTheResultShouldFailAndTheOtherSourcesShouldBeCancelled() = runTest {
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
         val result = source1.mergeWith(source2)
@@ -85,7 +85,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `it should be possible to use merge with finite channel`() = runTest {
+    fun itShouldBePossibleToUseMergeWithFiniteChannel() = runTest {
         val result = receiveChannelOf(1).mergeWith(receiveChannelOf(2))
 
         assertEquals(1, result.receive())
@@ -94,7 +94,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `combine latest should give the combined elements`() = runTest {
+    fun combineLatestShouldGiveTheCombinedElements() = runTest {
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
         val result = source1.combineLatestWith(source2) { v1, v2 -> v1 to v2 }
@@ -131,7 +131,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `cancelling a channel merged by combineLatest should cancel all the sources`() = runTest {
+    fun cancellingAChannelMergedByCombineLatestShouldCancelAllTheSources() = runTest {
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
         val result = source1.combineLatestWith(source2) { v1, v2 -> v1 to v2 }
@@ -146,7 +146,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `if a source merged by combineLatest fails, the result should fail and the other sources should be cancelled`() = runTest {
+    fun ifASourceMergedByCombineLatestFailsTheResultShouldFailAndTheOtherSourcesShouldBeCancelled() = runTest {
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
         val result = source1.combineLatestWith(source2) { v1, v2 -> v1 to v2 }
@@ -161,7 +161,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `it should be possible to use combine latest with finite channel`() = runTest {
+    fun itShouldBePossibleToUseCombineLatestWithFiniteChannel() = runTest {
         val result = receiveChannelOf(1).combineLatestWith(receiveChannelOf('a')) { v1, v2 -> v1 to v2 }
 
         assertEquals(1 to 'a', result.receive())
@@ -169,7 +169,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `switchMap should emit items of the new source only`() = runTest {
+    fun switchMapShouldEmitItemsOfTheNewSourceOnly() = runTest {
         val sources = (0..2).map { Channel<Char>(2) }
         val switch = Channel<Int>()
         val result = switch.switchMap { sources[it] }
@@ -217,7 +217,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `switchMap on an empty channel should return an empty channel`() = runTest {
+    fun switchMapOnAnEmptyChannelShouldReturnAnEmptyChannel() = runTest {
         val result = emptyReceiveChannel<Int>().switchMap { receiveChannelOf(1, 2, 3) }
 
         assertTrue(result.isClosedForReceive)
@@ -225,7 +225,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `cancelling a channel created by mergeMap should cancel the current source`() = runTest {
+    fun cancellingAChannelCreatedByMergeMapShouldCancelTheCurrentSource() = runTest {
         val source = Channel<Int>()
         val result = receiveChannelOf(1).switchMap { source }
 
@@ -236,7 +236,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `if a source returned by switchMap fails, the result should fail with the same exception`() = runTest {
+    fun ifASourceReturnedBySwitchMapFailsTheResultShouldFailWithTheSameException() = runTest {
         val source = Channel<Int>()
         val result = receiveChannelOf(1).switchMap { source }
 
@@ -247,7 +247,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `launchConsumeEach should consume the channel`() = runTest {
+    fun launchConsumeEachShouldConsumeTheChannel() = runTest {
         val result = mutableListOf<Int>()
 
         val channel = receiveChannelOf(1, 2, 3)
@@ -264,20 +264,20 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `distinctUntilChanged should not send twice the same value in a row`() = runTest {
+    fun distinctUntilChangedShouldNotSendTwiceTheSameValueInARow() = runTest {
         val receivedValues = receiveChannelOf(1, 2, 2, 2, 3, 2, 1, 1).distinctUntilChanged().toList()
 
         assertEquals(listOf(1, 2, 3, 2, 1), receivedValues)
     }
 
     @Test
-    fun `distinctUntilChanged should emit the upstream error if any`() = runTest {
+    fun distinctUntilChangedShouldEmitTheUpstreamErrorIfAny() = runTest {
         val exception = assertThrows<Exception> { produce<Int> { throw Exception("my exception") }.distinctUntilChanged().first() }
         assertEquals("my exception", exception.message)
     }
 
     @Test
-    fun `cancelling the result of distinctUntilChanged should cancel the upstream channel`() = runTest {
+    fun cancellingTheResultOfDistinctUntilChangedShouldCancelTheUpstreamChannel() = runTest {
         var isCancelled = false
         val source = object : ReceiveChannel<Int> {
             override val isClosedForReceive: Boolean get() = isCancelled

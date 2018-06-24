@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 class SubscribableVariableTest : AsyncTest() {
 
     @Test
-    fun `basic scenario`() = runTest {
+    fun basicScenario() = runTest {
         expect(1)
         val subscribable = SubscribableVariable(42)
         assertEquals(42, subscribable.get())
@@ -32,7 +32,7 @@ class SubscribableVariableTest : AsyncTest() {
     }
 
     @Test
-    fun `openSubscription should always start with the current value`() {
+    fun openSubscriptionShouldAlwaysStartWithTheCurrentValue() {
         expect(1)
         val subscribable = SubscribableVariable(42)
         launch(Unconfined) {

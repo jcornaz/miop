@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 class PropertyOperatorsTest : AsyncTest() {
 
     @Test
-    fun `combining constants should return a subscribable constant`() = runTest {
+    fun combiningConstantsShouldReturnASubscribableConstant() = runTest {
         val subscribable = SubscribableValue(6).combineWith(SubscribableValue(9)) { x, y -> x * y }
         assertEquals(54, subscribable.get())
         assertEquals(listOf(54), subscribable.openSubscription().toList())
@@ -21,7 +21,7 @@ class PropertyOperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `updating the source of a combined subcribable should update the combined value`() = runTest {
+    fun updatingTheSourceOfACombinedSubcribableShouldUpdateTheCombinedValue() = runTest {
         val x = SubscribableVariable(1)
         val y = SubscribableVariable(1)
         val result = x.combineWith(y) { vx, vy -> vx * vy }
@@ -54,7 +54,7 @@ class PropertyOperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `mapping a subscribable constant should return a subscribable constant`() = runTest {
+    fun mappingASubscribableConstantShouldReturnASubscribableConstant() = runTest {
         val subscribable = SubscribableValue(21).map { it * 2 }
         assertEquals(42, subscribable.get())
         assertEquals(listOf(42), subscribable.openSubscription().toList())
@@ -62,7 +62,7 @@ class PropertyOperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `updating the source of a mapped subcribable should update the mapped value`() = runTest {
+    fun updatingSourceOfMappedSubscribableShouldUpdateTheMappedValue() = runTest {
         val x = SubscribableVariable(1)
         val result = x.map { it * 2 }
 
@@ -94,7 +94,7 @@ class PropertyOperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `switchMap should always reflect the latest result of transform`() = runTest {
+    fun switchMapShouldAlwaysReflectTheLatestResultOfTransform() = runTest {
         val source1 = SubscribableValue(1)
         val source2 = SubscribableVariable(2)
         val switch = SubscribableVariable(0)
