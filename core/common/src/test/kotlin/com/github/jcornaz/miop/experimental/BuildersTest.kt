@@ -2,6 +2,7 @@ package com.github.jcornaz.miop.experimental
 
 import com.github.jcornaz.miop.internal.test.AsyncTest
 import com.github.jcornaz.miop.internal.test.assertThrows
+import com.github.jcornaz.miop.internal.test.runTest
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.ClosedReceiveChannelException
 import kotlin.test.*
@@ -9,7 +10,7 @@ import kotlin.test.*
 class BuildersTest : AsyncTest() {
 
     @Test
-    fun `emptyReceiveChannel should return a channel already closed`() = runBlocking<Unit> {
+    fun emptyReceiveChannelShouldReturnAChannelAlreadyClosed() = runTest {
         val channel = emptyReceiveChannel<Int>()
 
         assertFalse(channel.isEmpty)
@@ -18,12 +19,12 @@ class BuildersTest : AsyncTest() {
     }
 
     @Test
-    fun `Many invocation of emptyReceiveChannel should return the same instance`() {
+    fun manyInvocationOfEmptyReceiveChannelShouldReturnTheSameInstance() {
         assertSame<Any>(emptyReceiveChannel<Int>(), emptyReceiveChannel<String>())
     }
 
     @Test
-    fun `receiveChannelOf should return a channel containing the given elements`() {
+    fun receiveChannelOfShouldReturnAChannelContainingTheGivenElements() {
         val channel = receiveChannelOf(1, 2, 3)
 
         assertFalse(channel.isEmpty)
@@ -42,7 +43,7 @@ class BuildersTest : AsyncTest() {
     }
 
     @Test
-    fun `receiveChannelOf should return an already closed channel if no element is given`() = runBlocking<Unit> {
+    fun receiveChannelOfShouldReturnAnAlreadyClosedChannelIfNoElementIsGiven() = runTest {
         val channel = receiveChannelOf<Int>()
 
         assertFalse(channel.isEmpty)
@@ -51,7 +52,7 @@ class BuildersTest : AsyncTest() {
     }
 
     @Test
-    fun `Iterable#openSubscription should emits all elements of the iterable`() {
+    fun openSubscriptionOnIterableShouldEmitsAllElementsOfTheIterable() {
         val channel = listOf(1, 2, 3).openSubscription(capacity = 3)
 
         expect(1)
@@ -66,7 +67,7 @@ class BuildersTest : AsyncTest() {
     }
 
     @Test
-    fun `Sequence#openSubscription should emits all elements of the iterable`() {
+    fun openSubscriptionOnSequenceShouldEmitsAllElementsOfTheIterable() {
         val channel = sequenceOf(1, 2, 3).openSubscription(capacity = 3)
 
         expect(1)

@@ -2,28 +2,18 @@ package com.github.jcornaz.miop.experimental
 
 import com.github.jcornaz.miop.internal.test.AsyncTest
 import com.github.jcornaz.miop.internal.test.assertThrows
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.verify
+import com.github.jcornaz.miop.internal.test.runTest
 import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.first
-import kotlinx.coroutines.experimental.channels.produce
-import kotlinx.coroutines.experimental.channels.toList
+import kotlinx.coroutines.experimental.channels.*
 import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlinx.coroutines.experimental.selects.SelectClause1
+import kotlinx.coroutines.experimental.suspendAtomicCancellableCoroutine
+import kotlin.test.*
 
 class OperatorsTest : AsyncTest() {
 
     @Test
-    fun `merge should give the elements as soon as received`() = runBlocking {
+    fun mergeShouldGiveTheElementsAsSoonAsReceived() = runTest {
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
         val result = source1.mergeWith(source2)
@@ -65,7 +55,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `cancelling a channel merged by mergeWith should cancel all the sources`() = runBlocking<Unit> {
+    fun cancellingAChannelMergedByMergeWithShouldCancelAllTheSources() = runTest {
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
         val result = source1.mergeWith(source2)
@@ -80,7 +70,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `if a source merged by mergeWith fails, the result should fail and the other sources should be cancelled`() = runBlocking {
+    fun ifASourceMergedByMergeWithFailsTheResultShouldFailAndTheOtherSourcesShouldBeCancelled() = runTest {
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
         val result = source1.mergeWith(source2)
@@ -95,7 +85,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `it should be possible to use merge with finite channel`() = runBlocking<Unit> {
+    fun itShouldBePossibleToUseMergeWithFiniteChannel() = runTest {
         val result = receiveChannelOf(1).mergeWith(receiveChannelOf(2))
 
         assertEquals(1, result.receive())
@@ -104,7 +94,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `combine latest should give the combined elements`() = runBlocking {
+    fun combineLatestShouldGiveTheCombinedElements() = runTest {
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
         val result = source1.combineLatestWith(source2) { v1, v2 -> v1 to v2 }
@@ -141,7 +131,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `cancelling a channel merged by combineLatest should cancel all the sources`() = runBlocking<Unit> {
+    fun cancellingAChannelMergedByCombineLatestShouldCancelAllTheSources() = runTest {
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
         val result = source1.combineLatestWith(source2) { v1, v2 -> v1 to v2 }
@@ -156,7 +146,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `if a source merged by combineLatest fails, the result should fail and the other sources should be cancelled`() = runBlocking {
+    fun ifASourceMergedByCombineLatestFailsTheResultShouldFailAndTheOtherSourcesShouldBeCancelled() = runTest {
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
         val result = source1.combineLatestWith(source2) { v1, v2 -> v1 to v2 }
@@ -171,7 +161,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `it should be possible to use combine latest with finite channel`() = runBlocking<Unit> {
+    fun itShouldBePossibleToUseCombineLatestWithFiniteChannel() = runTest {
         val result = receiveChannelOf(1).combineLatestWith(receiveChannelOf('a')) { v1, v2 -> v1 to v2 }
 
         assertEquals(1 to 'a', result.receive())
@@ -179,7 +169,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `switchMap should emit items of the new source only`() = runBlocking {
+    fun switchMapShouldEmitItemsOfTheNewSourceOnly() = runTest {
         val sources = (0..2).map { Channel<Char>(2) }
         val switch = Channel<Int>()
         val result = switch.switchMap { sources[it] }
@@ -227,7 +217,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `switchMap on an empty channel should return an empty channel`() = runBlocking<Unit> {
+    fun switchMapOnAnEmptyChannelShouldReturnAnEmptyChannel() = runTest {
         val result = emptyReceiveChannel<Int>().switchMap { receiveChannelOf(1, 2, 3) }
 
         assertTrue(result.isClosedForReceive)
@@ -235,7 +225,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `cancelling a channel created by mergeMap should cancel the current source`() = runBlocking<Unit> {
+    fun cancellingAChannelCreatedByMergeMapShouldCancelTheCurrentSource() = runTest {
         val source = Channel<Int>()
         val result = receiveChannelOf(1).switchMap { source }
 
@@ -246,7 +236,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `if a source returned by switchMap fails, the result should fail with the same exception`() = runBlocking {
+    fun ifASourceReturnedBySwitchMapFailsTheResultShouldFailWithTheSameException() = runTest {
         val source = Channel<Int>()
         val result = receiveChannelOf(1).switchMap { source }
 
@@ -257,7 +247,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `launchConsumeEach should consume the channel`() = runBlocking {
+    fun launchConsumeEachShouldConsumeTheChannel() = runTest {
         val result = mutableListOf<Int>()
 
         val channel = receiveChannelOf(1, 2, 3)
@@ -274,25 +264,42 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun `distinctUntilChanged should not send twice the same value in a row`() = runBlocking {
+    fun distinctUntilChangedShouldNotSendTwiceTheSameValueInARow() = runTest {
         val receivedValues = receiveChannelOf(1, 2, 2, 2, 3, 2, 1, 1).distinctUntilChanged().toList()
 
         assertEquals(listOf(1, 2, 3, 2, 1), receivedValues)
     }
 
     @Test
-    fun `distinctUntilChanged should emit the upstream error if any`() = runBlocking {
+    fun distinctUntilChangedShouldEmitTheUpstreamErrorIfAny() = runTest {
         val exception = assertThrows<Exception> { produce<Int> { throw Exception("my exception") }.distinctUntilChanged().first() }
         assertEquals("my exception", exception.message)
     }
 
     @Test
-    fun `cancelling the result of distinctUntilChanged should cancel the upstream channel`() = runBlocking<Unit> {
-        val source = mock<ReceiveChannel<Int>>()
+    fun cancellingTheResultOfDistinctUntilChangedShouldCancelTheUpstreamChannel() = runTest {
+        var isCancelled = false
+        val source = object : ReceiveChannel<Int> {
+            override val isClosedForReceive: Boolean get() = isCancelled
+            override val isEmpty: Boolean get() = !isCancelled
+            override val onReceive: SelectClause1<Int> get() = throw UnsupportedOperationException()
+            override val onReceiveOrNull: SelectClause1<Int?> get() = throw UnsupportedOperationException()
+
+            override fun cancel(cause: Throwable?): Boolean {
+                val wasCancelled = isCancelled
+                isCancelled = true
+                return wasCancelled
+            }
+
+            override fun iterator(): ChannelIterator<Int> = throw UnsupportedOperationException()
+            override fun poll(): Int? = null
+            override suspend fun receive(): Int = if (isCancelled) throw ClosedReceiveChannelException(null) else suspendAtomicCancellableCoroutine { }
+            override suspend fun receiveOrNull(): Int? = throw UnsupportedOperationException()
+        }
+
         val result = source.distinctUntilChanged()
-        verify(source, never()).cancel(any())
-        verify(source, never()).cancel()
+        assertFalse(isCancelled)
         result.cancel()
-        verify(source, atLeastOnce()).cancel(any())
+        assertTrue(isCancelled)
     }
 }

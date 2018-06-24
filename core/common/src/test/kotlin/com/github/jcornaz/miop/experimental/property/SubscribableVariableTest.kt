@@ -1,16 +1,17 @@
 package com.github.jcornaz.miop.experimental.property
 
 import com.github.jcornaz.miop.internal.test.AsyncTest
+import com.github.jcornaz.miop.internal.test.runTest
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.first
-import org.junit.Test
 import kotlin.coroutines.experimental.coroutineContext
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class SubscribableVariableTest : AsyncTest() {
 
     @Test
-    fun `basic scenario`() = runBlocking {
+    fun basicScenario() = runTest {
         expect(1)
         val subscribable = SubscribableVariable(42)
         assertEquals(42, subscribable.get())
@@ -31,7 +32,7 @@ class SubscribableVariableTest : AsyncTest() {
     }
 
     @Test
-    fun `openSubscription should always start with the current value`() {
+    fun openSubscriptionShouldAlwaysStartWithTheCurrentValue() {
         expect(1)
         val subscribable = SubscribableVariable(42)
         launch(Unconfined) {

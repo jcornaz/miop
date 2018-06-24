@@ -2,6 +2,4 @@ apply from: rootProject.file('gradle/common.gradle')
 
 dependencies {
     testCompile project(':miop-internal-test-common')
-    
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$coroutines_version"
 }

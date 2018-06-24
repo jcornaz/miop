@@ -9,7 +9,7 @@ import kotlin.test.Test
 class ContextUtilsTest {
 
     @Test
-    fun `it should be possible to launch coroutines on IoPool`() = runTest {
+    fun itShouldBePossibleToLaunchCoroutinesOnIoPool() = runTest {
         repeat(10) {
             launch(coroutineContext + IoPool) { delay(100) }
         }

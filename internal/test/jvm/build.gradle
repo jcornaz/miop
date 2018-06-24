@@ -3,6 +3,5 @@ apply from: rootProject.file('gradle/jvm.gradle')
 dependencies {
     expectedBy project(":miop-internal-test-common")
 
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     compile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
 }
