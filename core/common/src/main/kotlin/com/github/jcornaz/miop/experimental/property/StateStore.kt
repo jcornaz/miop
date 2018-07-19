@@ -25,7 +25,6 @@ public interface StateStore<out S, in A> : SubscribableValue<S> {
  * Create a [StateStore] with the [initialState].
  *
  * @param initialState Initial state of the store
- * @param errorAction Will be called if an action throw. Has to create a new action which will be dispatched immediately. The created action has to be exception-safe.
  */
 public fun <S, A : (S) -> S> StateStore(initialState: S): StateStore<S, A> = SimpleStateStore(initialState)
 
