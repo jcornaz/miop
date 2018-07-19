@@ -1,9 +1,15 @@
 # Change log
 
 ## 0.0.3 (Unreleased)
+### Breaking changes
+* `launchConsumeEach` uses now `Unconfined` context by default
+
+### Enhancements
+* Make sure all operator always consumes the sources, even if they don't have the time to start at all
+
 ### Update dependencies
-* kotlin: 1.2.50
-* kotlinx.coroutines: 0.23.3
+* kotlin: 1.2.51
+* kotlinx.coroutines: 0.23.4
 
 ## 0.0.2 (2018-05-26)
 Improvement operators and integration for `SubscribableValue` and `SubscribableVariable` as well as few new features  
