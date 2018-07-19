@@ -38,7 +38,7 @@ public fun <S, A : (S) -> S> StateStore(initialState: S): StateStore<S, A> = Sta
  */
 public fun <S, A> StateStore(initialState: S, reducer: (state: S, action: A) -> S): StateStore<S, A> = SimpleStateStore(initialState, reducer)
 
-internal class SimpleStateStore<out S, in A>(
+private class SimpleStateStore<out S, in A>(
         initialState: S,
         reducer: (state: S, action: A) -> S
 ) : StateStore<S, A> {
