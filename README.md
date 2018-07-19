@@ -31,6 +31,7 @@ Reactive operator collection for coroutines channels which are not yet included 
 
 ## Incoming features
 * multiplatform support (jvm/javascript)
+* state store (same concept as *store* in [redux](https://redux.js.org/))
 * new operators
   * `buffer`, `conflate`
   * `debounce`
