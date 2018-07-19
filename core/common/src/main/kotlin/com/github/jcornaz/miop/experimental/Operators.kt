@@ -11,13 +11,13 @@ import kotlin.coroutines.experimental.coroutineContext
 public object Channels {
 
     /**
-     * Return a [ReceiveChannel] through which elements of all given sources are sent as soon as received.
+     * Returns a [ReceiveChannel] through which elements of all given sources are sent as soon as received.
      *
      * Cancelling the result channel will cancel all the sources.
      *
      * If one source is closed with an exception, the result channel will be closed with the same exception and all other sources will be cancelled.
      */
-    public fun <T> merge(vararg sources: ReceiveChannel<T>): ReceiveChannel<T> = produce(Unconfined) {
+    public fun <T> merge(vararg sources: ReceiveChannel<T>): ReceiveChannel<T> = produce(Unconfined, onCompletion = { error -> sources.all { it.cancel(error) } }) {
         val job = coroutineContext[Job]!!
 
         // Necessary to not deliver the exception to the uncaught exception handler
@@ -33,7 +33,7 @@ public object Channels {
     }
 
     /**
-     * Return a [ReceiveChannel] which combine the most recently emitted items from each sources.
+     * Returns a [ReceiveChannel] which combine the most recently emitted items from each sources.
      *
      * Cancelling the result channel will cancel all the sources.
      *
@@ -47,7 +47,7 @@ public object Channels {
             source2: ReceiveChannel<T2>,
             context: CoroutineContext = Unconfined,
             combine: suspend (T1, T2) -> R
-    ): ReceiveChannel<R> = produce(context) {
+    ): ReceiveChannel<R> = produce(context, onCompletion = { source1.cancel(it); source2.cancel(it) }) {
         var v1: T1? = null
         var v2: T2? = null
 
@@ -115,17 +115,19 @@ public fun <T1, T2, R> ReceiveChannel<T1>.combineLatestWith(
  *
  * If the current source source is closed with an exception, the result channel will be closed with the same exception.
  */
-public fun <T, R> ReceiveChannel<T>.switchMap(transform: suspend (T) -> ReceiveChannel<R>): ReceiveChannel<R> = produce(Unconfined) {
+public fun <T, R> ReceiveChannel<T>.switchMap(transform: suspend (T) -> ReceiveChannel<R>): ReceiveChannel<R> = transform { input, output ->
+    val parent = coroutineContext[Job]!!
+
     var job: Job? = null
-    consumeEach { element ->
+    input.consumeEach { element ->
         job?.cancelAndJoin()
         job = launch(coroutineContext) {
             try {
-                transform(element).consumeEach { send(it) }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (t: Throwable) {
-                close(t)
+                transform(element).consumeEach { output.send(it) }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (error: Throwable) {
+                parent.cancel(error)
             }
         }
     }
@@ -141,7 +143,7 @@ public fun <E> ReceiveChannel<E>.launchConsumeEach(
         start: CoroutineStart = CoroutineStart.DEFAULT,
         parent: Job? = null,
         action: suspend (E) -> Unit
-): Job = launch(context, start, parent) {
+): Job = launch(context, start, parent, onCompletion = consumes()) {
     consumeEach { action(it) }
 }
 
