@@ -7,6 +7,7 @@ import com.github.jcornaz.miop.internal.test.runTest
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.channels.*
 import kotlinx.coroutines.experimental.launch
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -278,6 +279,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
+    @Ignore // wait on https://github.com/Kotlin/kotlinx.coroutines/issues/415
     fun cancellingTheResultOfDistinctUntilChangedShouldCancelTheUpstreamChannel() = runTest {
         val source = Channel<Int>()
         source.distinctUntilChanged().cancel(DummyException("something went wrong"))

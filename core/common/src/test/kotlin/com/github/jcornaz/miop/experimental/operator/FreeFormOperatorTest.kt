@@ -9,6 +9,7 @@ import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.channels.consumeEach
 import kotlinx.coroutines.experimental.channels.toList
 import kotlin.coroutines.experimental.coroutineContext
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -29,6 +30,7 @@ class FreeFormOperatorTest : OperatorTest() {
     }
 
     @Test
+    @Ignore // wait on https://github.com/Kotlin/kotlinx.coroutines/issues/415
     fun testFailingTransform() = runTest {
         val source = Channel<Int>()
 
