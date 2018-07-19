@@ -68,6 +68,19 @@ public object Channels {
 }
 
 /**
+ * Pipeline version of [produce].
+ *
+ * The [block] receive and input [ReceiveChannel] which can be used to receive upstream elements and an output [SendChannel] which can be used to send elements downstream.
+ *
+ * The upstream channel is consumed. When [block] is finished, the upstream channel is cancelled (if not already completed).
+ * If the [block] fails the upstream channel is cancelled with the cause exception.
+ */
+public fun <I, O> ReceiveChannel<I>.transform(
+        context: CoroutineContext = Unconfined,
+        block: suspend (input: ReceiveChannel<I>, output: SendChannel<O>) -> Unit
+): ReceiveChannel<O> = produce(context, onCompletion = consumes()) { block(this@transform, channel) }
+
+/**
  * Return a [ReceiveChannel] through which elements of all given sources (including this channel) are sent as soon as received.
  *
  * Cancelling the result channel will cancel all the sources.
@@ -137,16 +150,14 @@ public fun <E> ReceiveChannel<E>.launchConsumeEach(
  *
  * Example: for the source: [1, 2, 2, 1, 2] [distinctUntilChanged] will emit: [1, 2, 1, 2]
  */
-public fun <E> ReceiveChannel<E>.distinctUntilChanged(): ReceiveChannel<E> = produce(Unconfined) {
-    consume {
-        var latest = receive()
-        send(latest)
+public fun <E> ReceiveChannel<E>.distinctUntilChanged(): ReceiveChannel<E> = transform { input, output ->
+    var latest = input.receive()
+    output.send(latest)
 
-        for (elt in this) {
-            if (elt != latest) {
-                send(elt)
-                latest = elt
-            }
+    input.consumeEach { elt ->
+        if (elt != latest) {
+            output.send(elt)
+            latest = elt
         }
     }
 }
