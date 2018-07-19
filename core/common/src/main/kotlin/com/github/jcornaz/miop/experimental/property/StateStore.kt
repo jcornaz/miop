@@ -13,9 +13,9 @@ import kotlinx.coroutines.experimental.launch
  * There is only one state at a time, and the state is supposed to be immutable.
  * Action should be fast, non-blocking, and preferably be pure.
  *
- * It is possible to get a subscription of state with [openSubscription]
+ * It is possible to get a subscription of the states with [openSubscription]
  *
- * It is heavily inspired from the [redux store](https://redux.js.org/api-reference/store).
+ * This concept is heavily inspired from [redux](https://redux.js.org).
  */
 public interface StateStore<out S, in A> : SubscribableValue<S> {
 
