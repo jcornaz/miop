@@ -4,6 +4,10 @@
 ### Breaking changes
 * `launchConsumeEach` uses now `Unconfined` context by default
 
+### Features
+* Provide a `StateStore` which is an equivalent concept as "store" in [redux](https://redux.js.org/).
+    It store an immutable state and allow to dispatch actions in order to get new states and notify all subscribers of the new state.
+
 ### Enhancements
 * Make sure all operator always consumes the sources, even if they don't have the time to start at all
 

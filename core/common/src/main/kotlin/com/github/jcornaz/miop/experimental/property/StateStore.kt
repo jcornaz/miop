@@ -14,6 +14,8 @@ import kotlinx.coroutines.experimental.launch
  * Action should be fast, non-blocking, and preferably be pure.
  *
  * It is possible to get a subscription of state with [openSubscription]
+ *
+ * It is heavily inspired from the [redux store](https://redux.js.org/api-reference/store).
  */
 public interface StateStore<out S, in A> : SubscribableValue<S> {
 
@@ -26,9 +28,20 @@ public interface StateStore<out S, in A> : SubscribableValue<S> {
  *
  * @param initialState Initial state of the store
  */
-public fun <S, A : (S) -> S> StateStore(initialState: S): StateStore<S, A> = SimpleStateStore(initialState)
+public fun <S, A : (S) -> S> StateStore(initialState: S): StateStore<S, A> = StateStore(initialState) { state, action -> action(state) }
 
-internal class SimpleStateStore<S, in A : (S) -> S>(initialState: S) : StateStore<S, A> {
+/**
+ * Create a [StateStore] with the [initialState] and a [reducer].
+ *
+ * @param initialState Initial state of the store
+ * @param reducer Function called for each dispatched action and responsible to return a new state.
+ */
+public fun <S, A> StateStore(initialState: S, reducer: (state: S, action: A) -> S): StateStore<S, A> = SimpleStateStore(initialState, reducer)
+
+internal class SimpleStateStore<out S, in A>(
+        initialState: S,
+        reducer: (state: S, action: A) -> S
+) : StateStore<S, A> {
 
     private val broadcast = ConflatedBroadcastChannel(initialState)
     private val pendingActions = Channel<A>(Channel.UNLIMITED)
@@ -39,7 +52,7 @@ internal class SimpleStateStore<S, in A : (S) -> S>(initialState: S) : StateStor
 
             pendingActions.consumeEach { action ->
                 val newState = try {
-                    action(state)
+                    reducer(state, action)
                 } catch (error: Throwable) {
                     launch(Unconfined) { throw error }
                     return@consumeEach
