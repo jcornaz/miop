@@ -2,7 +2,10 @@
 
 ## 0.0.3 (Unreleased)
 ### Breaking changes
-* `launchConsumeEach` uses now `Unconfined` context by defauld
+* `launchConsumeEach` uses now `Unconfined` context by default
+
+### Enhancements
+* Make sure all operator always consumes the sources, even if they don't have the time to start at all
 
 ### Update dependencies
 * kotlin: 1.2.50
