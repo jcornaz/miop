@@ -1,6 +1,9 @@
 # Change log
 
 ## 0.0.3 (Unreleased)
+### Breaking changes
+* `launchConsumeEach` uses now `Unconfined` context by defauld
+
 ### Update dependencies
 * kotlin: 1.2.50
 * kotlinx.coroutines: 0.23.3

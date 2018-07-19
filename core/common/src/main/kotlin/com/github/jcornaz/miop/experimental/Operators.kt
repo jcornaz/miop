@@ -134,10 +134,10 @@ public fun <T, R> ReceiveChannel<T>.switchMap(transform: suspend (T) -> ReceiveC
 /**
  * Launches new coroutine which consume the channel and execute [action] for each element.
  *
- * It allows to write `channel.launchConsumeEach { ... }` instead of `launch { channel.consumeEach { ... } }`
+ * It allows to write `channel.launchConsumeEach(context) { ... }` instead of `launch(context) { channel.consumeEach { ... } }`
  */
 public fun <E> ReceiveChannel<E>.launchConsumeEach(
-        context: CoroutineContext = DefaultDispatcher,
+        context: CoroutineContext = Unconfined,
         start: CoroutineStart = CoroutineStart.DEFAULT,
         parent: Job? = null,
         action: suspend (E) -> Unit
