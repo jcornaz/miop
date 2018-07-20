@@ -26,7 +26,7 @@ Reactive operator collection for coroutines channels which are not yet included 
 
 ### JavaFx integration (module 'miop-javafx')
 * `openValueSubscription(): ReceiveChannel<T>` extension function on `ObservableValue<T>` 
-* `ObservableValue.asSubscribvableValue()` adapter 
+* `ObservableValue.asSubscribableValue()` adapter 
 * `Property.asSubscribableVariable()` adapter 
 
 ## Incoming features
