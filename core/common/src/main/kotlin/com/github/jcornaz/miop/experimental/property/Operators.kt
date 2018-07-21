@@ -2,6 +2,7 @@ package com.github.jcornaz.miop.experimental.property
 
 import com.github.jcornaz.miop.experimental.Channels
 import com.github.jcornaz.miop.experimental.switchMap
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.channels.map
 
 /**
@@ -30,6 +31,8 @@ public object SubscribableValues {
 public fun <T, R> SubscribableValue<T>.map(transform: suspend (T) -> R): SubscribableValue<R> = object : SubscribableValue<R> {
     override fun openSubscription() = this@map.openSubscription().map { transform(it) }
 }
+
+public fun <T, R> SubscribableValue<T>.openSubscription(transform: suspend (T) -> R): ReceiveChannel<R> = TODO()
 
 /**
  * Returns a [SubscribableValue] containing backed by the latest result of [transform] which is called for each value of this subscribable value.

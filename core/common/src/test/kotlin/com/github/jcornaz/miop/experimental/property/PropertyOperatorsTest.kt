@@ -3,8 +3,11 @@ package com.github.jcornaz.miop.experimental.property
 import com.github.jcornaz.miop.internal.test.AsyncTest
 import com.github.jcornaz.miop.internal.test.runTest
 import kotlinx.coroutines.experimental.CoroutineStart
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.channels.toList
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.timeunit.TimeUnit
+import kotlinx.coroutines.experimental.withTimeout
 import kotlinx.coroutines.experimental.yield
 import kotlin.coroutines.experimental.coroutineContext
 import kotlin.test.Test
@@ -138,5 +141,56 @@ class PropertyOperatorsTest : AsyncTest() {
         expect(14)
         yield() // to child
         finish(16)
+    }
+
+    @Test
+    fun openMappedSubscriptionShouldMapElements() = runTest {
+        val source = SubscribableVariable(1)
+        val result: ReceiveChannel<String> = source.openSubscription { (it * 2).toString() }
+
+        expect(1)
+        launch(coroutineContext) {
+            expect(2)
+            assertEquals("2", result.receive())
+            expect(3)
+            assertEquals("4", result.receive()) // suspend
+            expect(5)
+        }
+
+        expect(4)
+        source.set(2)
+        yield() // to child
+        finish(6)
+    }
+
+    @Test
+    fun openMappedSubscriptionShouldNotEmitTheSameReferenceTwice() = runTest {
+        val ref = "less than ten"
+        val source = SubscribableVariable(0)
+        val result = source.openSubscription { if (it < 10) ref else it.toString() }
+
+        expect(1)
+        launch(coroutineContext) {
+            expect(2)
+            assertEquals("less than ten", result.receive())
+            expect(3)
+            assertEquals("12", result.receive()) // suspend
+            expect(6)
+        }
+
+        expect(4)
+        source.set(2)
+        yield()
+        expect(5)
+        source.set(12)
+        yield() // to child
+        finish(7)
+    }
+
+    @Test
+    fun openMappedSubscriptionShouldSendCloseToken() = runTest {
+        withTimeout(1, TimeUnit.SECONDS) {
+            assertEquals(listOf("42"), SubscribableValue(42).openSubscription { it.toString() }.toList())
+        }
     }
 }

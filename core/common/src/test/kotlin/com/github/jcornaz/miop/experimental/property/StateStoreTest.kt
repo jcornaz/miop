@@ -10,6 +10,7 @@ import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
 import kotlinx.coroutines.experimental.timeunit.TimeUnit
 import kotlinx.coroutines.experimental.withTimeout
+import kotlin.coroutines.experimental.coroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -24,7 +25,7 @@ class StateStoreTest : AsyncTest() {
         val barrier = Mutex(true)
 
         expect(1)
-        launch(Unconfined) {
+        launch(coroutineContext) {
             val sub = store.openSubscription()
             assertEquals(-1, sub.receive())
 
@@ -65,7 +66,7 @@ class StateStoreTest : AsyncTest() {
         val barrier = Mutex(true)
 
         expect(1)
-        launch(Unconfined) {
+        launch(coroutineContext) {
             val sub = store.openSubscription()
             assertEquals("Hello", sub.receive())
             expect(2)
