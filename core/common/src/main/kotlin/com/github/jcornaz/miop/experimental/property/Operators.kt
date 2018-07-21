@@ -3,9 +3,7 @@ package com.github.jcornaz.miop.experimental.property
 import com.github.jcornaz.miop.experimental.Channels
 import com.github.jcornaz.miop.experimental.distinctReferenceUntilChanged
 import com.github.jcornaz.miop.experimental.switchMap
-import com.github.jcornaz.miop.experimental.transform
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.consumeEach
 import kotlinx.coroutines.experimental.channels.map
 
 /**

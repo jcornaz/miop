@@ -11,11 +11,13 @@ import kotlin.coroutines.experimental.coroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class StateStoreTest : AsyncTest() {
+open class StateStoreTest : AsyncTest() {
+
+    open fun <S> createStore(initialState: S): StateStore<S, (S) -> S> = StateStore(initialState)
 
     @Test
     fun dispatchShouldMutateTheState() = runTest {
-        val store = StateStore(-1)
+        val store = createStore(-1)
 
         assertEquals(-1, store.get())
 
@@ -46,7 +48,7 @@ class StateStoreTest : AsyncTest() {
 
     @Test
     fun subscriptionShouldAlwaysImmediatelyStartWithCurrentState() = runTest {
-        val store = StateStore("Hello world")
+        val store = createStore("Hello world")
 
         withTimeout(1, TimeUnit.SECONDS) {
             assertEquals("Hello world", store.get())
@@ -58,7 +60,7 @@ class StateStoreTest : AsyncTest() {
 
     @Test
     fun subscriptionShouldNotReceiveUnchangedState() = runTest {
-        val store = StateStore("Hello")
+        val store = createStore("Hello")
 
         val barrier = Mutex(true)
 

@@ -39,9 +39,17 @@ public fun <S, A : (S) -> S> StateStore(initialState: S): StateStore<S, A> = Sta
  */
 public fun <S, A> StateStore(initialState: S, reducer: (state: S, action: A) -> S): StateStore<S, A> = SimpleStateStore(initialState, reducer)
 
+/**
+ * Returns a [StateStore] which is a *view* on this store, transforming the state from it with [transformState] and delegating actions transformed by [transformAction]
+ */
+public fun <S1, S2, A1, A2> StateStore<S1, A1>.map(
+    transformState: (S1) -> S2,
+    transformAction: (A2) -> A1
+): StateStore<S2, A2> = StateStoreView(this, transformState, transformAction)
+
 private class SimpleStateStore<out S, in A>(
-        initialState: S,
-        reducer: (state: S, action: A) -> S
+    initialState: S,
+    reducer: (state: S, action: A) -> S
 ) : StateStore<S, A> {
 
     private val broadcast = ConflatedBroadcastChannel(initialState)
@@ -74,4 +82,18 @@ private class SimpleStateStore<out S, in A>(
     }
 
     override fun openSubscription(): ReceiveChannel<S> = broadcast.openSubscription()
+}
+
+private class StateStoreView<in S1, out S2, out A1, in A2>(
+    private val origin: StateStore<S1, A1>,
+    private val transformState: (S1) -> S2,
+    private val transformAction: (A2) -> A1
+) : StateStore<S2, A2> {
+
+    override suspend fun get(): S2 = transformState(origin.get())
+
+    override fun dispatch(action: A2) = origin.dispatch(transformAction(action))
+
+    override fun openSubscription(): ReceiveChannel<S2> =
+        origin.openSubscription { transformState(it) }
 }
