@@ -43,14 +43,12 @@ public fun <E> ObservableList<out E>.openListSubscription(): ReceiveChannel<Pers
         while (change.next()) {
             when {
                 change.wasPermutated() -> {
-                    println("permutation (${change.from}-${change.to} / ${change.list})")
                     val previous = list
                     for (oldIndex in (change.from until change.to)) {
                         list = list.with(change.getPermutation(oldIndex), previous[oldIndex])
                     }
                 }
                 change.wasUpdated() -> {
-                    println("update (${change.from}-${change.to} / ${change.list})")
                     list = when {
                         change.to - change.from == 1 -> list.with(change.from, change.list[change.from])
                         change.from == 0 && change.to == list.size -> change.list.toPersistentList()
@@ -58,7 +56,6 @@ public fun <E> ObservableList<out E>.openListSubscription(): ReceiveChannel<Pers
                     }
                 }
                 change.wasRemoved() || change.wasAdded() -> {
-                    println("remove/add (${change.from}-${change.to} / ${change.list})")
                     list = list.subList(0, change.from) + change.addedSubList + list.subList(list.size - (change.list.size - change.to), list.size)
                 }
             }
