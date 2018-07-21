@@ -15,6 +15,8 @@ import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.javafx.JavaFx
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.test.withTestContext
+import kotlinx.coroutines.experimental.withContext
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -116,15 +118,21 @@ class SubscriptionsTest {
 
         timer.await(1)
 
-        observable[1] = "Kotlin"
+        withContext(JavaFx) { observable[1] = "Kotlin" }
         timer.advanceTo(2)
         timer.await(3)
 
-        observable.clear()
-        observable.addAll("one", "two")
-        observable.remove("one")
-        observable[0] = "Monday"
-        observable.addAll("Tuesday", "Wednesday", "Thursday", "Friday")
+        withContext(JavaFx) {
+            observable.clear()
+            observable.addAll("one", "two")
+            observable.remove("one")
+            observable[0] = "Monday"
+        }
+
+        withContext(JavaFx) {
+            observable.addAll("Tuesday", "Wednesday", "Thursday", "Friday")
+        }
+
         timer.advanceTo(4)
         timer.await(5)
     }
@@ -142,7 +150,7 @@ class SubscriptionsTest {
         }
 
         timer.await(1)
-        observable.sort()
+        withContext(JavaFx) { observable.sort() }
         timer.advanceTo(2)
     }
 
@@ -159,8 +167,10 @@ class SubscriptionsTest {
         }
 
         timer.await(1)
-        observable.add(1, 'c')
-        observable.add(1, 'b')
+        withContext(JavaFx) {
+            observable.add(1, 'c')
+            observable.add(1, 'b')
+        }
         timer.advanceTo(2)
     }
 }
