@@ -5,13 +5,16 @@
 * `launchConsumeEach` uses now `Unconfined` context by default
 
 ### Features
-* Provide a `StateStore` which is an equivalent concept as "store" in [redux](https://redux.js.org/).
-  It stores an immutable state and actions may be dispatched in order replace it by a new states and notify all subscribers.
-* Provide a way to create a StateStore backed by another one (`StateStore.map(transformState, transformAction)`)
-* Provide a `SubscribableValue.openSubscription(transform: (T) -> R)` which simplify mapping result of a subscription 
+* `StateStore` is an equivalent concept as "store" in [redux](https://redux.js.org/).
+  It stores an immutable state and actions may be dispatched in order replace move to a new states and notify all subscribers
+* `StateStore.map(transformState, transformAction)` makes possible to create a *view* of a StateStore
+* `SubscribableValue.openSubscription(transform: (T) -> R)` which simplify mapping result of a subscription 
+
+### JavaFx Integration
+* `openListSubscription()` on `ObservableList`
 
 ### Enhancements
-* Make sure all operator always consumes the sources, even if they don't have the time to start at all
+* All operator now always consumes the sources, even if they don't have the time to start at all
 
 ### Update dependencies
 * kotlin: 1.2.51
