@@ -7,6 +7,7 @@
 ### Features
 * Provide a `StateStore` which is an equivalent concept as "store" in [redux](https://redux.js.org/).
   It stores an immutable state and actions may be dispatched in order replace it by a new states and notify all subscribers.
+* Provide a `SubscribableValue.openSubscription(transform: (T) -> R)` which simplify mapping result of a subscription 
 
 ### Enhancements
 * Make sure all operator always consumes the sources, even if they don't have the time to start at all
