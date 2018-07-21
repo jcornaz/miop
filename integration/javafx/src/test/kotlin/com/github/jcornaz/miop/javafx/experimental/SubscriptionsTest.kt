@@ -1,6 +1,8 @@
 package com.github.jcornaz.miop.javafx.experimental
 
+import com.github.jcornaz.collekt.api.PersistentList
 import com.github.jcornaz.miop.internal.test.ManualTimer
+import com.github.jcornaz.miop.internal.test.runTest
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.doAnswer
 import com.nhaarman.mockito_kotlin.doReturn
@@ -8,6 +10,8 @@ import com.nhaarman.mockito_kotlin.mock
 import javafx.application.Platform
 import javafx.beans.value.ChangeListener
 import javafx.beans.value.ObservableValue
+import javafx.collections.FXCollections
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.javafx.JavaFx
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
@@ -18,7 +22,7 @@ import kotlin.coroutines.experimental.coroutineContext
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class JavaFxUtilsTest {
+class SubscriptionsTest {
 
     private lateinit var timer: ManualTimer
 
@@ -92,5 +96,71 @@ class JavaFxUtilsTest {
         timer.await(1)
         sub.cancel()
         timer.await(2)
+    }
+
+    @Test
+    fun testObservableListSubscription() = runTest {
+        val observable = FXCollections.observableArrayList<String>("Hello", "world")
+        val sub: ReceiveChannel<PersistentList<String>> = observable.openListSubscription()
+
+        launch(coroutineContext) {
+            assertEquals(listOf("Hello", "world"), sub.receive())
+            timer.advanceTo(1)
+            timer.await(2)
+            assertEquals(listOf("Hello", "Kotlin"), sub.receive())
+            timer.advanceTo(3)
+            timer.await(4)
+            assertEquals(listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"), sub.receive())
+            timer.advanceTo(5)
+        }
+
+        timer.await(1)
+
+        observable[1] = "Kotlin"
+        timer.advanceTo(2)
+        timer.await(3)
+
+        observable.clear()
+        observable.addAll("one", "two")
+        observable.remove("one")
+        observable[0] = "Monday"
+        observable.addAll("Tuesday", "Wednesday", "Thursday", "Friday")
+        timer.advanceTo(4)
+        timer.await(5)
+    }
+
+    @Test
+    fun testObservableListSubscriptionWithSorting() = runTest {
+        val observable = FXCollections.observableArrayList<Char>('a', 'x', 'd', 'b', 'c', 'y', 'z')
+        val sub: ReceiveChannel<PersistentList<Char>> = observable.openListSubscription()
+
+        launch(coroutineContext) {
+            assertEquals(listOf('a', 'x', 'd', 'b', 'c', 'y', 'z'), sub.receive())
+            timer.advanceTo(1)
+            timer.await(2)
+            assertEquals(listOf('a', 'b', 'c', 'd', 'x', 'y', 'z'), sub.receive())
+        }
+
+        timer.await(1)
+        observable.sort()
+        timer.advanceTo(2)
+    }
+
+    @Test
+    fun testObservableListSubscriptionWithInsert() = runTest {
+        val observable = FXCollections.observableArrayList<Char>('a', 'd', 'e')
+        val sub: ReceiveChannel<PersistentList<Char>> = observable.openListSubscription()
+
+        launch(coroutineContext) {
+            assertEquals(listOf('a', 'd', 'e'), sub.receive())
+            timer.advanceTo(1)
+            timer.await(2)
+            assertEquals(listOf('a', 'b', 'c', 'd', 'e'), sub.receive())
+        }
+
+        timer.await(1)
+        observable.add(1, 'c')
+        observable.add(1, 'b')
+        timer.advanceTo(2)
     }
 }

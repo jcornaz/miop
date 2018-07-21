@@ -1,6 +1,5 @@
 package com.github.jcornaz.miop.javafx.experimental
 
-import com.github.jcornaz.collekt.api.ImmutableList
 import com.github.jcornaz.collekt.api.PersistentList
 import com.github.jcornaz.collekt.toPersistentList
 import com.github.jcornaz.miop.experimental.awaitCancel
@@ -37,19 +36,21 @@ public fun <T> ObservableValue<out T>.openValueSubscription(): ReceiveChannel<T?
  *
  * The result channel starts with the current value.
  */
-public fun <E> ObservableList<out E>.openListSubscription(): ReceiveChannel<ImmutableList<E>> = produce(JavaFx, Channel.CONFLATED) {
+public fun <E> ObservableList<out E>.openListSubscription(): ReceiveChannel<PersistentList<E>> = produce(JavaFx, Channel.CONFLATED) {
     var list: PersistentList<E> = toPersistentList().also { offer(it) }
-    
+
     val listener = ListChangeListener<E> { change ->
         while (change.next()) {
             when {
                 change.wasPermutated() -> {
+                    println("permutation (${change.from}-${change.to} / ${change.list})")
                     val previous = list
                     for (oldIndex in (change.from until change.to)) {
                         list = list.with(change.getPermutation(oldIndex), previous[oldIndex])
                     }
                 }
                 change.wasUpdated() -> {
+                    println("update (${change.from}-${change.to} / ${change.list})")
                     list = when {
                         change.to - change.from == 1 -> list.with(change.from, change.list[change.from])
                         change.from == 0 && change.to == list.size -> change.list.toPersistentList()
@@ -57,7 +58,8 @@ public fun <E> ObservableList<out E>.openListSubscription(): ReceiveChannel<Immu
                     }
                 }
                 change.wasRemoved() || change.wasAdded() -> {
-                    list = list.subList(0, change.from) + change.addedSubList + list.subList(change.from, list.size)
+                    println("remove/add (${change.from}-${change.to} / ${change.list})")
+                    list = list.subList(0, change.from) + change.addedSubList + list.subList(list.size - (change.list.size - change.to), list.size)
                 }
             }
         }
