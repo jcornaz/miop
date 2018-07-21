@@ -153,11 +153,24 @@ public fun <E> ReceiveChannel<E>.launchConsumeEach(
  * Example: for the source: [1, 2, 2, 1, 2] [distinctUntilChanged] will emit: [1, 2, 1, 2]
  */
 public fun <E> ReceiveChannel<E>.distinctUntilChanged(): ReceiveChannel<E> = transform { input, output ->
-    var latest = input.receive()
-    output.send(latest)
+    var latest = input.receive().also { output.send(it) }
 
     input.consumeEach { elt ->
         if (elt != latest) {
+            output.send(elt)
+            latest = elt
+        }
+    }
+}
+
+/**
+ * Returns a [ReceiveChannel] which emits the element of this channel, unless the element has the same reference as the last emitted element.
+ */
+public fun <E> ReceiveChannel<E>.distinctReferenceUntilChanged(): ReceiveChannel<E> = transform { input, output ->
+    var latest = input.receive().also { output.send(it) }
+
+    input.consumeEach { elt ->
+        if (elt !== latest) {
             output.send(elt)
             latest = elt
         }
