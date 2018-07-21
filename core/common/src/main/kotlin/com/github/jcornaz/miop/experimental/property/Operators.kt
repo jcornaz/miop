@@ -3,9 +3,7 @@ package com.github.jcornaz.miop.experimental.property
 import com.github.jcornaz.miop.experimental.Channels
 import com.github.jcornaz.miop.experimental.distinctReferenceUntilChanged
 import com.github.jcornaz.miop.experimental.switchMap
-import com.github.jcornaz.miop.experimental.transform
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.consumeEach
 import kotlinx.coroutines.experimental.channels.map
 
 /**
@@ -36,11 +34,6 @@ public object SubscribableValues {
 public fun <T, R> SubscribableValue<T>.map(transform: suspend (T) -> R): SubscribableValue<R> = object : SubscribableValue<R> {
     override fun openSubscription() = this@map.openSubscription().map { transform(it) }.distinctReferenceUntilChanged()
 }
-
-public fun <S1, S2, A1, A2> StateStore<S1, A1>.map(
-    transformState: (S1) -> S2,
-    transformAction: (A2) -> A1
-): StateStore<S2, A2> = TODO()
 
 /**
  * Open a subscription and apply the given [transform] for each value.

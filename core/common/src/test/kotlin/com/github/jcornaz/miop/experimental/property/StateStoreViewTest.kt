@@ -4,6 +4,8 @@ import com.github.jcornaz.miop.internal.test.runTest
 import kotlinx.coroutines.experimental.CoroutineStart
 import kotlinx.coroutines.experimental.channels.consume
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.timeunit.TimeUnit
+import kotlinx.coroutines.experimental.withTimeout
 import kotlin.coroutines.experimental.coroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -40,8 +42,11 @@ class StateStoreViewTest : StateStoreTest() {
         }
 
         values.dispatch { it + 1 }
-        job1.join()
-        job2.join()
+
+        withTimeout(1, TimeUnit.SECONDS) {
+            job1.join()
+            job2.join()
+        }
 
         assertEquals("two", strings.get())
         assertEquals(2, values.get())
