@@ -1,5 +1,6 @@
 package com.github.jcornaz.miop.experimental.property
 
+import kotlinx.coroutines.experimental.DefaultDispatcher
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.ConflatedBroadcastChannel
@@ -47,7 +48,7 @@ private class SimpleStateStore<out S, in A>(
     private val pendingActions = Channel<A>(Channel.UNLIMITED)
 
     init {
-        launch(Unconfined) {
+        launch(DefaultDispatcher) {
             var state = initialState
 
             pendingActions.consumeEach { action ->

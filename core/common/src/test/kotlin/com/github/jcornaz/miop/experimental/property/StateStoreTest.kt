@@ -4,7 +4,10 @@ import com.github.jcornaz.miop.internal.test.AsyncTest
 import com.github.jcornaz.miop.internal.test.runTest
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.channels.first
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.sync.Mutex
+import kotlinx.coroutines.experimental.sync.withLock
 import kotlinx.coroutines.experimental.timeunit.TimeUnit
 import kotlinx.coroutines.experimental.withTimeout
 import kotlin.test.Test
@@ -18,6 +21,8 @@ class StateStoreTest : AsyncTest() {
 
         assertEquals(-1, store.get())
 
+        val barrier = Mutex(true)
+
         expect(1)
         launch(Unconfined) {
             val sub = store.openSubscription()
@@ -26,14 +31,14 @@ class StateStoreTest : AsyncTest() {
             expect(2)
 
             assertEquals(42, sub.receive()) // suspend
-
             expect(4)
+            barrier.unlock()
         }
 
         expect(3)
 
         store.dispatch { assertEquals(-1, it); 42 }
-
+        withTimeout(1, TimeUnit.SECONDS) { barrier.withLock {  } }
         expect(5)
 
         assertEquals(42, store.get())
@@ -54,8 +59,10 @@ class StateStoreTest : AsyncTest() {
     }
 
     @Test
-    fun subscriptionShouldNotReceiveUnchangedState() {
+    fun subscriptionShouldNotReceiveUnchangedState() = runTest {
         val store = StateStore("Hello")
+
+        val barrier = Mutex(true)
 
         expect(1)
         launch(Unconfined) {
@@ -64,13 +71,16 @@ class StateStoreTest : AsyncTest() {
             expect(2)
             assertEquals("World", sub.receive()) // suspend
             expect(5)
+            barrier.unlock()
         }
 
         expect(3)
         store.dispatch { it } // should not resume the job
+        delay(500, TimeUnit.MILLISECONDS)
         expect(4)
 
         store.dispatch { "World" } // should resume the job
+        withTimeout(1, TimeUnit.SECONDS) { barrier.withLock {  } }
         finish(6)
     }
 }
