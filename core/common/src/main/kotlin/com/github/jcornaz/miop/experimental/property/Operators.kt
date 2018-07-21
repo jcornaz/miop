@@ -37,6 +37,11 @@ public fun <T, R> SubscribableValue<T>.map(transform: suspend (T) -> R): Subscri
     override fun openSubscription() = this@map.openSubscription().map { transform(it) }.distinctReferenceUntilChanged()
 }
 
+public fun <S1, S2, A1, A2> StateStore<S1, A1>.map(
+    transformState: (S1) -> S2,
+    transformAction: (A2) -> A1
+): StateStore<S2, A2> = TODO()
+
 /**
  * Open a subscription and apply the given [transform] for each value.
  *
