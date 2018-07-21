@@ -2,14 +2,11 @@ package com.github.jcornaz.miop.experimental.property
 
 import com.github.jcornaz.miop.internal.test.AsyncTest
 import com.github.jcornaz.miop.internal.test.runTest
-import kotlinx.coroutines.experimental.Unconfined
+import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.first
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
 import kotlinx.coroutines.experimental.timeunit.TimeUnit
-import kotlinx.coroutines.experimental.withTimeout
 import kotlin.coroutines.experimental.coroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -25,7 +22,7 @@ class StateStoreTest : AsyncTest() {
         val barrier = Mutex(true)
 
         expect(1)
-        launch(coroutineContext) {
+        launch(coroutineContext, start = CoroutineStart.UNDISPATCHED) {
             val sub = store.openSubscription()
             assertEquals(-1, sub.receive())
 
@@ -66,7 +63,7 @@ class StateStoreTest : AsyncTest() {
         val barrier = Mutex(true)
 
         expect(1)
-        launch(coroutineContext) {
+        launch(coroutineContext, start = CoroutineStart.UNDISPATCHED) {
             val sub = store.openSubscription()
             assertEquals("Hello", sub.receive())
             expect(2)

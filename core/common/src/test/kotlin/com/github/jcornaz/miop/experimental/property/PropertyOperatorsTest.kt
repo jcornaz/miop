@@ -149,7 +149,7 @@ class PropertyOperatorsTest : AsyncTest() {
         val result: ReceiveChannel<String> = source.openSubscription { (it * 2).toString() }
 
         expect(1)
-        launch(coroutineContext) {
+        launch(coroutineContext, start = CoroutineStart.UNDISPATCHED) {
             expect(2)
             assertEquals("2", result.receive())
             expect(3)
@@ -170,7 +170,7 @@ class PropertyOperatorsTest : AsyncTest() {
         val result = source.openSubscription { if (it < 10) ref else it.toString() }
 
         expect(1)
-        launch(coroutineContext) {
+        launch(coroutineContext, start = CoroutineStart.UNDISPATCHED) {
             expect(2)
             assertEquals("less than ten", result.receive())
             expect(3)
