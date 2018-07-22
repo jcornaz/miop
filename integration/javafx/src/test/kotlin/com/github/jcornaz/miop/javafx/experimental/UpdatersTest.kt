@@ -4,6 +4,8 @@ import com.github.jcornaz.miop.internal.test.ManualTimer
 import com.github.jcornaz.miop.internal.test.runTest
 import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
+import javafx.collections.FXCollections
+import javafx.collections.ListChangeListener
 import kotlinx.coroutines.experimental.cancelAndJoin
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.javafx.JavaFx
@@ -32,7 +34,6 @@ class UpdatersTest {
 
     @Test
     fun propertyUpdaterShouldUpdateTheValue() = runTest {
-
         val source = Channel<String>(Channel.CONFLATED).apply { send("Hello") }
         val property = SimpleStringProperty()
 
@@ -55,6 +56,38 @@ class UpdatersTest {
             expectedValue = "world"
             nextTime = 2
             source.send("world")
+
+            timer.await(nextTime)
+
+            job.cancelAndJoin()
+        }
+    }
+
+    @Test
+    fun listUpdaterShouldUpdateTheList() = runTest {
+        val source = Channel<List<String>>(Channel.CONFLATED).apply { send(listOf("Hello")) }
+        val observable = FXCollections.observableArrayList<String>()
+
+        var expectedValue = listOf("Hello")
+        var nextTime = 1
+
+        withContext(JavaFx) {
+            observable.addListener { change: ListChangeListener.Change<out String> ->
+                assertTrue(change.next())
+                assertTrue(change.wasAdded())
+                assertEquals(expectedValue, change.list)
+                timer.advanceTo(nextTime)
+            }
+        }
+
+        val job = source.launchUpdater(observable)
+
+        withTimeout(1, TimeUnit.SECONDS) {
+            timer.await(nextTime)
+
+            expectedValue = listOf("Hello", "world")
+            nextTime = 2
+            source.send(expectedValue)
 
             timer.await(nextTime)
 

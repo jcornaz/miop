@@ -4,7 +4,6 @@ import com.github.jcornaz.miop.experimental.distinctUntilChanged
 import com.github.jcornaz.miop.experimental.launchConsumeEach
 import javafx.beans.property.Property
 import javafx.collections.ObservableList
-import javafx.collections.ObservableSet
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.javafx.JavaFx
@@ -39,21 +38,4 @@ fun <E> ReceiveChannel<List<E>>.launchUpdater(observableList: ObservableList<in 
                 }
             }
         }
-    }
-
-fun <E> ReceiveChannel<Set<E>>.launchUpdater(observableSet: ObservableSet<E>, parent: Job? = null): Job =
-    launchConsumeEach(JavaFx, parent = parent) { newSet ->
-        var toAdd = newSet
-        val iterator = observableSet.iterator()
-
-        while (iterator.hasNext()) {
-            val element = iterator.next()
-            if (element in newSet) {
-                toAdd -= element
-            } else {
-                iterator.remove()
-            }
-        }
-
-        observableSet.addAll(toAdd)
     }
