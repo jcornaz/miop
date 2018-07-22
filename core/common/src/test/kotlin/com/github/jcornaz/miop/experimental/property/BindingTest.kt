@@ -2,7 +2,10 @@ package com.github.jcornaz.miop.experimental.property
 
 import com.github.jcornaz.miop.internal.test.AsyncTest
 import com.github.jcornaz.miop.internal.test.runTest
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.CoroutineStart
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.yield
 import kotlin.coroutines.experimental.coroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -63,29 +66,5 @@ class BindingTest : AsyncTest() {
         job.cancel() // should stop the binding
         source.set(2)
         assertEquals(1, target.get())
-    }
-
-    @Test
-    fun bindBidirectionalShouldKeepUpToDateBothVariable() = runTest {
-        val variable1 = SubscribableVariable(0)
-        val variable2 = SubscribableVariable(0)
-
-        val job = variable2.bindBidirectional(variable1)
-
-        assertEquals(0, variable1.get())
-        assertEquals(0, variable1.get())
-
-        variable1.set(1)
-        assertEquals(1, variable1.get())
-        assertEquals(1, variable2.get())
-        variable2.set(2)
-        assertEquals(2, variable1.get())
-        assertEquals(2, variable2.get())
-
-        job.cancel()
-
-        variable1.set(3)
-        assertEquals(3, variable1.get())
-        assertEquals(2, variable2.get())
     }
 }
