@@ -8,9 +8,19 @@ import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.javafx.JavaFx
 
+/**
+ * Start a new job which update the [property] with each elements received
+ *
+ * The result or the [parent] shall be cancelled in order to cancel the channel
+ */
 fun <T> ReceiveChannel<T>.launchUpdater(property: Property<in T>, parent: Job? = null): Job =
     distinctUntilChanged().launchConsumeEach(JavaFx, parent = parent) { property.value = it }
 
+/**
+ * Start a new job which update the [observableList] with each new list received
+ *
+ * The result or the [parent] shall be cancelled in order to cancel the channel
+ */
 fun <E> ReceiveChannel<List<E>>.launchUpdater(observableList: ObservableList<in E>, parent: Job? = null): Job =
     launchConsumeEach(JavaFx, parent = parent) { newList ->
         when {
