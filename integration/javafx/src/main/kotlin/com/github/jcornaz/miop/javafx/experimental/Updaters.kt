@@ -24,7 +24,7 @@ fun <E> ReceiveChannel<List<E>>.launchUpdater(observableList: ObservableList<in 
                 while (sourceIterator.hasNext() && targetIterator.hasNext()) {
                     val sourceElement = sourceIterator.next()
 
-                    if (sourceElement != targetIterator.next()) {
+                    if (sourceElement !== targetIterator.next()) {
                         targetIterator.set(sourceElement)
                     }
 
