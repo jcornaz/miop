@@ -7,7 +7,7 @@ import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.ClosedReceiveChannelException
 import kotlin.test.*
 
-class BuildersTest : AsyncTest() {
+class FactoryFunctionsTest : AsyncTest() {
 
     @Test
     fun emptyReceiveChannelShouldReturnAChannelAlreadyClosed() = runTest {

@@ -1,24 +1,26 @@
 # Change log
 
-## 0.0.3 (Unreleased)
-### Breaking changes
-* `launchConsumeEach` uses now `Unconfined` context by default
-* Remove `bind` extension functions for `SubscribableVariable` as it was an error-prone way of keeping up-to-date a subscribable variable
+## 0.0.3 (2018-07-23)
+Multi-platform support, StateStore and JavaFx integration improvement.
 
-### Features
+### Breaking changes
+* `launchConsumeEach` uses `Unconfined` context by default
+* Remove `bind` extension functions for `SubscribableVariable`. It was an error-prone way of keeping up-to-date a subscribable variable.
+
+### New features
 * `StateStore` is an equivalent concept as "store" in [redux](https://redux.js.org/).
-  It stores an immutable state and actions may be dispatched in order replace move to a new states and notify all subscribers
+  It stores an immutable state and actions may be dispatched in order to move to a new state and notify all subscribers
 * `StateStore.map(transformState, transformAction)` makes possible to create a *view* of a StateStore
-* `SubscribableValue.openSubscription(transform: (T) -> R)` which simplify mapping result of a subscription 
+* `SubscribableValue.openSubscription(transform: (T) -> R)` simplify mapping result of a subscription
 
 ### JavaFx Integration
-* `openListSubscription()` extension function on `ObservableList`
-* `ReceiveChannel.launchUpdater` functions to easily start an update job for `Property` or `ObservableList`
+* `ObservableList.openListSubscription()` extension function
+* `ReceiveChannel.launchUpdater` extension functions to easily start an update job for `Property` or `ObservableList`
 
 ### Enhancements
-* All operator now always consumes the sources, even if they don't have the time to start at all
+* All operator always consumes the sources, even if they don't have the time to start at all
 
-### Update dependencies
+### Dependencies update
 * kotlin: 1.2.51
 * kotlinx.coroutines: 0.23.4
 
