@@ -3,6 +3,7 @@
 ## 0.0.3 (Unreleased)
 ### Breaking changes
 * `launchConsumeEach` uses now `Unconfined` context by default
+* Remove `bind` extension functions for `SubscribableVariable` as it was an error-prone way of keeping up-to-date a subscribable variable
 
 ### Features
 * `StateStore` is an equivalent concept as "store" in [redux](https://redux.js.org/).
@@ -11,7 +12,8 @@
 * `SubscribableValue.openSubscription(transform: (T) -> R)` which simplify mapping result of a subscription 
 
 ### JavaFx Integration
-* `openListSubscription()` on `ObservableList`
+* `openListSubscription()` extension function on `ObservableList`
+* `ReceiveChannel.launchUpdater` functions to easily start an update job for `Property` or `ObservableList`
 
 ### Enhancements
 * All operator now always consumes the sources, even if they don't have the time to start at all
