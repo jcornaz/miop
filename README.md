@@ -53,7 +53,7 @@ repositories {
 
 dependencies {
 
-    // replace 'jvm' by 'common' or 'js' according to the module type
+    // replace 'jvm' by 'javafx', 'common' or 'js' according to your needs
     compile 'com.github.jcornaz.miop:miop-jvm:0.0.3'
 }
 ```
