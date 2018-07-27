@@ -180,7 +180,7 @@ public fun <E> ReceiveChannel<E>.distinctReferenceUntilChanged(): ReceiveChannel
     }
 
     output.send(latest)
-    
+
     input.consumeEach { elt ->
         if (elt !== latest) {
             output.send(elt)
