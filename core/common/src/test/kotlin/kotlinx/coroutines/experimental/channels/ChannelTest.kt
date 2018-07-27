@@ -8,9 +8,6 @@ import kotlinx.coroutines.experimental.CancellationException
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.cancelAndJoin
 import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.sync.Mutex
-import kotlinx.coroutines.experimental.sync.withLock
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -66,7 +63,6 @@ class ChannelTest : AsyncTest() {
     }
 
     @Test
-    @Ignore // wait on https://github.com/Kotlin/kotlinx.coroutines/issues/415
     fun testCancelProduce() = runTest {
         val source = Channel<Int>()
 
