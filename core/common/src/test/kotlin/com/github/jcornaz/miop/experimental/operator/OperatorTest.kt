@@ -1,14 +1,18 @@
 package com.github.jcornaz.miop.experimental.operator
 
+import com.github.jcornaz.miop.experimental.emptyReceiveChannel
 import com.github.jcornaz.miop.internal.test.assertThrows
 import com.github.jcornaz.miop.internal.test.runTest
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.experimental.channels.*
+import kotlinx.coroutines.experimental.timeunit.TimeUnit
+import kotlinx.coroutines.experimental.withTimeout
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 abstract class OperatorTest {
 
-    abstract fun ReceiveChannel<Int>.operator(): ReceiveChannel<Int>
+    abstract fun <T> ReceiveChannel<T>.operator(): ReceiveChannel<T>
 
     @Test
     fun testCancel() = runTest {
@@ -16,5 +20,20 @@ abstract class OperatorTest {
         source.operator().cancel(DummyException("something went wrong"))
 
         assertThrows<Exception> { source.send(0) }
+    }
+
+    @Test
+    fun shouldEmitTheUpstreamErrorIfAny() = runTest {
+        val exception = assertThrows<Exception> { produce<Int> { throw Exception("my exception") }.operator().first() }
+        assertEquals("my exception", exception.message)
+    }
+
+    @Test
+    fun shouldReturnEmptyChannelForAnEmptySource() = runTest {
+        val result = emptyReceiveChannel<String>().operator()
+
+        withTimeout(1, TimeUnit.SECONDS) {
+            assertTrue(result.toList().isEmpty())
+        }
     }
 }

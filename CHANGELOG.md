@@ -1,6 +1,9 @@
 # Change log
 
 ## 0.0.4-SNAPSHOT (Unreleased)
+### Fixes
+* Fix exception when `distinctUntilChanged` or `distinctReferenceUntilChanged` was invoked on an empty source.
+
 ### Dependencies update
 * kotlinx.coroutines: 0.24.0
 

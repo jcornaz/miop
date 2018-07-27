@@ -280,18 +280,4 @@ class OperatorsTest : AsyncTest() {
 
         assertEquals(listOf(1, 2, 3, 2, 1), receivedValues)
     }
-
-    @Test
-    fun distinctUntilChangedShouldEmitTheUpstreamErrorIfAny() = runTest {
-        val exception = assertThrows<Exception> { produce<Int> { throw Exception("my exception") }.distinctUntilChanged().first() }
-        assertEquals("my exception", exception.message)
-    }
-
-    @Test
-    fun cancellingTheResultOfDistinctUntilChangedShouldCancelTheUpstreamChannel() = runTest {
-        val source = Channel<Int>()
-        source.distinctUntilChanged().cancel(DummyException("something went wrong"))
-
-        assertThrows<Exception> { source.send(0) }
-    }
 }

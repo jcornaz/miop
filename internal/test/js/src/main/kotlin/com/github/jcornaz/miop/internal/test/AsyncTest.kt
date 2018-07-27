@@ -25,12 +25,12 @@ actual abstract class AsyncTest actual constructor() {
 
     protected actual fun expect(step: Int) {
         assertFalse(isFinished, "expect($step) has been called after finish($stepCount")
-        assertTrue(++stepCount == step, "unexpected step count (expected $stepCount, but $step was found)")
+        assertTrue(++stepCount == step, "unexpected step count (expected $step, but $stepCount was found)")
     }
 
     protected actual fun finish(step: Int) {
         assertTrue(isFinished, "finish has been called twice")
-        assertTrue(++stepCount == step, "unexpected step count (expected $stepCount, but $step was found)")
+        assertTrue(++stepCount == step, "unexpected step count (expected $step, but $stepCount was found)")
     }
 
     protected actual fun unreachable(createMessage: () -> String) {
