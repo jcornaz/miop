@@ -5,9 +5,10 @@ import com.github.jcornaz.miop.internal.test.AsyncTest
 import com.github.jcornaz.miop.internal.test.assertThrows
 import com.github.jcornaz.miop.internal.test.runTest
 import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.channels.*
+import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.experimental.channels.toList
 import kotlinx.coroutines.experimental.launch
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -270,20 +271,5 @@ class OperatorsTest : AsyncTest() {
         val receivedValues = receiveChannelOf(1, 2, 2, 2, 3, 2, 1, 1).distinctUntilChanged().toList()
 
         assertEquals(listOf(1, 2, 3, 2, 1), receivedValues)
-    }
-
-    @Test
-    fun distinctUntilChangedShouldEmitTheUpstreamErrorIfAny() = runTest {
-        val exception = assertThrows<Exception> { produce<Int> { throw Exception("my exception") }.distinctUntilChanged().first() }
-        assertEquals("my exception", exception.message)
-    }
-
-    @Test
-    @Ignore // wait on https://github.com/Kotlin/kotlinx.coroutines/issues/415
-    fun cancellingTheResultOfDistinctUntilChangedShouldCancelTheUpstreamChannel() = runTest {
-        val source = Channel<Int>()
-        source.distinctUntilChanged().cancel(DummyException("something went wrong"))
-
-        assertThrows<Exception> { source.send(0) }
     }
 }

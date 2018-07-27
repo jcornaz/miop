@@ -14,7 +14,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class FreeFormOperatorTest : OperatorTest() {
-    override fun ReceiveChannel<Int>.operator(): ReceiveChannel<Int> =
+    override fun <T> ReceiveChannel<T>.operator(): ReceiveChannel<T> =
             transform { input, output -> input.consumeEach { output.send(it) } }
 
     @Test
