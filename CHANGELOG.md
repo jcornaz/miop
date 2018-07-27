@@ -1,7 +1,8 @@
 # Change log
 
-## 0.1-SNAPSHOT (Unreleased)
-New operators and API polish
+## 0.0.4-SNAPSHOT (Unreleased)
+### Dependencies update
+* kotlinx.coroutines: 0.24.0
 
 ## 0.0.3 (2018-07-23)
 Multi-platform support, StateStore and JavaFx integration improvement.

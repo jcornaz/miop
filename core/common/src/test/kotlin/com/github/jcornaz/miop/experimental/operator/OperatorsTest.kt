@@ -1,12 +1,20 @@
 package com.github.jcornaz.miop.experimental.operator
 
-import com.github.jcornaz.miop.experimental.*
+import com.github.jcornaz.miop.experimental.combineLatestWith
+import com.github.jcornaz.miop.experimental.distinctUntilChanged
+import com.github.jcornaz.miop.experimental.emptyReceiveChannel
+import com.github.jcornaz.miop.experimental.launchConsumeEach
+import com.github.jcornaz.miop.experimental.mergeWith
+import com.github.jcornaz.miop.experimental.receiveChannelOf
+import com.github.jcornaz.miop.experimental.switchMap
 import com.github.jcornaz.miop.internal.test.AsyncTest
 import com.github.jcornaz.miop.internal.test.assertThrows
 import com.github.jcornaz.miop.internal.test.runTest
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.experimental.channels.first
+import kotlinx.coroutines.experimental.channels.produce
 import kotlinx.coroutines.experimental.channels.toList
 import kotlinx.coroutines.experimental.launch
 import kotlin.test.Test

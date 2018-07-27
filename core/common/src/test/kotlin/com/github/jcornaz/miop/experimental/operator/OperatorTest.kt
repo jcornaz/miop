@@ -6,7 +6,6 @@ import com.github.jcornaz.miop.internal.test.runTest
 import kotlinx.coroutines.experimental.channels.*
 import kotlinx.coroutines.experimental.timeunit.TimeUnit
 import kotlinx.coroutines.experimental.withTimeout
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -16,7 +15,6 @@ abstract class OperatorTest {
     abstract fun <T> ReceiveChannel<T>.operator(): ReceiveChannel<T>
 
     @Test
-    @Ignore // wait on https://github.com/Kotlin/kotlinx.coroutines/issues/415
     fun testCancel() = runTest {
         val source = Channel<Int>()
         source.operator().cancel(DummyException("something went wrong"))
