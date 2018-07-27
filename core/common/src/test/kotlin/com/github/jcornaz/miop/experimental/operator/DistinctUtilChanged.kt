@@ -9,9 +9,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DistinctUtilChanged : DistinctReferenceUntilChanged() {
+
     override fun <T> ReceiveChannel<T>.operator(): ReceiveChannel<T> =
         distinctUntilChanged()
-
 
     @Test
     fun shouldNotEmitLastItemIfEquals() = runTest {
