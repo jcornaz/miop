@@ -9,19 +9,18 @@ import kotlinx.coroutines.experimental.channels.consumeEach
 import kotlinx.coroutines.experimental.launch
 
 /**
- * Object which store state and accept actions in order to get new states.
+ * Object which store state and accept events in order to get new states.
  *
  * There is only one state at a time, and the state is supposed to be immutable.
- * Action should be fast, non-blocking, and preferably be pure.
  *
  * It is possible to get a subscription of the states with [openSubscription]
  *
  * This concept is heavily inspired from [redux](https://redux.js.org).
  */
-public interface StateStore<out S, in A> : SubscribableValue<S> {
+public interface StateStore<out S, in E> : SubscribableValue<S> {
 
-    /** Dispatch an action in order to mutate the state. The action may be scheduled for later */
-    fun dispatch(action: A)
+    /** Dispatch an event in order to mutate the state. The event may be scheduled for later */
+    fun dispatch(event: E)
 }
 
 /**
@@ -29,39 +28,39 @@ public interface StateStore<out S, in A> : SubscribableValue<S> {
  *
  * @param initialState Initial state of the store
  */
-public fun <S, A : (S) -> S> StateStore(initialState: S): StateStore<S, A> = StateStore(initialState) { state, action -> action(state) }
+public fun <S, E : (S) -> S> StateStore(initialState: S): StateStore<S, E> = StateStore(initialState) { state, event -> event(state) }
 
 /**
  * Create a [StateStore] with the [initialState] and a [reducer].
  *
  * @param initialState Initial state of the store
- * @param reducer Function called for each dispatched action and responsible to return a new state.
+ * @param reducer Function called for each dispatched event and responsible to return a new state. Should handle events and a fast and non-blocking manner.
  */
-public fun <S, A> StateStore(initialState: S, reducer: (state: S, action: A) -> S): StateStore<S, A> = SimpleStateStore(initialState, reducer)
+public fun <S, E> StateStore(initialState: S, reducer: (state: S, event: E) -> S): StateStore<S, E> = SimpleStateStore(initialState, reducer)
 
 /**
- * Returns a [StateStore] which is a *view* on this store, transforming the state from it with [transformState] and delegating actions transformed by [transformAction]
+ * Returns a [StateStore] which is a *view* on this store, transforming the state from it with [transformState] and delegating events transformed by [transformEvent]
  */
-public fun <S1, S2, A1, A2> StateStore<S1, A1>.map(
+public fun <S1, S2, E1, E2> StateStore<S1, E1>.map(
     transformState: (S1) -> S2,
-    transformAction: (A2) -> A1
-): StateStore<S2, A2> = StateStoreView(this, transformState, transformAction)
+    transformEvent: (E2) -> E1
+): StateStore<S2, E2> = StateStoreView(this, transformState, transformEvent)
 
 private class SimpleStateStore<out S, in A>(
     initialState: S,
-    reducer: (state: S, action: A) -> S
+    reducer: (state: S, event: A) -> S
 ) : StateStore<S, A> {
 
     private val broadcast = ConflatedBroadcastChannel(initialState)
-    private val pendingActions = Channel<A>(Channel.UNLIMITED)
+    private val pendingEvents = Channel<A>(Channel.UNLIMITED)
 
     init {
         launch(DefaultDispatcher) {
             var state = initialState
 
-            pendingActions.consumeEach { action ->
+            pendingEvents.consumeEach { event ->
                 val newState = try {
-                    reducer(state, action)
+                    reducer(state, event)
                 } catch (error: Throwable) {
                     launch(Unconfined) { throw error }
                     return@consumeEach
@@ -77,22 +76,22 @@ private class SimpleStateStore<out S, in A>(
 
     override suspend fun get(): S = broadcast.value
 
-    override fun dispatch(action: A) {
-        pendingActions.offer(action)
+    override fun dispatch(event: A) {
+        pendingEvents.offer(event)
     }
 
     override fun openSubscription(): ReceiveChannel<S> = broadcast.openSubscription()
 }
 
-private class StateStoreView<in S1, out S2, out A1, in A2>(
-    private val origin: StateStore<S1, A1>,
+private class StateStoreView<in S1, out S2, out E1, in E2>(
+    private val origin: StateStore<S1, E1>,
     private val transformState: (S1) -> S2,
-    private val transformAction: (A2) -> A1
-) : StateStore<S2, A2> {
+    private val transformEvent: (E2) -> E1
+) : StateStore<S2, E2> {
 
     override suspend fun get(): S2 = transformState(origin.get())
 
-    override fun dispatch(action: A2) = origin.dispatch(transformAction(action))
+    override fun dispatch(event: E2) = origin.dispatch(transformEvent(event))
 
     override fun openSubscription(): ReceiveChannel<S2> =
         origin.openSubscription { transformState(it) }

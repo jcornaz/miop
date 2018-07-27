@@ -25,7 +25,7 @@ Reactive operator collection for coroutines channels which are not yet included 
 * `SubscribableValue` and `SubscribableVariable`
 * `map`, `switchMap` and `combine` operators for `SubscribableValue`
 * `StateStore` same concept as *store* in [redux](https://redux.js.org/)
-* `map(transformState, transformAction)` operator for `StateStore`  
+* `map(transformState, transformEvent)` operator for `StateStore`  
 
 ### JavaFx integration (module 'miop-javafx')
 * `openValueSubscription(): ReceiveChannel<T>` extension function on `ObservableValue<T>` 

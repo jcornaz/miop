@@ -1,6 +1,9 @@
 # Change log
 
 ## 0.0.4-SNAPSHOT (Unreleased)
+### Refactorings
+* **[break source compatibility]** In `EventStore` `action` arguments have been renamed `event`.
+
 ### Fixes
 * Fix exception when `distinctUntilChanged` or `distinctReferenceUntilChanged` was invoked on an empty source.
 

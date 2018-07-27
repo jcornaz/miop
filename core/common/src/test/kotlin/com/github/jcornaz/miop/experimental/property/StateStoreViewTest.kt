@@ -14,14 +14,14 @@ private val NUMBERS = listOf("zero", "one", "two", "three")
 
 class StateStoreViewTest : StateStoreTest() {
     override fun <S> createStore(initialState: S): StateStore<S, (S) -> S> =
-        StateStore(initialState).map(transformState = { it }, transformAction = { it })
+        StateStore(initialState).map(transformState = { it }, transformEvent = { it })
 
     @Test
     fun shouldMapState() = runTest {
         val strings = StateStore("one")
         val values = strings.map(
             transformState = { NUMBERS.indexOf(it) },
-            transformAction = { action: (Int) -> Int -> { NUMBERS[action(NUMBERS.indexOf(it))] } }
+            transformEvent = { event: (Int) -> Int -> { NUMBERS[event(NUMBERS.indexOf(it))] } }
         )
 
         assertEquals("one", strings.get())
