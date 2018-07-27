@@ -179,6 +179,8 @@ public fun <E> ReceiveChannel<E>.distinctReferenceUntilChanged(): ReceiveChannel
         return@transform
     }
 
+    output.send(latest)
+    
     input.consumeEach { elt ->
         if (elt !== latest) {
             output.send(elt)

@@ -1,13 +1,13 @@
 package com.github.jcornaz.miop.experimental.operator
 
+import com.github.jcornaz.miop.experimental.emptyReceiveChannel
 import com.github.jcornaz.miop.experimental.receiveChannelOf
 import com.github.jcornaz.miop.experimental.transform
 import com.github.jcornaz.miop.internal.test.assertThrows
 import com.github.jcornaz.miop.internal.test.runTest
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.consumeEach
-import kotlinx.coroutines.experimental.channels.toList
+import kotlinx.coroutines.experimental.channels.*
+import kotlinx.coroutines.experimental.timeunit.TimeUnit
+import kotlinx.coroutines.experimental.withTimeout
 import kotlin.coroutines.experimental.coroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -41,4 +41,12 @@ class FreeFormOperatorTest : OperatorTest() {
         assertEquals("something went wrong", e2.message)
     }
 
+    @Test
+    fun shouldSendCloseToken() = runTest {
+        val result = emptyReceiveChannel<Int>().transform<Int, Int> { _, _ -> }
+
+        withTimeout(1, TimeUnit.SECONDS) {
+            assertThrows<ClosedReceiveChannelException> { result.receive() }
+        }
+    }
 }
