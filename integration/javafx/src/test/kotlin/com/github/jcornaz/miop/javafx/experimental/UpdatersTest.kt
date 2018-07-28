@@ -7,6 +7,7 @@ import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.collections.ListChangeListener
+import javafx.collections.MapChangeListener
 import javafx.collections.SetChangeListener
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.cancelAndJoin
@@ -197,6 +198,72 @@ class UpdatersTest : AsyncTest() {
         source.send(listOf("a", "b"))
 
         withContext(JavaFx) { assertEquals(listOf("b", "a"), observable) }
+
+        job.cancelAndJoin()
+    }
+
+    @Test
+    fun mapUpdaterShouldAddNewEntries() = runTest {
+        val source = Channel<Map<Int, String>>(Channel.CONFLATED).apply { send(mapOf(0 to "Hello")) }
+        val observable = FXCollections.observableHashMap<Int, String>()
+
+        withContext(JavaFx) {
+            observable.addListener { _: MapChangeListener.Change<out Int, out String> ->
+                assertTrue(Platform.isFxApplicationThread())
+            }
+        }
+
+        val job = source.launchFxMapUpdater(observable)
+
+        withContext(JavaFx) { assertEquals(mapOf(0 to "Hello"), observable) }
+
+        source.send(mapOf(0 to "Hello", 1 to "world"))
+
+        withContext(JavaFx) { assertEquals(mapOf(0 to "Hello", 1 to "world"), observable) }
+
+        job.cancelAndJoin()
+    }
+
+    @Test
+    fun mapUpdaterShouldUpdatesEntries() = runTest {
+        val source = Channel<Map<Int, String>>(Channel.CONFLATED).apply { send(mapOf(0 to "Hello", 1 to "world")) }
+        val observable = FXCollections.observableHashMap<Int, String>()
+
+        withContext(JavaFx) {
+            observable.addListener { _: MapChangeListener.Change<out Int, out String> ->
+                assertTrue(Platform.isFxApplicationThread())
+            }
+        }
+
+        val job = source.launchFxMapUpdater(observable)
+
+        withContext(JavaFx) { assertEquals(mapOf(0 to "Hello", 1 to "world"), observable) }
+
+        source.send(mapOf(0 to "Hello", 1 to "kotlin"))
+
+        withContext(JavaFx) { assertEquals(mapOf(0 to "Hello", 1 to "kotlin"), observable) }
+
+        job.cancelAndJoin()
+    }
+
+    @Test
+    fun mapUpdaterShouldRemoveEntries() = runTest {
+        val source = Channel<Map<Int, String>>(Channel.CONFLATED).apply { send(mapOf(0 to "Hello", 1 to "world")) }
+        val observable = FXCollections.observableHashMap<Int, String>()
+
+        withContext(JavaFx) {
+            observable.addListener { _: MapChangeListener.Change<out Int, out String> ->
+                assertTrue(Platform.isFxApplicationThread())
+            }
+        }
+
+        val job = source.launchFxMapUpdater(observable)
+
+        withContext(JavaFx) { assertEquals(mapOf(0 to "Hello", 1 to "world"), observable) }
+
+        source.send(mapOf(0 to "Hello"))
+
+        withContext(JavaFx) { assertEquals(mapOf(0 to "Hello"), observable) }
 
         job.cancelAndJoin()
     }
