@@ -115,13 +115,13 @@ public fun <T1, T2, R> ReceiveChannel<T1>.combineLatestWith(
  *
  * If the current source source is closed with an exception, the result channel will be closed with the same exception.
  */
-public fun <T, R> ReceiveChannel<T>.switchMap(transform: suspend (T) -> ReceiveChannel<R>): ReceiveChannel<R> = transform { input, output ->
+public fun <T, R> ReceiveChannel<T>.switchMap(context: CoroutineContext = Unconfined, transform: suspend (T) -> ReceiveChannel<R>): ReceiveChannel<R> = transform { input, output ->
     val parent = coroutineContext[Job]!!
 
     var job: Job? = null
     input.consumeEach { element ->
         job?.cancelAndJoin()
-        job = launch(coroutineContext) {
+        job = launch(context, parent = parent) {
             try {
                 transform(element).consumeEach { output.send(it) }
             } catch (cancellation: CancellationException) {

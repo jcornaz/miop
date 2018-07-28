@@ -3,7 +3,8 @@
 ## 0.0.4-SNAPSHOT (Unreleased)
 ### Changed
 * **[break source compatibility]** In `EventStore` `action` arguments have been renamed `event`.
-* **[break compatibility]** In `EventStore.dispatch` has been made an extension function and `suspend fun handle(event: E): S` has been added in the interface.    
+* **[break compatibility]** In `EventStore.dispatch` has been made an extension function and `suspend fun handle(event: E): S` has been added in the interface.
+* **[break binary compatibility]** Provide a `context` argument for all operators taking a suspending lambda argument.     
 
 ### Fixed
 * Exception when `distinctUntilChanged` or `distinctReferenceUntilChanged` was invoked on an empty source.
