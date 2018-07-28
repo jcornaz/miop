@@ -2,11 +2,14 @@ package com.github.jcornaz.miop.experimental.property
 
 import com.github.jcornaz.miop.internal.test.AsyncTest
 import com.github.jcornaz.miop.internal.test.runTest
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.CoroutineStart
 import kotlinx.coroutines.experimental.channels.first
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
 import kotlinx.coroutines.experimental.timeunit.TimeUnit
+import kotlinx.coroutines.experimental.withTimeout
 import kotlin.coroutines.experimental.coroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -44,6 +47,14 @@ open class StateStoreTest : AsyncTest() {
         assertEquals(42, store.get())
 
         finish(6)
+    }
+
+    @Test
+    fun handleShouldReturnTheNewState() = runTest {
+        val store = createStore(0)
+
+        assertEquals(42, store.handle { it + 42 })
+        assertEquals(42, store.get())
     }
 
     @Test

@@ -1,12 +1,11 @@
 package com.github.jcornaz.miop.experimental.property
 
-import kotlinx.coroutines.experimental.DefaultDispatcher
 import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.consumeEach
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.sync.Mutex
+import kotlinx.coroutines.experimental.sync.withLock
 
 /**
  * Object which store state and accept events in order to get new states.
@@ -19,8 +18,19 @@ import kotlinx.coroutines.experimental.launch
  */
 public interface StateStore<out S, in E> : SubscribableValue<S> {
 
-    /** Dispatch an event in order to mutate the state. The event may be scheduled for later */
-    fun dispatch(event: E)
+    /**
+     * Handle an event in order to mutate the state.
+     *
+     * May suspend until the previous events have been processed
+     *
+     * @return The state resulting of applying this event
+     */
+    suspend fun handle(event: E): S
+}
+
+/** Dispatch an event in order to mutate the state. The event may be scheduled for later */
+fun <E> StateStore<*, E>.dispatch(event: E) {
+    launch(Unconfined) { handle(event) }
 }
 
 /**
@@ -34,7 +44,7 @@ public fun <S, E : (S) -> S> StateStore(initialState: S): StateStore<S, E> = Sta
  * Create a [StateStore] with the [initialState] and a [reducer].
  *
  * @param initialState Initial state of the store
- * @param reducer Function called for each dispatched event and responsible to return a new state. Should handle events and a fast and non-blocking manner.
+ * @param reducer Function called for each dispatched event and responsible to return a new state. Should handle events in a fast and non-blocking manner.
  */
 public fun <S, E> StateStore(initialState: S, reducer: (state: S, event: E) -> S): StateStore<S, E> = SimpleStateStore(initialState, reducer)
 
@@ -48,36 +58,17 @@ public fun <S1, S2, E1, E2> StateStore<S1, E1>.map(
 
 private class SimpleStateStore<out S, in A>(
     initialState: S,
-    reducer: (state: S, event: A) -> S
+    private val reducer: (state: S, event: A) -> S
 ) : StateStore<S, A> {
 
     private val broadcast = ConflatedBroadcastChannel(initialState)
-    private val pendingEvents = Channel<A>(Channel.UNLIMITED)
-
-    init {
-        launch(DefaultDispatcher) {
-            var state = initialState
-
-            pendingEvents.consumeEach { event ->
-                val newState = try {
-                    reducer(state, event)
-                } catch (error: Throwable) {
-                    launch(Unconfined) { throw error }
-                    return@consumeEach
-                }
-
-                if (newState !== state) {
-                    broadcast.send(newState)
-                    state = newState
-                }
-            }
-        }
-    }
+    private val mutex = Mutex()
 
     override suspend fun get(): S = broadcast.value
 
-    override fun dispatch(event: A) {
-        pendingEvents.offer(event)
+    override suspend fun handle(event: A): S = mutex.withLock {
+        val previousState = broadcast.value
+        reducer(previousState, event).also { if (it !== previousState) broadcast.send(it) }
     }
 
     override fun openSubscription(): ReceiveChannel<S> = broadcast.openSubscription()
@@ -91,7 +82,7 @@ private class StateStoreView<in S1, out S2, out E1, in E2>(
 
     override suspend fun get(): S2 = transformState(origin.get())
 
-    override fun dispatch(event: E2) = origin.dispatch(transformEvent(event))
+    override suspend fun handle(event: E2): S2 = transformState(origin.handle(transformEvent(event)))
 
     override fun openSubscription(): ReceiveChannel<S2> =
         origin.openSubscription { transformState(it) }
