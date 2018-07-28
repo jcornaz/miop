@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.collections.ListChangeListener
 import javafx.collections.SetChangeListener
+import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.cancelAndJoin
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.javafx.JavaFx
@@ -154,7 +155,7 @@ class UpdatersTest : AsyncTest() {
     }
 
     @Test
-    fun collectionUpdaterShouldBeAbleToUpdateSetFromList()  = runTest {
+    fun collectionUpdaterShouldBeAbleToUpdateSetFromList() = runTest {
         val source = Channel<List<String>>(Channel.CONFLATED).apply { send(listOf("a", "b", "b", "a")) }
         val observable = FXCollections.observableSet(HashSet<String>())
 
@@ -171,6 +172,31 @@ class UpdatersTest : AsyncTest() {
         source.send(listOf("b", "c"))
 
         withContext(JavaFx) { assertEquals(setOf("b", "c"), observable) }
+
+        job.cancelAndJoin()
+    }
+
+    @Test
+    fun collectionUpdaterShouldNotConsiderOrder() = runTest {
+        val source = Channel<List<String>>(Channel.CONFLATED).apply { send(listOf("a", "b", "c", "d", "c")) }
+        val observable = FXCollections.observableArrayList<String>("c", "b", "x", "a")
+
+        withContext(JavaFx) {
+            observable.addListener { _: ListChangeListener.Change<out String> ->
+                assertTrue(Platform.isFxApplicationThread())
+            }
+        }
+
+        val job = Job()
+
+        withContext(JavaFx) {
+            source.launchFxCollectionUpdater(observable, job)
+            assertEquals(listOf("c", "b", "a", "d", "c"), observable)
+        }
+
+        source.send(listOf("a", "b"))
+
+        withContext(JavaFx) { assertEquals(listOf("b", "a"), observable) }
 
         job.cancelAndJoin()
     }
