@@ -1,19 +1,23 @@
 # Change log
 
 ## 0.0.4-SNAPSHOT (Unreleased)
-### Refactorings
+### Changed
 * **[break source compatibility]** In `EventStore` `action` arguments have been renamed `event`.
 * **[break compatibility]** In `EventStore.dispatch` has been made an extension function and `suspend fun handle(event: E): S` has been added in the interface.    
 
-### Fixes
-* Fix exception when `distinctUntilChanged` or `distinctReferenceUntilChanged` was invoked on an empty source.
+### Fixed
+* Exception when `distinctUntilChanged` or `distinctReferenceUntilChanged` was invoked on an empty source.
 
-### JavaFx Integration (module 'miop-javafx')
-* **[break compatibility]** Rename `launchUpdater` for `launchFxUpdater` and `launchFxListUpdater`
-* Add `launchFxCollectionUpdater` which keep up-to-date the collection ignoring the order of the elements. (suitable for lists and sets)
-
-### Dependencies update
+### Dependencies updated
 * kotlinx.coroutines: 0.24.0
+
+### Module 'miop-javafx'
+#### Changed
+* **[break compatibility]** `launchUpdater` functions have been renamed for `launchFxUpdater` and `launchFxListUpdater`
+
+#### Added
+* `launchFxCollectionUpdater` which keep up-to-date the collection ignoring the order of the elements. (suitable for lists and sets)
+* `launchFxSetUpdater` which is (currently) simply an alias on `launchFxCollectionUpdater`. 
 
 ## 0.0.3 (2018-07-23)
 Multi-platform support, StateStore and JavaFx integration improvement.
