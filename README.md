@@ -31,7 +31,11 @@ Reactive operator collection for coroutines channels which are not yet included 
 * `openValueSubscription(): ReceiveChannel<T>` extension function on `ObservableValue<T>` 
 * `ObservableValue.asSubscribableValue()` adapter 
 * `Property.asSubscribableVariable()` adapter
-* `ReceiveChannel<T>.launchUpdater(Property<in T>)` and `ReceiveChannel<List<E>>.launchUpdater(ObservableList<E>)`
+* Launch updaters for JavaFx obserable from a `ReceiveChannel` 
+    * `launchFxUpdater` (for property)
+    * `launchFxCollectionUpdater` and `launchFxSetUpdater` (ignore element order)
+    * `launchFxListUpdater` (preserve element order)
+    * `launchFxMapUpdater`
 
 ## Incoming features
 * New operators
@@ -54,6 +58,6 @@ repositories {
 dependencies {
 
     // replace 'jvm' by 'javafx', 'common' or 'js' according to your needs
-    compile 'com.github.jcornaz.miop:miop-jvm:0.0.3'
+    compile 'com.github.jcornaz.miop:miop-jvm:0.0.4'
 }
 ```
