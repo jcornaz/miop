@@ -3,6 +3,7 @@
 ## 0.0.4-SNAPSHOT (Unreleased)
 ### Refactorings
 * **[break source compatibility]** In `EventStore` `action` arguments have been renamed `event`.
+* **[break compatibility]** In `EventStore.dispatch` has been made an extension function and `suspend fun handle(event: E): S` has been added in the interface.    
 
 ### Fixes
 * Fix exception when `distinctUntilChanged` or `distinctReferenceUntilChanged` was invoked on an empty source.
