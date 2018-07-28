@@ -1,5 +1,6 @@
 package com.github.jcornaz.miop.javafx.experimental
 
+import com.github.jcornaz.collekt.toPersistentMap
 import com.github.jcornaz.miop.experimental.distinctUntilChanged
 import com.github.jcornaz.miop.experimental.launchConsumeEach
 import javafx.beans.property.Property
@@ -9,6 +10,7 @@ import kotlinx.coroutines.experimental.channels.consumeEach
 import kotlinx.coroutines.experimental.channels.consumes
 import kotlinx.coroutines.experimental.javafx.JavaFx
 import kotlinx.coroutines.experimental.launch
+import java.util.*
 
 /**
  * Start a new job in the JavaFx thread which update the [target] with each elements received
@@ -59,6 +61,31 @@ public fun <E> ReceiveChannel<List<E>>.launchFxListUpdater(target: MutableList<i
  */
 public fun <E> ReceiveChannel<Set<E>>.launchFxSetUpdater(target: MutableSet<in E>, parent: Job? = null): Job =
     launchFxCollectionUpdater(target, parent)
+
+/**
+ * Start a new job in the JavaFx thread which update the [target] with each new map received
+ *
+ * The result or the [parent] shall be cancelled in order to cancel the channel
+ */
+public fun <K, V> ReceiveChannel<Map<K, V>>.launchFxMapUpdater(target: MutableMap<K, in V>, parent: Job? = null): Job =
+    launchConsumeEach(JavaFx, javafxStart(), parent) { newMap ->
+        val iterator = target.iterator()
+        var toAdd = newMap.toPersistentMap()
+
+        while(iterator.hasNext()) {
+            val entry = iterator.next()
+            if (entry.key !in newMap) {
+                iterator.remove()
+            } else {
+                if (entry.value != newMap[entry.key]) {
+                    entry.setValue(newMap[entry.key] as V)
+                }
+                toAdd -= entry.key
+            }
+        }
+
+        target.putAll(toAdd)
+    }
 
 /**
  * Start a job in the JavaFx thread which keeps up-to-date the [target] collection.
