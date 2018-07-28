@@ -1,15 +1,23 @@
 # Change log
 
 ## 0.0.4-SNAPSHOT (Unreleased)
-### Refactorings
+### Changed
 * **[break source compatibility]** In `EventStore` `action` arguments have been renamed `event`.
 * **[break compatibility]** In `EventStore.dispatch` has been made an extension function and `suspend fun handle(event: E): S` has been added in the interface.    
 
-### Fixes
-* Fix exception when `distinctUntilChanged` or `distinctReferenceUntilChanged` was invoked on an empty source.
+### Fixed
+* Exception when `distinctUntilChanged` or `distinctReferenceUntilChanged` was invoked on an empty source.
 
-### Dependencies update
+### Dependencies updated
 * kotlinx.coroutines: 0.24.0
+
+### Module 'miop-javafx'
+#### Changed
+* **[break compatibility]** `launchUpdater` functions have been renamed for `launchFxUpdater` and `launchFxListUpdater`
+
+#### Added
+* `launchFxCollectionUpdater` which keep up-to-date the collection ignoring the order of the elements. (suitable for lists and sets)
+* `launchFxSetUpdater` which is (currently) simply an alias on `launchFxCollectionUpdater`. 
 
 ## 0.0.3 (2018-07-23)
 Multi-platform support, StateStore and JavaFx integration improvement.
@@ -24,7 +32,7 @@ Multi-platform support, StateStore and JavaFx integration improvement.
 * `StateStore.map(transformState, transformAction)` makes possible to create a *view* of a StateStore
 * `SubscribableValue.openSubscription(transform: (T) -> R)` simplify mapping result of a subscription
 
-### JavaFx Integration
+### JavaFx Integration (module 'miop-javafx')
 * `ObservableList.openListSubscription()` extension function
 * `ReceiveChannel.launchUpdater` extension functions to easily start an update job for `Property` or `ObservableList`
 
@@ -50,7 +58,7 @@ Improvement operators and integration for `SubscribableValue` and `SubscribableV
 * Add `IoPool` dispatcher
 * Add `openSubscription` extension function on `Iterable` and `Sequence`
 
-### JavaFx integration
+### JavaFx Integration (module 'miop-javafx')
 Add `miop-javafx` module, which provide: 
 * `openValueSubscription()` extension function on `ObservableValue`
 * `ObservableValue.asSusbcribableValue()` adapter

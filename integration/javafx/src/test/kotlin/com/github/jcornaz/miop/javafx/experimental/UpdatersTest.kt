@@ -7,6 +7,8 @@ import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.collections.ListChangeListener
+import javafx.collections.SetChangeListener
+import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.cancelAndJoin
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.javafx.JavaFx
@@ -49,7 +51,7 @@ class UpdatersTest : AsyncTest() {
             }
         }
 
-        val job = source.launchUpdater(property)
+        val job = source.launchFxUpdater(property)
 
         withTimeout(1, TimeUnit.SECONDS) {
             timer.await(nextTime)
@@ -75,7 +77,7 @@ class UpdatersTest : AsyncTest() {
             }
         }
 
-        val job = source.launchUpdater(observable)
+        val job = source.launchFxListUpdater(observable)
 
         withContext(JavaFx) { assertEquals(listOf("Hello"), observable) }
 
@@ -97,13 +99,104 @@ class UpdatersTest : AsyncTest() {
             }
         }
 
-        val job = source.launchUpdater(observable)
+        val job = source.launchFxListUpdater(observable)
 
         withContext(JavaFx) { assertEquals(listOf("a", "b", "c", "d"), observable) }
 
         source.send(listOf("b", "c"))
 
         withContext(JavaFx) { assertEquals(listOf("b", "c"), observable) }
+
+        job.cancelAndJoin()
+    }
+
+    @Test
+    fun collectionUpdaterShouldAddNewElementsToTheList() = runTest {
+        val source = Channel<List<String>>(Channel.CONFLATED).apply { send(listOf("Hello")) }
+        val observable = FXCollections.observableArrayList<String>()
+
+        withContext(JavaFx) {
+            observable.addListener { _: ListChangeListener.Change<out String> ->
+                assertTrue(Platform.isFxApplicationThread())
+            }
+        }
+
+        val job = source.launchFxCollectionUpdater(observable)
+
+        withContext(JavaFx) { assertEquals(listOf("Hello"), observable) }
+
+        source.send(listOf("Hello", "world"))
+
+        withContext(JavaFx) { assertEquals(listOf("Hello", "world"), observable) }
+
+        job.cancelAndJoin()
+    }
+
+    @Test
+    fun collectionUpdaterShouldRemoveElementsFromTheList() = runTest {
+        val source = Channel<List<String>>(Channel.CONFLATED).apply { send(listOf("a", "b", "c", "d")) }
+        val observable = FXCollections.observableArrayList<String>()
+
+        withContext(JavaFx) {
+            observable.addListener { _: ListChangeListener.Change<out String> ->
+                assertTrue(Platform.isFxApplicationThread())
+            }
+        }
+
+        val job = source.launchFxCollectionUpdater(observable)
+
+        withContext(JavaFx) { assertEquals(listOf("a", "b", "c", "d"), observable) }
+
+        source.send(listOf("b", "c"))
+
+        withContext(JavaFx) { assertEquals(listOf("b", "c"), observable) }
+
+        job.cancelAndJoin()
+    }
+
+    @Test
+    fun collectionUpdaterShouldBeAbleToUpdateSetFromList() = runTest {
+        val source = Channel<List<String>>(Channel.CONFLATED).apply { send(listOf("a", "b", "b", "a")) }
+        val observable = FXCollections.observableSet(HashSet<String>())
+
+        withContext(JavaFx) {
+            observable.addListener { _: SetChangeListener.Change<out String> ->
+                assertTrue(Platform.isFxApplicationThread())
+            }
+        }
+
+        val job = source.launchFxCollectionUpdater(observable)
+
+        withContext(JavaFx) { assertEquals(setOf("a", "b"), observable) }
+
+        source.send(listOf("b", "c"))
+
+        withContext(JavaFx) { assertEquals(setOf("b", "c"), observable) }
+
+        job.cancelAndJoin()
+    }
+
+    @Test
+    fun collectionUpdaterShouldNotConsiderOrder() = runTest {
+        val source = Channel<List<String>>(Channel.CONFLATED).apply { send(listOf("a", "b", "c", "d", "c")) }
+        val observable = FXCollections.observableArrayList<String>("c", "b", "x", "a")
+
+        withContext(JavaFx) {
+            observable.addListener { _: ListChangeListener.Change<out String> ->
+                assertTrue(Platform.isFxApplicationThread())
+            }
+        }
+
+        val job = Job()
+
+        withContext(JavaFx) {
+            source.launchFxCollectionUpdater(observable, job)
+            assertEquals(listOf("c", "b", "a", "d", "c"), observable)
+        }
+
+        source.send(listOf("a", "b"))
+
+        withContext(JavaFx) { assertEquals(listOf("b", "a"), observable) }
 
         job.cancelAndJoin()
     }
