@@ -83,12 +83,18 @@ public fun <E> ReceiveChannel<Collection<E>>.launchFxCollectionUpdater(target: M
             while (iterator.hasNext()) {
                 val entry = iterator.next()
 
-                if (entry.value > (newElementCounts[entry.key] ?: 0)) {
-                    repeat(entry.value - (newElementCounts[entry.key] ?: 0)) {
-                        target.remove(entry.key)
+                val newCount = newElementCounts[entry.key]?.takeUnless { it <= 0 }
+
+                if (entry.value > (newCount ?: 0)) {
+
+                    if (target is Set<*>) {
+                        if (newCount == null) target.remove(entry.key)
+                    } else {
+                        repeat(entry.value - (newCount ?: 0)) {
+                            target.remove(entry.key)
+                        }
                     }
 
-                    val newCount = newElementCounts[entry.key]?.takeUnless { it <= 0 }
                     if (newCount == null) {
                         iterator.remove()
                     } else {
