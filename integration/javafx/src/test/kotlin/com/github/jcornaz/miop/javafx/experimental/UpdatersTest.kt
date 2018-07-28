@@ -49,7 +49,7 @@ class UpdatersTest : AsyncTest() {
             }
         }
 
-        val job = source.launchUpdater(property)
+        val job = source.launchFxUpdater(property)
 
         withTimeout(1, TimeUnit.SECONDS) {
             timer.await(nextTime)
@@ -75,7 +75,7 @@ class UpdatersTest : AsyncTest() {
             }
         }
 
-        val job = source.launchUpdater(observable)
+        val job = source.launchFxListUpdater(observable)
 
         withContext(JavaFx) { assertEquals(listOf("Hello"), observable) }
 
@@ -97,7 +97,7 @@ class UpdatersTest : AsyncTest() {
             }
         }
 
-        val job = source.launchUpdater(observable)
+        val job = source.launchFxListUpdater(observable)
 
         withContext(JavaFx) { assertEquals(listOf("a", "b", "c", "d"), observable) }
 
