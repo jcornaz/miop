@@ -1,6 +1,10 @@
 # Change log
 
+## 0.0.5-SNAPSHOT (Unreleased)
+
 ## 0.0.4 (2018-07-28)
+Bug fix, improvement of the semantic of StateStore and new JavaFx updaters.
+
 ### Changed
 * **[break source compatibility]** In `EventStore` `action` arguments have been renamed `event`.
 * **[break compatibility]** In `EventStore.dispatch` has been made an extension function and `suspend fun handle(event: E): S` has been added in the interface.
