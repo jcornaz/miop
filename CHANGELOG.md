@@ -17,7 +17,8 @@
 
 #### Added
 * `launchFxCollectionUpdater` which keep up-to-date the collection ignoring the order of the elements. (suitable for lists and sets)
-* `launchFxSetUpdater` which is (currently) simply an alias on `launchFxCollectionUpdater`. 
+* `launchFxSetUpdater` which is (currently) simply an alias on `launchFxCollectionUpdater`.
+* `launchFxMapUpdater` which keep upt-to-date a map.
 
 ## 0.0.3 (2018-07-23)
 Multi-platform support, StateStore and JavaFx integration improvement.
