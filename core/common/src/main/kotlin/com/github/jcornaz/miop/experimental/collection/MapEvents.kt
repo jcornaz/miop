@@ -12,7 +12,7 @@ public class MapEntryUpdated<out K, out V>(val key: K, val newValue: V) : MapEve
 public class MapEntryRemoved<out K, out V>(val key: K) : MapEvent<K, V>()
 public object MapCleared : MapEvent<Nothing, Nothing>()
 
-operator fun <K, V> MutableMap<K, V>.plusAssign(event: MapEvent<K, V>) {
+public operator fun <K, V> MutableMap<in K, in V>.plusAssign(event: MapEvent<K, V>) {
     when (event) {
         is MapEntryAdded -> put(event.key, event.value)
         is MapEntryUpdated -> put(event.key, event.newValue)
@@ -21,7 +21,7 @@ operator fun <K, V> MutableMap<K, V>.plusAssign(event: MapEvent<K, V>) {
     }
 }
 
-fun <K, V> ReceiveChannel<Map<K, V>>.toMapEvents(initialMap: Map<K, V> = emptyMap()): ReceiveChannel<MapEvent<K, V>> = transform(CommonPool) { input, output ->
+public fun <K, V> ReceiveChannel<Map<K, V>>.toMapEvents(initialMap: Map<K, V> = emptyMap(), capacity: Int = 100): ReceiveChannel<MapEvent<K, V>> = transform(CommonPool, capacity) { input, output ->
     val currentMap = initialMap.toMutableMap()
 
     input.consumeEach { newMap ->
