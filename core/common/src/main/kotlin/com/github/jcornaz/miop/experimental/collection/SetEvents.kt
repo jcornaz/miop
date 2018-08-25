@@ -8,8 +8,8 @@ import kotlinx.coroutines.experimental.channels.consumeEach
 
 public sealed class SetEvent<out E>
 
-public class SetElementAdded<out E>(val element: E) : SetEvent<E>()
-public class SetElementRemoved<out E>(val element: E) : SetEvent<E>()
+public data class SetElementAdded<out E>(val element: E) : SetEvent<E>()
+public data class SetElementRemoved<out E>(val element: E) : SetEvent<E>()
 public object SetCleared : SetEvent<Nothing>()
 
 public operator fun <E> MutableSet<in E>.plusAssign(event: SetEvent<E>) {

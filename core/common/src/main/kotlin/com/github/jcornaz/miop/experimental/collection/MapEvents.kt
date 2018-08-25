@@ -7,9 +7,9 @@ import kotlinx.coroutines.experimental.channels.consumeEach
 
 public sealed class MapEvent<out K, out V>
 
-public class MapEntryAdded<out K, out V>(val key: K, val value: V) : MapEvent<K, V>()
-public class MapEntryUpdated<out K, out V>(val key: K, val newValue: V) : MapEvent<K, V>()
-public class MapEntryRemoved<out K, out V>(val key: K) : MapEvent<K, V>()
+public data class MapEntryAdded<out K, out V>(val key: K, val value: V) : MapEvent<K, V>()
+public data class MapEntryUpdated<out K, out V>(val key: K, val newValue: V) : MapEvent<K, V>()
+public data class MapEntryRemoved<out K, out V>(val key: K) : MapEvent<K, V>()
 public object MapCleared : MapEvent<Nothing, Nothing>()
 
 public operator fun <K, V> MutableMap<in K, in V>.plusAssign(event: MapEvent<K, V>) {
