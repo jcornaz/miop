@@ -1,6 +1,8 @@
 # Change log
 
-## 0.0.5-SNAPSHOT (Unreleased)
+## 0.1.0 (2018-08-26)
+Migration to Kotlin 1.3 and a bunch of new operators
+
 ### Changed
 * **[Breaking]** Kotlin updated to `1.3-M1`
 * **[Breaking]** Kotlinx.coroutines updated to `0.25.0-eap13`

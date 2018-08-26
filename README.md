@@ -1,11 +1,13 @@
 # miop
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Project status](https://img.shields.io/badge/status-incubating-orange.svg)](https://gist.githubusercontent.com/jcornaz/46736c3d1f21b4c929bd97549b7406b2/raw/ProjectStatusFlow)
+[![Project status](https://img.shields.io/badge/status-experimental-yellow.svg)](https://gist.githubusercontent.com/jcornaz/46736c3d1f21b4c929bd97549b7406b2/raw/ProjectStatusFlow)
 [![JitPack](https://jitpack.io/v/jcornaz/miop.svg)](https://jitpack.io/#jcornaz/miop)
 [![Build status](https://travis-ci.org/jcornaz/miop.svg?branch=master)](https://travis-ci.org/jcornaz/miop)
 [![Code quality](https://codebeat.co/badges/99c78c20-42e7-425e-8a32-e2d56b0a0050)](https://codebeat.co/projects/github-com-jcornaz-miop-master)
 
 Reactive operator collection for coroutines channels which are not yet included in [kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines).
+
+
 
 ## Features
 * multi-platform (available modules: `common`, `jvm` and `js`)
@@ -16,10 +18,12 @@ Reactive operator collection for coroutines channels which are not yet included 
 * `Iterable<T>.openSubscription(): ReceiveChannel<T>`
 * `Sequence<T>.openSubscription(): ReceiveChannel<T>`
 
-### Merge operators
+### Operators
 * `merge` and `mergeWith`
 * `combineLatest` and `combineLatestWith`
 * `switchMap`
+* `buffer` and `conflate`
+* `debounce`
 
 ### Subscribables
 * `SubscribableValue` and `SubscribableVariable`
@@ -39,8 +43,6 @@ Reactive operator collection for coroutines channels which are not yet included 
 
 ## Incoming features
 * New operators
-  * `buffer`, `conflate`
-  * `debounce`
   * `mergeMap`
   * `chunked` and `windowed`
 * Kotlin/Native support
@@ -52,12 +54,14 @@ Here is an example with gradle:
 ```groovy
 repositories {
     jcenter()
+    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     maven { url "https://jitpack.io" }
 }
 
 dependencies {
 
     // replace 'jvm' by 'javafx', 'common' or 'js' according to your needs
-    compile 'com.github.jcornaz.miop:miop-jvm:0.0.4'
+    compile 'com.github.jcornaz.miop:miop-jvm:0.1.0' // Kotlin 1.3-M1
+    compile 'com.github.jcornaz.miop:miop-jvm:0.0.4' // Kotlin 1.2
 }
 ```
