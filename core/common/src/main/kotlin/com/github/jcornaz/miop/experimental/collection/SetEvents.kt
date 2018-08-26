@@ -32,6 +32,7 @@ public fun <E> ReceiveChannel<Set<E>>.toSetEvents(initialSet: Set<E>): ReceiveCh
         }
 
         val toAdd = newSet.toHashSet()
+
         val iterator = currentSet.iterator()
         while (iterator.hasNext()) {
             val element = iterator.next()

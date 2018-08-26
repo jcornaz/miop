@@ -33,20 +33,22 @@ public fun <K, V> ReceiveChannel<Map<K, V>>.toMapEvents(initialMap: Map<K, V> = 
             return@consumeEach
         }
 
-        val iterator = currentMap.iterator()
-
         val toAdd = newMap.toMutableMap()
 
+        val iterator = currentMap.iterator()
         while (iterator.hasNext()) {
             val entry = iterator.next()
             if (entry.key !in newMap) {
                 output.send(MapEntryRemoved(entry.key))
                 iterator.remove()
-            } else if (entry.value != newMap[entry.key]) {
-                output.send(MapEntryUpdated(entry.key, entry.value))
-
+            } else {
                 @Suppress("UNCHECKED_CAST")
-                entry.setValue(newMap[entry.key] as V)
+                val newValue = newMap[entry.key] as V
+
+                if (entry.value != newValue) {
+                    output.send(MapEntryUpdated(entry.key, newValue))
+                    entry.setValue(newValue)
+                }
                 toAdd -= entry.key
             }
         }
