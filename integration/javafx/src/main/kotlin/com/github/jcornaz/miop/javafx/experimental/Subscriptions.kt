@@ -3,10 +3,6 @@ package com.github.jcornaz.miop.javafx.experimental
 import com.github.jcornaz.collekt.api.PersistentList
 import com.github.jcornaz.collekt.toPersistentList
 import com.github.jcornaz.miop.experimental.awaitCancel
-import com.github.jcornaz.miop.experimental.collection.ListElementAdded
-import com.github.jcornaz.miop.experimental.collection.ListElementRemoved
-import com.github.jcornaz.miop.experimental.collection.ListElementReplaced
-import com.github.jcornaz.miop.experimental.collection.ListEvent
 import javafx.beans.value.ChangeListener
 import javafx.beans.value.ObservableValue
 import javafx.collections.ListChangeListener
@@ -65,34 +61,6 @@ public fun <E> ObservableList<out E>.openListSubscription(): ReceiveChannel<Pers
             }
         }
         offer(list)
-    }
-
-    addListener(listener)
-
-    try {
-        awaitCancel()
-    } finally {
-        removeListener(listener)
-    }
-}
-
-public fun <E> ObservableList<out E>.openListEventSubscription(): ReceiveChannel<ListEvent<E>> = produce(JavaFx, Channel.UNLIMITED) {
-    val listener = ListChangeListener<E> { change ->
-        while (change.next()) {
-            when {
-                change.wasPermutated() || change.wasUpdated() -> {
-                    for (index in (change.from until change.to)) {
-                        offer(ListElementReplaced(index, change.list[index]))
-                    }
-                }
-                change.wasRemoved() || change.wasAdded() -> {
-                    repeat(change.removedSize) { offer(ListElementRemoved(change.from)) }
-                    change.addedSubList.forEachIndexed { index, element ->
-                        offer(ListElementAdded(index + change.from, element))
-                    }
-                }
-            }
-        }
     }
 
     addListener(listener)
