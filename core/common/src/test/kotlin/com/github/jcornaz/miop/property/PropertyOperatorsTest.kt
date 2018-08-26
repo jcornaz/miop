@@ -6,7 +6,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.timeunit.TimeUnit
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import kotlin.coroutines.coroutineContext
@@ -189,7 +188,7 @@ class PropertyOperatorsTest : AsyncTest() {
 
     @Test
     fun openMappedSubscriptionShouldSendCloseToken() = runTest {
-        withTimeout(1, TimeUnit.SECONDS) {
+        withTimeout(1000) {
             assertEquals(listOf("42"), SubscribableValue(42).openSubscription { it.toString() }.toList())
         }
     }

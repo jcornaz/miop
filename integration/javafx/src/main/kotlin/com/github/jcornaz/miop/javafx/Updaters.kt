@@ -78,6 +78,8 @@ public fun <K, V> ReceiveChannel<Map<K, V>>.launchFxMapUpdater(target: MutableMa
                 iterator.remove()
             } else {
                 if (entry.value != newMap[entry.key]) {
+
+                    @Suppress("UNCHECKED_CAST")
                     entry.setValue(newMap[entry.key] as V)
                 }
                 toAdd -= entry.key

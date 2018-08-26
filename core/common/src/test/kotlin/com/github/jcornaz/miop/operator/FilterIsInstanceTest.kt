@@ -10,6 +10,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class FilterIsInstanceTest : OperatorTest() {
+
+    @Suppress("UNCHECKED_CAST")
     override fun <T> ReceiveChannel<T>.operator(): ReceiveChannel<T> =
         filterIsInstance<Any?>().map { it as T }
 

@@ -4,7 +4,6 @@ import com.github.jcornaz.miop.emptyReceiveChannel
 import com.github.jcornaz.miop.test.assertThrows
 import com.github.jcornaz.miop.test.runTest
 import kotlinx.coroutines.channels.*
-import kotlinx.coroutines.timeunit.TimeUnit
 import kotlinx.coroutines.withTimeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -32,7 +31,7 @@ abstract class OperatorTest {
     fun shouldReturnEmptyChannelForAnEmptySource() = runTest {
         val result = emptyReceiveChannel<String>().operator()
 
-        withTimeout(1, TimeUnit.SECONDS) {
+        withTimeout(1000) {
             assertTrue(result.toList().isEmpty())
         }
     }
