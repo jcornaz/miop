@@ -1,6 +1,11 @@
 # Change log
 
 ## 0.0.5-SNAPSHOT (Unreleased)
+### Changed
+* **[Breaking]** Kotlin updated to `1.3-M1`
+* **[Breaking]** Kotlinx.coroutines updated to `0.25.0-eap13`
+* **[Breaking]** Packages renamed. (`experimental` has been dropped)  
+
 ### Added
 * `toSetEvents` and `toMapEvents` operators for channel which compute delta of emitted set/map and emits the corresponding events.
 
