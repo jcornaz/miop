@@ -220,7 +220,7 @@ public fun <E> ReceiveChannel<E>.debounce(timeSpan: Long): ReceiveChannel<E> = t
  *
  * @param capacity Max number of elements to buffer. Once the limit is reached, the producer will suspend. [Channel.UNLIMITED] and [Channel.CONFLATED] can be used.
  */
-public fun <E> ReceiveChannel<E>.buffer(capacity: Int = Channel.UNLIMITED): ReceiveChannel<E> = produce(Unconfined, capacity = capacity, onCompletion = consumes()) {
+public fun <E> ReceiveChannel<E>.buffer(capacity: Int = Channel.UNLIMITED): ReceiveChannel<E> = produce(Unconfined, capacity, onCompletion = consumes()) {
     consumeEach { send(it) }
 }
 

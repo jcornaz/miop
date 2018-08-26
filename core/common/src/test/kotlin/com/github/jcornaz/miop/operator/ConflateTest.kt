@@ -1,6 +1,5 @@
 package com.github.jcornaz.miop.operator
 
-import com.github.jcornaz.miop.buffer
 import com.github.jcornaz.miop.conflate
 import com.github.jcornaz.miop.test.runTest
 import kotlinx.coroutines.channels.Channel
@@ -13,10 +12,10 @@ class ConflateTest : OperatorTest() {
     override fun <T> ReceiveChannel<T>.operator(): ReceiveChannel<T> = conflate()
 
     @Test
-    fun shouldNotSuspendWithEmptyBuffer() = runTest {
+    fun shouldConflate() = runTest {
         val source = Channel<Int>()
 
-        val result = source.buffer(3)
+        val result = source.conflate()
 
         withTimeout(1000) {
             source.send(1)

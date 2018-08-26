@@ -19,9 +19,10 @@ class BufferTest : OperatorTest() {
         val result = source.buffer(3)
 
         withTimeout(1000) {
-            repeat(3) { source.send(it) }
+            repeat(3) { source.send(it) } // should not suspend
         }
 
+        source.close()
         assertEquals((0 until 3).toList(), result.toList())
     }
 }
