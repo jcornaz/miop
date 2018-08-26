@@ -1,9 +1,9 @@
 package kotlinx.coroutines.channels
 
-import com.github.jcornaz.miop.experimental.operator.DummyException
-import com.github.jcornaz.miop.internal.test.AsyncTest
-import com.github.jcornaz.miop.internal.test.assertThrows
-import com.github.jcornaz.miop.internal.test.runTest
+import com.github.jcornaz.miop.operator.DummyException
+import com.github.jcornaz.miop.test.AsyncTest
+import com.github.jcornaz.miop.test.assertThrows
+import com.github.jcornaz.miop.test.runTest
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Unconfined
 import kotlinx.coroutines.cancelAndJoin
