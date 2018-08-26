@@ -1,11 +1,11 @@
 package com.github.jcornaz.miop.experimental.collection
 
-import com.github.jcornaz.miop.experimental.CommonPool
 import com.github.jcornaz.miop.experimental.transform
+import kotlinx.coroutines.experimental.DefaultDispatcher
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.channels.consumeEach
 
-
+@Suppress("unused")
 public sealed class SetEvent<out E>
 
 public data class SetElementAdded<out E>(val element: E) : SetEvent<E>()
@@ -20,7 +20,7 @@ public operator fun <E> MutableSet<in E>.plusAssign(event: SetEvent<E>) {
     }
 }
 
-public fun <E> ReceiveChannel<Set<E>>.toSetEvents(initialSet: Set<E>, capacity: Int = 100): ReceiveChannel<SetEvent<E>> = transform(CommonPool, capacity) { input, output ->
+public fun <E> ReceiveChannel<Set<E>>.toSetEvents(initialSet: Set<E>): ReceiveChannel<SetEvent<E>> = transform(DefaultDispatcher) { input, output ->
 
     val currentSet = initialSet.toHashSet()
 

@@ -1,10 +1,11 @@
 package com.github.jcornaz.miop.experimental.collection
 
-import com.github.jcornaz.miop.experimental.CommonPool
 import com.github.jcornaz.miop.experimental.transform
+import kotlinx.coroutines.experimental.DefaultDispatcher
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.channels.consumeEach
 
+@Suppress("unused")
 public sealed class MapEvent<out K, out V>
 
 public data class MapEntryAdded<out K, out V>(val key: K, val value: V) : MapEvent<K, V>()
@@ -21,7 +22,7 @@ public operator fun <K, V> MutableMap<in K, in V>.plusAssign(event: MapEvent<K, 
     }
 }
 
-public fun <K, V> ReceiveChannel<Map<K, V>>.toMapEvents(initialMap: Map<K, V> = emptyMap(), capacity: Int = 100): ReceiveChannel<MapEvent<K, V>> = transform(CommonPool, capacity) { input, output ->
+public fun <K, V> ReceiveChannel<Map<K, V>>.toMapEvents(initialMap: Map<K, V> = emptyMap()): ReceiveChannel<MapEvent<K, V>> = transform(DefaultDispatcher) { input, output ->
     val currentMap = initialMap.toMutableMap()
 
     input.consumeEach { newMap ->
@@ -43,6 +44,8 @@ public fun <K, V> ReceiveChannel<Map<K, V>>.toMapEvents(initialMap: Map<K, V> = 
                 iterator.remove()
             } else if (entry.value != newMap[entry.key]) {
                 output.send(MapEntryUpdated(entry.key, entry.value))
+
+                @Suppress("UNCHECKED_CAST")
                 entry.setValue(newMap[entry.key] as V)
                 toAdd -= entry.key
             }

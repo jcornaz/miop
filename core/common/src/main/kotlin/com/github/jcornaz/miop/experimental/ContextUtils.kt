@@ -12,5 +12,3 @@ import kotlinx.coroutines.experimental.CoroutineDispatcher
  * This dispatcher is better for IO operations as well as blocking operation.
  */
 expect val IoPool: CoroutineDispatcher
-
-expect val CommonPool: CoroutineDispatcher
