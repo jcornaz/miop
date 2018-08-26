@@ -1,10 +1,10 @@
 package com.github.jcornaz.miop.experimental
 
 import com.github.jcornaz.miop.internal.test.runTest
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.launch
 import org.junit.Test
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.coroutines.experimental.coroutineContext
+import kotlin.coroutines.coroutineContext
 import kotlin.test.assertNull
 
 class ContextUtilsJvmTest {

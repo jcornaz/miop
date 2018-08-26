@@ -1,10 +1,10 @@
 package com.github.jcornaz.miop.experimental.property
 
 import com.github.jcornaz.miop.internal.test.runTest
-import kotlinx.coroutines.experimental.sync.Mutex
-import kotlinx.coroutines.experimental.sync.withLock
-import kotlinx.coroutines.experimental.timeunit.TimeUnit
-import kotlinx.coroutines.experimental.withTimeout
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.timeunit.TimeUnit
+import kotlinx.coroutines.withTimeout
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

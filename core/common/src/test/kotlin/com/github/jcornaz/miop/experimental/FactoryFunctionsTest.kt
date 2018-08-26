@@ -3,8 +3,8 @@ package com.github.jcornaz.miop.experimental
 import com.github.jcornaz.miop.internal.test.AsyncTest
 import com.github.jcornaz.miop.internal.test.assertThrows
 import com.github.jcornaz.miop.internal.test.runTest
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlin.test.*
 
 class FactoryFunctionsTest : AsyncTest() {

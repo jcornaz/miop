@@ -2,7 +2,7 @@ package com.github.jcornaz.miop.experimental.collection
 
 import com.github.jcornaz.miop.experimental.receiveChannelOf
 import com.github.jcornaz.miop.internal.test.runTest
-import kotlinx.coroutines.experimental.channels.toList
+import kotlinx.coroutines.channels.toList
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

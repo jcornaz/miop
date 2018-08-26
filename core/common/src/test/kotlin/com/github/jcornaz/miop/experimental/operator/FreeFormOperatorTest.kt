@@ -5,10 +5,10 @@ import com.github.jcornaz.miop.experimental.receiveChannelOf
 import com.github.jcornaz.miop.experimental.transform
 import com.github.jcornaz.miop.internal.test.assertThrows
 import com.github.jcornaz.miop.internal.test.runTest
-import kotlinx.coroutines.experimental.channels.*
-import kotlinx.coroutines.experimental.timeunit.TimeUnit
-import kotlinx.coroutines.experimental.withTimeout
-import kotlin.coroutines.experimental.coroutineContext
+import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.timeunit.TimeUnit
+import kotlinx.coroutines.withTimeout
+import kotlin.coroutines.coroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

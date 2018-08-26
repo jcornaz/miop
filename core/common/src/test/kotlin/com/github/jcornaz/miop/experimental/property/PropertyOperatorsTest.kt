@@ -2,14 +2,14 @@ package com.github.jcornaz.miop.experimental.property
 
 import com.github.jcornaz.miop.internal.test.AsyncTest
 import com.github.jcornaz.miop.internal.test.runTest
-import kotlinx.coroutines.experimental.CoroutineStart
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.toList
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.timeunit.TimeUnit
-import kotlinx.coroutines.experimental.withTimeout
-import kotlinx.coroutines.experimental.yield
-import kotlin.coroutines.experimental.coroutineContext
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.timeunit.TimeUnit
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
+import kotlin.coroutines.coroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

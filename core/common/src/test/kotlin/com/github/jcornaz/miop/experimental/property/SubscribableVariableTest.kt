@@ -2,9 +2,9 @@ package com.github.jcornaz.miop.experimental.property
 
 import com.github.jcornaz.miop.internal.test.AsyncTest
 import com.github.jcornaz.miop.internal.test.runTest
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.channels.first
-import kotlin.coroutines.experimental.coroutineContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.first
+import kotlin.coroutines.coroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

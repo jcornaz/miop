@@ -1,6 +1,6 @@
 package com.github.jcornaz.miop.experimental
 
-import kotlinx.coroutines.experimental.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
 
 /**
  * [CoroutineDispatcher] dispatching executions on an IO thread pool.

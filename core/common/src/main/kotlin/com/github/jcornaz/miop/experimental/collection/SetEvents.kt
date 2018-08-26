@@ -1,12 +1,12 @@
 package com.github.jcornaz.miop.experimental.collection
 
 import com.github.jcornaz.miop.experimental.transform
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.consumeEach
-import kotlinx.coroutines.experimental.channels.produce
-import kotlin.coroutines.experimental.coroutineContext
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.channels.produce
+import kotlin.coroutines.coroutineContext
 
 /**
  * Represent an event which happened in a [Set]

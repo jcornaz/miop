@@ -3,9 +3,9 @@ package com.github.jcornaz.miop.experimental.operator
 import com.github.jcornaz.miop.experimental.emptyReceiveChannel
 import com.github.jcornaz.miop.internal.test.assertThrows
 import com.github.jcornaz.miop.internal.test.runTest
-import kotlinx.coroutines.experimental.channels.*
-import kotlinx.coroutines.experimental.timeunit.TimeUnit
-import kotlinx.coroutines.experimental.withTimeout
+import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.timeunit.TimeUnit
+import kotlinx.coroutines.withTimeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

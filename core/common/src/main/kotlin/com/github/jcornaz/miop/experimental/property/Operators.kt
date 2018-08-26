@@ -3,10 +3,10 @@ package com.github.jcornaz.miop.experimental.property
 import com.github.jcornaz.miop.experimental.Channels
 import com.github.jcornaz.miop.experimental.distinctReferenceUntilChanged
 import com.github.jcornaz.miop.experimental.switchMap
-import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.map
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlinx.coroutines.Unconfined
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.map
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Operators for [SubscribableValue]

@@ -4,12 +4,12 @@ import com.github.jcornaz.collekt.toPersistentMap
 import com.github.jcornaz.miop.experimental.distinctUntilChanged
 import com.github.jcornaz.miop.experimental.launchConsumeEach
 import javafx.beans.property.Property
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.consumeEach
-import kotlinx.coroutines.experimental.channels.consumes
-import kotlinx.coroutines.experimental.javafx.JavaFx
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.channels.consumes
+import kotlinx.coroutines.javafx.JavaFx
+import kotlinx.coroutines.launch
 import java.util.*
 
 /**

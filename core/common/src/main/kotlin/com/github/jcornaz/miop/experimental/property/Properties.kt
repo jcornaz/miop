@@ -2,9 +2,9 @@ package com.github.jcornaz.miop.experimental.property
 
 import com.github.jcornaz.miop.experimental.distinctUntilChanged
 import com.github.jcornaz.miop.experimental.receiveChannelOf
-import kotlinx.coroutines.experimental.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.first
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.first
 
 /**
  * Interface for a value holder where the value may change over time.

@@ -1,9 +1,9 @@
 package com.github.jcornaz.miop.experimental
 
 import com.github.jcornaz.miop.internal.test.runTest
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
-import kotlin.coroutines.experimental.coroutineContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.coroutines.coroutineContext
 import kotlin.test.Test
 
 class ContextUtilsTest {

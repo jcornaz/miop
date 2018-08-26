@@ -4,8 +4,8 @@ import com.github.jcornaz.miop.experimental.property.SubscribableValue
 import com.github.jcornaz.miop.experimental.property.SubscribableVariable
 import javafx.beans.property.Property
 import javafx.beans.value.ObservableValue
-import kotlinx.coroutines.experimental.javafx.JavaFx
-import kotlinx.coroutines.experimental.withContext
+import kotlinx.coroutines.javafx.JavaFx
+import kotlinx.coroutines.withContext
 
 /**
  * Return a [SubscribableValue] backed by this [ObservableValue]

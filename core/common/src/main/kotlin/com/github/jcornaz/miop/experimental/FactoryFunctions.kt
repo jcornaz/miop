@@ -1,9 +1,9 @@
 package com.github.jcornaz.miop.experimental
 
-import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.produce
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlinx.coroutines.Unconfined
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.produce
+import kotlin.coroutines.CoroutineContext
 
 private val EmptyReceiveChannel = produce<Nothing>(Unconfined) { }
 

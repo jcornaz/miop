@@ -1,6 +1,6 @@
 package com.github.jcornaz.miop.experimental
 
-import kotlinx.coroutines.experimental.CoroutineDispatcher
-import kotlinx.coroutines.experimental.DefaultDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.DefaultDispatcher
 
 actual val IoPool: CoroutineDispatcher get() = DefaultDispatcher
