@@ -193,8 +193,24 @@ public fun <E> ReceiveChannel<E>.distinctReferenceUntilChanged(): ReceiveChannel
 /**
  * Returns a [ReceiveChannel] emitting the elements of this channel which are instance of [E]
  */
-inline fun <reified E> ReceiveChannel<*>.filterIsInstance(): ReceiveChannel<E> = transform { input, output ->
+public inline fun <reified E> ReceiveChannel<*>.filterIsInstance(): ReceiveChannel<E> = transform { input, output ->
     input.consumeEach {
         if (it is E) output.send(it)
+    }
+}
+
+/**
+ * Filters out elements emitted by the source that are rapidly followed by another emitted element.
+ *
+ * Only emit an element received if the given [timeSpan] (in millisecond) has passed without it emitting another item.
+ */
+public fun <E> ReceiveChannel<E>.debounce(timeSpan: Long): ReceiveChannel<E> = transform { input, output ->
+    var job: Job? = null
+    input.consumeEach { element ->
+        job?.cancel()
+        job = launch(coroutineContext) {
+            delay(timeSpan)
+            output.send(element)
+        }
     }
 }
