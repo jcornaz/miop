@@ -1,9 +1,12 @@
 package com.github.jcornaz.miop.experimental.collection
 
 import com.github.jcornaz.miop.experimental.transform
-import kotlinx.coroutines.experimental.DefaultDispatcher
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.channels.consumeEach
+import kotlinx.coroutines.experimental.channels.produce
+import kotlin.coroutines.experimental.coroutineContext
 
 /**
  * Represent an event which happened in a [Set]
@@ -34,33 +37,37 @@ public operator fun <E> MutableSet<in E>.plusAssign(event: SetEvent<E>) {
 /**
  * Compute deltas between each received set and emits the corresponding events.
  */
-public fun <E> ReceiveChannel<Set<E>>.toSetEvents(initialSet: Set<E> = emptySet()): ReceiveChannel<SetEvent<E>> = transform(DefaultDispatcher) { input, output ->
+public fun <E> ReceiveChannel<Set<E>>.toSetEvents(initialSet: Set<E> = emptySet()): ReceiveChannel<SetEvent<E>> = transform { input, output ->
 
-    val currentSet = initialSet.toHashSet()
+    val currentSet: MutableSet<E> = initialSet.toHashSet()
 
     input.consumeEach { newSet ->
-        if (newSet.isEmpty() && currentSet.isNotEmpty()) {
-            output.send(SetCleared)
-            currentSet.clear()
-            return@consumeEach
-        }
+        handleNewSet(currentSet, newSet, coroutineContext[Job]).consumeEach { output.send(it) }
+    }
+}
 
-        val toAdd = newSet.toHashSet()
+private fun <E> handleNewSet(currentSet: MutableSet<E>, newSet: Set<E>, parent: Job?): ReceiveChannel<SetEvent<E>> = produce(parent = parent, capacity = Channel.UNLIMITED) {
+    if (newSet.isEmpty() && currentSet.isNotEmpty()) {
+        send(SetCleared)
+        currentSet.clear()
+        return@produce
+    }
 
-        val iterator = currentSet.iterator()
-        while (iterator.hasNext()) {
-            val element = iterator.next()
-            if (element !in newSet) {
-                output.send(SetElementRemoved(element))
-                iterator.remove()
-            } else {
-                toAdd -= element
-            }
-        }
+    val toAdd: MutableSet<E> = newSet.toHashSet()
 
-        toAdd.forEach {
-            output.send(SetElementAdded(it))
-            currentSet += it
+    val iterator = currentSet.iterator()
+    while (iterator.hasNext()) {
+        val element = iterator.next()
+        if (element !in newSet) {
+            send(SetElementRemoved(element))
+            iterator.remove()
+        } else {
+            toAdd -= element
         }
+    }
+
+    toAdd.forEach {
+        send(SetElementAdded(it))
+        currentSet += it
     }
 }

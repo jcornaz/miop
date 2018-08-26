@@ -1,9 +1,12 @@
 package com.github.jcornaz.miop.experimental.collection
 
 import com.github.jcornaz.miop.experimental.transform
-import kotlinx.coroutines.experimental.DefaultDispatcher
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.channels.consumeEach
+import kotlinx.coroutines.experimental.channels.produce
+import kotlin.coroutines.experimental.coroutineContext
 
 /**
  * Represent an event which happened in a [Map]
@@ -38,40 +41,43 @@ public operator fun <K, V> MutableMap<in K, in V>.plusAssign(event: MapEvent<K, 
 /**
  * Compute deltas between each received map and emits the corresponding events.
  */
-public fun <K, V> ReceiveChannel<Map<K, V>>.toMapEvents(initialMap: Map<K, V> = emptyMap()): ReceiveChannel<MapEvent<K, V>> = transform(DefaultDispatcher) { input, output ->
-    val currentMap = initialMap.toMutableMap()
+public fun <K, V> ReceiveChannel<Map<K, V>>.toMapEvents(initialMap: Map<K, V> = emptyMap()): ReceiveChannel<MapEvent<K, V>> = transform { input, output ->
+    val currentMap: MutableMap<K, V> = HashMap(initialMap)
 
     input.consumeEach { newMap ->
+        handleNewMap(currentMap, newMap, coroutineContext[Job]).consumeEach { output.send(it) }
+    }
+}
 
-        if (newMap.isEmpty() && currentMap.isNotEmpty()) {
-            output.send(MapCleared)
-            currentMap.clear()
-            return@consumeEach
-        }
+private fun <K, V> handleNewMap(currentMap: MutableMap<K, V>, newMap: Map<K, V>, parent: Job?): ReceiveChannel<MapEvent<K, V>> = produce(parent = parent, capacity = Channel.UNLIMITED) {
+    if (newMap.isEmpty() && currentMap.isNotEmpty()) {
+        send(MapCleared)
+        currentMap.clear()
+        return@produce
+    }
 
-        val toAdd = newMap.toMutableMap()
+    val toAdd = HashMap(newMap)
 
-        val iterator = currentMap.iterator()
-        while (iterator.hasNext()) {
-            val entry = iterator.next()
-            if (entry.key !in newMap) {
-                output.send(MapEntryRemoved(entry.key))
-                iterator.remove()
-            } else {
-                @Suppress("UNCHECKED_CAST")
-                val newValue = newMap[entry.key] as V
+    val iterator = currentMap.iterator()
+    while (iterator.hasNext()) {
+        val entry = iterator.next()
+        if (entry.key !in newMap) {
+            send(MapEntryRemoved(entry.key))
+            iterator.remove()
+        } else {
+            @Suppress("UNCHECKED_CAST")
+            val newValue = newMap[entry.key] as V
 
-                if (entry.value != newValue) {
-                    output.send(MapEntryUpdated(entry.key, newValue))
-                    entry.setValue(newValue)
-                }
-                toAdd -= entry.key
+            if (entry.value != newValue) {
+                send(MapEntryUpdated(entry.key, newValue))
+                entry.setValue(newValue)
             }
+            toAdd -= entry.key
         }
+    }
 
-        toAdd.forEach { (key, value) ->
-            output.send(MapEntryAdded(key, value))
-            currentMap[key] = value
-        }
+    toAdd.forEach { (key, value) ->
+        send(MapEntryAdded(key, value))
+        currentMap[key] = value
     }
 }

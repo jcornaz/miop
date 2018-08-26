@@ -26,10 +26,7 @@ class SetEventTest {
         assertTrue(events.any { it is SetElementAdded })
         assertTrue(events.any { it is SetElementRemoved })
 
-        events.forEach {
-            println(it)
-            set += it
-        }
+        events.forEach { set += it }
 
         assertEquals(setOf(2, 4), set)
     }
