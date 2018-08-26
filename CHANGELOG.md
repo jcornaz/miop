@@ -9,6 +9,9 @@
 ### Added
 * `toSetEvents` and `toMapEvents` operators for channel which compute delta of emitted set/map and emits the corresponding events.
 
+### Deprecated
+* `IoPool` in jvm module has been deprecated in favor of `kotlinx.coroutines.IO`
+
 ## 0.0.4 (2018-07-28)
 Bug fix, improvement of the semantic of StateStore and new JavaFx updaters.
 
