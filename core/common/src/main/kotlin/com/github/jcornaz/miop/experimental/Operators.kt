@@ -77,8 +77,9 @@ public object Channels {
  */
 public fun <I, O> ReceiveChannel<I>.transform(
         context: CoroutineContext = Unconfined,
+        capacity: Int = 0,
         block: suspend (input: ReceiveChannel<I>, output: SendChannel<O>) -> Unit
-): ReceiveChannel<O> = produce(context, onCompletion = consumes()) { block(this@transform, channel) }
+): ReceiveChannel<O> = produce(context, capacity, onCompletion = consumes()) { block(this@transform, channel) }
 
 /**
  * Return a [ReceiveChannel] through which elements of all given sources (including this channel) are sent as soon as received.
