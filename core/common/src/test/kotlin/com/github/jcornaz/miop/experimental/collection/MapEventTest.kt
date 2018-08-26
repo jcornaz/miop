@@ -21,7 +21,7 @@ class MapEventTest {
             mapOf(1 to "un", 3 to "trois"),
             mapOf(2 to "two"),
             emptyMap(),
-            mapOf(1 to "two", 2 to "one", 3 to "zero")
+            mapOf(1 to "two", 3 to "three")
         )
             .toMapEvents(map)
             .toList()
@@ -33,7 +33,7 @@ class MapEventTest {
 
         events.forEach { map += it }
 
-        assertEquals(mapOf(1 to "two", 2 to "one", 3 to "zero"), map)
+        assertEquals(mapOf(1 to "two", 3 to "three"), map)
     }
 
     @Test

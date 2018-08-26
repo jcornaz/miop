@@ -20,7 +20,7 @@ public operator fun <E> MutableSet<in E>.plusAssign(event: SetEvent<E>) {
     }
 }
 
-public fun <E> ReceiveChannel<Set<E>>.toSetEvents(initialSet: Set<E>): ReceiveChannel<SetEvent<E>> = transform(DefaultDispatcher) { input, output ->
+public fun <E> ReceiveChannel<Set<E>>.toSetEvents(initialSet: Set<E> = emptySet()): ReceiveChannel<SetEvent<E>> = transform(DefaultDispatcher) { input, output ->
 
     val currentSet = initialSet.toHashSet()
 
@@ -44,6 +44,9 @@ public fun <E> ReceiveChannel<Set<E>>.toSetEvents(initialSet: Set<E>): ReceiveCh
             }
         }
 
-        toAdd.forEach { output.send(SetElementAdded(it)) }
+        toAdd.forEach {
+            output.send(SetElementAdded(it))
+            currentSet += it
+        }
     }
 }
