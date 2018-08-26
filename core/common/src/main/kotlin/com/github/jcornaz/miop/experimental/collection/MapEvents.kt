@@ -5,14 +5,27 @@ import kotlinx.coroutines.experimental.DefaultDispatcher
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.channels.consumeEach
 
+/**
+ * Represent an event which happened in a [Map]
+ */
 @Suppress("unused")
 public sealed class MapEvent<out K, out V>
 
+/** A **new** entry has been added to the map. (there wasn't any value associated to [key] before) */
 public data class MapEntryAdded<out K, out V>(val key: K, val value: V) : MapEvent<K, V>()
+
+/** The value associated to [key] has been replaced by [newValue] */
 public data class MapEntryUpdated<out K, out V>(val key: K, val newValue: V) : MapEvent<K, V>()
+
+/** An entry has been removed from the map */
 public data class MapEntryRemoved<out K, out V>(val key: K) : MapEvent<K, V>()
+
+/** The map has been cleared */
 public object MapCleared : MapEvent<Nothing, Nothing>()
 
+/**
+ * Apply the [event] to this map
+ */
 public operator fun <K, V> MutableMap<in K, in V>.plusAssign(event: MapEvent<K, V>) {
     when (event) {
         is MapEntryAdded -> put(event.key, event.value)
@@ -22,6 +35,9 @@ public operator fun <K, V> MutableMap<in K, in V>.plusAssign(event: MapEvent<K, 
     }
 }
 
+/**
+ * Compute deltas between each received map and emits the corresponding events.
+ */
 public fun <K, V> ReceiveChannel<Map<K, V>>.toMapEvents(initialMap: Map<K, V> = emptyMap()): ReceiveChannel<MapEvent<K, V>> = transform(DefaultDispatcher) { input, output ->
     val currentMap = initialMap.toMutableMap()
 
