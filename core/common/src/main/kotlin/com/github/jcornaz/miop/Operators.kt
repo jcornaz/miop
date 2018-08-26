@@ -214,3 +214,25 @@ public fun <E> ReceiveChannel<E>.debounce(timeSpan: Long): ReceiveChannel<E> = t
         }
     }
 }
+
+/**
+ * Buffer emissions, allowing the producer to not wait on the consumer.
+ *
+ * @param capacity Max number of elements to buffer. Once the limit is reached, the producer will suspend. [Channel.UNLIMITED] and [Channel.CONFLATED] can be used.
+ */
+public fun <E> ReceiveChannel<E>.buffer(capacity: Int = Channel.UNLIMITED): ReceiveChannel<E> = produce(Unconfined, capacity, onCompletion = consumes()) {
+    consumeEach { send(it) }
+}
+
+/**
+ * Buffers at most one element and conflates all subsequent emissions,
+ * so that the receiver always gets the most recently sent element.
+ * Back-to-send sent elements are _conflated_ -- only the the most recently sent element is received,
+ * while previously sent elements **are lost**.
+ *
+ * The source never have to suspend to wait on the consumer.
+ *
+ * @see ConflatedChannel
+ */
+@Suppress("NOTHING_TO_INLINE")
+public inline fun <E> ReceiveChannel<E>.conflate(): ReceiveChannel<E> = buffer(Channel.CONFLATED)
