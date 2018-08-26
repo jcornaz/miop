@@ -8,6 +8,7 @@
 
 ### Added
 * `toSetEvents` and `toMapEvents` operators for channel which compute delta of emitted set/map and emits the corresponding events.
+* `filterIsInstance` operator for channels
 
 ### Deprecated
 * `IoPool` in jvm module has been deprecated in favor of `kotlinx.coroutines.IO`
