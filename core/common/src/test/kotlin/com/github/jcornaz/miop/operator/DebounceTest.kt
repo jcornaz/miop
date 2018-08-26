@@ -6,7 +6,7 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.channels.toList
 import kotlinx.coroutines.delay
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DebounceTest : OperatorTest() {

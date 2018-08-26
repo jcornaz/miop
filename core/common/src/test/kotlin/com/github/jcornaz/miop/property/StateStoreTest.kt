@@ -8,7 +8,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.timeunit.TimeUnit
 import kotlinx.coroutines.withTimeout
 import kotlin.coroutines.coroutineContext
 import kotlin.test.Test
@@ -41,7 +40,7 @@ open class StateStoreTest : AsyncTest() {
         expect(3)
 
         store.dispatch { assertEquals(-1, it); 42 }
-        withTimeout(1, TimeUnit.SECONDS) { barrier.withLock { } }
+        withTimeout(1000) { barrier.withLock { } }
         expect(5)
 
         assertEquals(42, store.get())
@@ -61,7 +60,7 @@ open class StateStoreTest : AsyncTest() {
     fun subscriptionShouldAlwaysImmediatelyStartWithCurrentState() = runTest {
         val store = createStore("Hello world")
 
-        withTimeout(1, TimeUnit.SECONDS) {
+        withTimeout(1000) {
             assertEquals("Hello world", store.get())
             assertEquals("Hello world", store.openSubscription().first())
             assertEquals("Hello world", store.openSubscription().first())
@@ -87,11 +86,11 @@ open class StateStoreTest : AsyncTest() {
 
         expect(3)
         store.dispatch { it } // should not resume the job
-        delay(500, TimeUnit.MILLISECONDS)
+        delay(500)
         expect(4)
 
         store.dispatch { "World" } // should resume the job
-        withTimeout(1, TimeUnit.SECONDS) { barrier.withLock { } }
+        withTimeout(1000) { barrier.withLock { } }
         finish(6)
     }
 }

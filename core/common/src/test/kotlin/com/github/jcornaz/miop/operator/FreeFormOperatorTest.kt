@@ -6,7 +6,6 @@ import com.github.jcornaz.miop.transform
 import com.github.jcornaz.miop.test.assertThrows
 import com.github.jcornaz.miop.test.runTest
 import kotlinx.coroutines.channels.*
-import kotlinx.coroutines.timeunit.TimeUnit
 import kotlinx.coroutines.withTimeout
 import kotlin.coroutines.coroutineContext
 import kotlin.test.Test
@@ -45,7 +44,7 @@ class FreeFormOperatorTest : OperatorTest() {
     fun shouldSendCloseToken() = runTest {
         val result = emptyReceiveChannel<Int>().transform<Int, Int> { _, _ -> }
 
-        withTimeout(1, TimeUnit.SECONDS) {
+        withTimeout(1000) {
             assertThrows<ClosedReceiveChannelException> { result.receive() }
         }
     }

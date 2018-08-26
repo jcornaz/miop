@@ -4,7 +4,6 @@ import com.github.jcornaz.miop.test.runTest
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.channels.consume
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.timeunit.TimeUnit
 import kotlinx.coroutines.withTimeout
 import kotlin.coroutines.coroutineContext
 import kotlin.test.Test
@@ -43,7 +42,7 @@ class StateStoreViewTest : StateStoreTest() {
 
         values.dispatch { it + 1 }
 
-        withTimeout(1, TimeUnit.SECONDS) {
+        withTimeout(1000) {
             job1.join()
             job2.join()
         }
