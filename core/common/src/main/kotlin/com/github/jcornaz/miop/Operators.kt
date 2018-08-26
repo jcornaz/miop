@@ -43,10 +43,10 @@ public object Channels {
      * @param combine Function to combine elements from the sources
      */
     public fun <T1, T2, R> combineLatest(
-            source1: ReceiveChannel<T1>,
-            source2: ReceiveChannel<T2>,
-            context: CoroutineContext = Unconfined,
-            combine: suspend (T1, T2) -> R
+        source1: ReceiveChannel<T1>,
+        source2: ReceiveChannel<T2>,
+        context: CoroutineContext = Unconfined,
+        combine: suspend (T1, T2) -> R
     ): ReceiveChannel<R> = produce(context, onCompletion = { source1.cancel(it); source2.cancel(it) }) {
         var v1: T1? = null
         var v2: T2? = null
@@ -55,8 +55,8 @@ public object Channels {
         var hasV2 = false
 
         merge(
-                source1.map { { v1 = it; hasV1 = true; hasV2 } },
-                source2.map { { v2 = it; hasV2 = true; hasV1 } }
+            source1.map { { v1 = it; hasV1 = true; hasV2 } },
+            source2.map { { v2 = it; hasV2 = true; hasV1 } }
         ).consumeEach { fct ->
             if (fct()) {
 
@@ -76,9 +76,9 @@ public object Channels {
  * If the [block] fails the upstream channel is cancelled with the cause exception.
  */
 public fun <I, O> ReceiveChannel<I>.transform(
-        context: CoroutineContext = Unconfined,
-        capacity: Int = 0,
-        block: suspend (input: ReceiveChannel<I>, output: SendChannel<O>) -> Unit
+    context: CoroutineContext = Unconfined,
+    capacity: Int = 0,
+    block: suspend (input: ReceiveChannel<I>, output: SendChannel<O>) -> Unit
 ): ReceiveChannel<O> = produce(context, capacity, onCompletion = consumes()) { block(this@transform, channel) }
 
 /**
@@ -89,7 +89,7 @@ public fun <I, O> ReceiveChannel<I>.transform(
  * If one source is closed with an exception, the result channel will be closed with the same exception and all other sources will be cancelled.
  */
 public fun <T> ReceiveChannel<T>.mergeWith(vararg others: ReceiveChannel<T>): ReceiveChannel<T> =
-        Channels.merge(this, *others)
+    Channels.merge(this, *others)
 
 /**
  * Return a [ReceiveChannel] which combine the most recently emitted items from each sources.
@@ -102,9 +102,9 @@ public fun <T> ReceiveChannel<T>.mergeWith(vararg others: ReceiveChannel<T>): Re
  * @param combine Function to combine elements from the sources
  */
 public fun <T1, T2, R> ReceiveChannel<T1>.combineLatestWith(
-        other: ReceiveChannel<T2>,
-        context: CoroutineContext = Unconfined,
-        combine: suspend (T1, T2) -> R
+    other: ReceiveChannel<T2>,
+    context: CoroutineContext = Unconfined,
+    combine: suspend (T1, T2) -> R
 ): ReceiveChannel<R> = Channels.combineLatest(this, other, context, combine)
 
 /**
@@ -140,10 +140,10 @@ public fun <T, R> ReceiveChannel<T>.switchMap(context: CoroutineContext = Unconf
  * It allows to write `channel.launchConsumeEach(context) { ... }` instead of `launch(context) { channel.consumeEach { ... } }`
  */
 public fun <E> ReceiveChannel<E>.launchConsumeEach(
-        context: CoroutineContext = Unconfined,
-        start: CoroutineStart = CoroutineStart.DEFAULT,
-        parent: Job? = null,
-        action: suspend (E) -> Unit
+    context: CoroutineContext = Unconfined,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    parent: Job? = null,
+    action: suspend (E) -> Unit
 ): Job = launch(context, start, parent, onCompletion = consumes()) {
     consumeEach { action(it) }
 }
@@ -174,7 +174,7 @@ public fun <E> ReceiveChannel<E>.distinctUntilChanged(): ReceiveChannel<E> = tra
  * Returns a [ReceiveChannel] which emits the element of this channel, unless the element has the same reference as the last emitted element.
  */
 public fun <E> ReceiveChannel<E>.distinctReferenceUntilChanged(): ReceiveChannel<E> = transform { input, output ->
-    var latest =  try {
+    var latest = try {
         input.receive()
     } catch (error: ClosedReceiveChannelException) {
         return@transform
@@ -187,5 +187,14 @@ public fun <E> ReceiveChannel<E>.distinctReferenceUntilChanged(): ReceiveChannel
             output.send(elt)
             latest = elt
         }
+    }
+}
+
+/**
+ * Returns a [ReceiveChannel] emitting the elements of this channel which are instance of [E]
+ */
+inline fun <reified E> ReceiveChannel<*>.filterIsInstance(): ReceiveChannel<E> = transform { input, output ->
+    input.consumeEach {
+        if (it is E) output.send(it)
     }
 }

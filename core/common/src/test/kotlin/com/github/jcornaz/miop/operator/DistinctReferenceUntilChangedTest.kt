@@ -8,7 +8,7 @@ import kotlinx.coroutines.channels.toList
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-open class DistinctReferenceUntilChanged : OperatorTest() {
+open class DistinctReferenceUntilChangedTest : OperatorTest() {
 
     override fun <T> ReceiveChannel<T>.operator(): ReceiveChannel<T> =
         distinctReferenceUntilChanged()
