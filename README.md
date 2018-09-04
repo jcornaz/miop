@@ -7,7 +7,7 @@
 
 Reactive operator collection for coroutines channels which are not yet included in [kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines).
 
-
+**ATTENTION:** Version `0.1.0` shall be used with Kotlin 1.3-M1 only. For Kotlin 1.2.+, use the version `0.0.4`.
 
 ## Features
 * multi-platform (available modules: `common`, `jvm` and `js`)
