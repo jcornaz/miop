@@ -9,7 +9,7 @@ import kotlinx.coroutines.channels.first
 /**
  * Interface for a value holder where the value may change over time.
  *
- * The current value can be obtained with [value] and one can open a subscription in order to receive the new value when changed.
+ * The current value can be obtained with [get] and one can open a subscription in order to receive the new value when changed.
  *
  * The channel returned by [openSubscription] is "conflated" and start by the current value if any.
  */
@@ -28,7 +28,7 @@ public interface SubscribableValue<out T> {
 /**
  * Mutable version of [SubscribableValue].
  *
- * Provide ability to get and set the current value with [value].
+ * Provide ability to get and set the current value with [set].
  */
 public interface SubscribableVariable<T> : SubscribableValue<T> {
 

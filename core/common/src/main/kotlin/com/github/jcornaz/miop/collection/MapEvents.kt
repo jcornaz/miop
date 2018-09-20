@@ -1,12 +1,12 @@
 package com.github.jcornaz.miop.collection
 
 import com.github.jcornaz.miop.transform
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
-import kotlin.coroutines.coroutineContext
 
 /**
  * Represent an event which happened in a [Map]
@@ -45,11 +45,11 @@ public fun <K, V> ReceiveChannel<Map<K, V>>.toMapEvents(initialMap: Map<K, V> = 
     val currentMap: MutableMap<K, V> = HashMap(initialMap)
 
     input.consumeEach { newMap ->
-        handleNewMap(currentMap, newMap, coroutineContext[Job]).consumeEach { output.send(it) }
+        handleNewMap(currentMap, newMap).consumeEach { output.send(it) }
     }
 }
 
-private fun <K, V> handleNewMap(currentMap: MutableMap<K, V>, newMap: Map<K, V>, parent: Job?): ReceiveChannel<MapEvent<K, V>> = produce(parent = parent, capacity = Channel.UNLIMITED) {
+private fun <K, V> CoroutineScope.handleNewMap(currentMap: MutableMap<K, V>, newMap: Map<K, V>): ReceiveChannel<MapEvent<K, V>> = produce(Dispatchers.Default, Channel.UNLIMITED) {
     if (newMap.isEmpty() && currentMap.isNotEmpty()) {
         send(MapCleared)
         currentMap.clear()
