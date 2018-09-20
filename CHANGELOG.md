@@ -1,6 +1,6 @@
 # Change log
 
-## 0.2.0-SNAPSHOT (Unreleased)
+## 0.2-SNAPSHOT (Unreleased)
 
 ### Dependencies updated
 * **[Breaking]** Kotlin: 1.3-rc-57
