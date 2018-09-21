@@ -23,7 +23,7 @@ class PropertyOperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun updatingTheSourceOfACombinedSubcribableShouldUpdateTheCombinedValue() = runTest {
+    fun updatingTheSourceOfACombinedSubscribableShouldUpdateTheCombinedValue() = runTest {
         val x = SubscribableVariable(1)
         val y = SubscribableVariable(1)
         val result = x.combineWith(y) { vx, vy -> vx * vy }
