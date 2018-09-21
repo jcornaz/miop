@@ -1,6 +1,18 @@
 # Change log
 
 ## 0.2.0-SNAPSHOT (Unreleased)
+Migrate to Kotlin 1.3 RC and kotlinx.coroutines 0.26 (Structured concurrency)
+
+### Added
+* `CoroutineScope.launchFx*Updater` functions (replace `ReceiveChannel.launchFx*Updater` functions)
+
+### Changed
+* **[Breaking]** `ReceiveChannel.transform` provides a `CoroutineScope` as a receiver for the lambda
+
+### Deprecated
+* `launchConsumeEach` (use `launch { consumeEach {} }` instead)
+* `StateStore.dispatch` (use `StateStore.handle` instead)
+* `ReceiveChannel.launchFx*Updater` functions (use `CoroutineScope.launchFx*Updater` functions instead)
 
 ### Dependencies updated
 * **[Breaking]** Kotlin: 1.3-rc-57
