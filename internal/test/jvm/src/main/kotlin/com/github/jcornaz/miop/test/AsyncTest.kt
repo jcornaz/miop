@@ -2,10 +2,7 @@ package com.github.jcornaz.miop.test
 
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 actual abstract class AsyncTest {
     private val stepCount = AtomicInteger()
@@ -29,12 +26,12 @@ actual abstract class AsyncTest {
 
     protected actual fun expect(step: Int) {
         assertFalse(isFinished.get(), "expect($step) has been called after finish(${stepCount.get()}")
-        assertTrue(stepCount.incrementAndGet() == step, "unexpected step count (expected $step, but ${stepCount.get()} was found)")
+        assertEquals(stepCount.incrementAndGet(), step, "unexpected step count (expected $step, but ${stepCount.get()} was found)")
     }
 
     protected actual fun finish(step: Int) {
         assertTrue(isFinished.compareAndSet(false, true), "finish has been called twice")
-        assertTrue(stepCount.incrementAndGet() == step, "unexpected step count (expected $step, but ${stepCount.get()} was found)")
+        assertEquals(stepCount.incrementAndGet(), step, "unexpected step count (expected $step, but ${stepCount.get()} was found)")
     }
 
     protected actual fun unreachable(createMessage: () -> String) {

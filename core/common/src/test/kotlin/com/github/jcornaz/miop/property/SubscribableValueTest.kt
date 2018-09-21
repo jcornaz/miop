@@ -3,7 +3,7 @@ package com.github.jcornaz.miop.property
 import com.github.jcornaz.miop.test.AsyncTest
 import com.github.jcornaz.miop.test.assertThrows
 import com.github.jcornaz.miop.test.runTest
-import kotlinx.coroutines.Unconfined
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.first
 import kotlinx.coroutines.launch
@@ -17,7 +17,7 @@ class SubscribableValueTest : AsyncTest() {
         expect(1)
         val subscribable = SubscribableValue(42)
         assertEquals(42, subscribable.get())
-        launch(Unconfined) {
+        launch(Dispatchers.Unconfined) {
             expect(2)
             val sub = subscribable.openSubscription()
             assertEquals(42, sub.receive())
@@ -29,10 +29,10 @@ class SubscribableValueTest : AsyncTest() {
     }
 
     @Test
-    fun openSubscriptionShouldAlwaysReturnTheGivenValue() {
+    fun openSubscriptionShouldAlwaysReturnTheGivenValue() = runTest {
         expect(1)
         val subscribable = SubscribableValue(42)
-        launch(Unconfined) {
+        launch(Dispatchers.Unconfined) {
             expect(2)
             assertEquals(42, subscribable.openSubscription().first())
             assertEquals(42, subscribable.openSubscription().first())

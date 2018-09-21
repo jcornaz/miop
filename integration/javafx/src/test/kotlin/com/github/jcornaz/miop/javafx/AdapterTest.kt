@@ -2,6 +2,7 @@ package com.github.jcornaz.miop.javafx
 
 import com.github.jcornaz.miop.test.ManualTimer
 import javafx.beans.property.SimpleIntegerProperty
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -9,7 +10,6 @@ import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import kotlin.coroutines.coroutineContext
 import kotlin.test.assertEquals
 
 class AdapterTest {
@@ -43,7 +43,7 @@ class AdapterTest {
 
         timer.await(1)
 
-        withContext(JavaFx) { property.value = 2 }
+        withContext(Dispatchers.JavaFx) { property.value = 2 }
         assertEquals(2, subscribable.get())
     }
 
@@ -66,12 +66,12 @@ class AdapterTest {
 
         timer.await(1)
 
-        withContext(JavaFx) { property.value = 2 }
+        withContext(Dispatchers.JavaFx) { property.value = 2 }
         assertEquals(2, subscribable.get())
 
         timer.await(2)
 
         subscribable.set(42)
-        assertEquals(42, withContext(JavaFx) { property.value })
+        assertEquals(42, withContext(Dispatchers.JavaFx) { property.value })
     }
 }

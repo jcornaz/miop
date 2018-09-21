@@ -1,7 +1,8 @@
 package com.github.jcornaz.miop.test
 
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Unconfined
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -27,12 +28,12 @@ class ManualTimer {
     }
 
     fun advanceTo(time: Int) {
-        launch(Unconfined) {
+        GlobalScope.launch(Dispatchers.Unconfined) {
             mutex.withLock {
                 if (time > currentTime) {
                     currentTime = time
-                    pendingContinuations.keys.filter { it <= time }.forEach {
-                        pendingContinuations.remove(it)?.forEach { it.complete(Unit) }
+                    pendingContinuations.keys.filter { it <= time }.forEach { time ->
+                        pendingContinuations.remove(time)?.forEach { it.complete(Unit) }
                     }
                 }
             }

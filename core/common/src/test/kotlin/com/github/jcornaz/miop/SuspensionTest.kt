@@ -2,19 +2,19 @@ package com.github.jcornaz.miop
 
 import com.github.jcornaz.miop.test.AsyncTest
 import com.github.jcornaz.miop.test.assertThrows
+import com.github.jcornaz.miop.test.runTest
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.Unconfined
 import kotlinx.coroutines.launch
-import kotlin.coroutines.coroutineContext
 import kotlin.test.Test
 
 class SuspensionTest : AsyncTest() {
 
     @Test
-    fun awaitCancelShouldSuspendUntilTheCancellationOfTheCoroutines() {
+    fun awaitCancelShouldSuspendUntilTheCancellationOfTheCoroutines() = runTest {
         expect(1)
-        val job = launch(Unconfined) {
+        val job = launch(Dispatchers.Unconfined) {
             expect(2)
             assertThrows<CancellationException> { awaitCancel() }
             expect(4)
@@ -25,9 +25,9 @@ class SuspensionTest : AsyncTest() {
     }
 
     @Test
-    fun awaitCancelShouldThrowIfTheCoroutinesIsAlreadyCancelled() {
+    fun awaitCancelShouldThrowIfTheCoroutinesIsAlreadyCancelled() = runTest {
         expect(1)
-        launch(Unconfined) {
+        launch(Dispatchers.Unconfined) {
             expect(2)
             coroutineContext[Job]!!.cancel()
             assertThrows<CancellationException> { awaitCancel() }

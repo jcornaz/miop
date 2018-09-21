@@ -12,6 +12,7 @@ import kotlin.test.assertNotNull
 class StateStoreJvmTest {
 
     @Test
+    @Suppress("DEPRECATION")
     fun errorShouldBeSentToDefaultUncaughtThreadHandler() = runTest {
         var exception: Throwable? = null
 
