@@ -1,6 +1,6 @@
 # Change log
 
-## 0.2.0-SNAPSHOT (Unreleased)
+## 0.2-SNAPSHOT (Unreleased)
 Migrate to Kotlin 1.3 RC and kotlinx.coroutines 0.26 (Structured concurrency)
 
 ### Added
