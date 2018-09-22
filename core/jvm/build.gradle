@@ -9,7 +9,8 @@ dependencies {
 compileTestKotlin {
     kotlinOptions {
         freeCompilerArgs = [
-                '-Xuse-experimental=com.github.jcornaz.miop.property.ExperimentalSubscribable'
+                '-Xuse-experimental=com.github.jcornaz.miop.property.ExperimentalSubscribable',
+                '-Xuse-experimental=com.github.jcornaz.miop.collection.ExperimentalCollectionEvent'
         ]
     }
 }

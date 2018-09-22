@@ -12,23 +12,29 @@ import kotlinx.coroutines.channels.produce
  * Represent an event which happened in a [Map]
  */
 @Suppress("unused")
+@ExperimentalCollectionEvent
 public sealed class MapEvent<out K, out V>
 
 /** A **new** entry has been added to the map. (there wasn't any value associated to [key] before) */
+@ExperimentalCollectionEvent
 public data class MapEntryAdded<out K, out V>(val key: K, val value: V) : MapEvent<K, V>()
 
 /** The value associated to [key] has been replaced by [newValue] */
+@ExperimentalCollectionEvent
 public data class MapEntryUpdated<out K, out V>(val key: K, val newValue: V) : MapEvent<K, V>()
 
 /** An entry has been removed from the map */
+@ExperimentalCollectionEvent
 public data class MapEntryRemoved<out K, out V>(val key: K) : MapEvent<K, V>()
 
 /** The map has been cleared */
+@ExperimentalCollectionEvent
 public object MapCleared : MapEvent<Nothing, Nothing>()
 
 /**
  * Apply the [event] to this map
  */
+@ExperimentalCollectionEvent
 public operator fun <K, V> MutableMap<in K, in V>.plusAssign(event: MapEvent<K, V>) {
     when (event) {
         is MapEntryAdded -> put(event.key, event.value)
@@ -41,6 +47,7 @@ public operator fun <K, V> MutableMap<in K, in V>.plusAssign(event: MapEvent<K, 
 /**
  * Compute deltas between each received map and emits the corresponding events.
  */
+@ExperimentalCollectionEvent
 public fun <K, V> ReceiveChannel<Map<K, V>>.toMapEvents(initialMap: Map<K, V> = emptyMap()): ReceiveChannel<MapEvent<K, V>> = transform { input, output ->
     val currentMap: MutableMap<K, V> = HashMap(initialMap)
 
@@ -49,6 +56,7 @@ public fun <K, V> ReceiveChannel<Map<K, V>>.toMapEvents(initialMap: Map<K, V> = 
     }
 }
 
+@ExperimentalCollectionEvent
 private fun <K, V> CoroutineScope.handleNewMap(currentMap: MutableMap<K, V>, newMap: Map<K, V>): ReceiveChannel<MapEvent<K, V>> = produce(Dispatchers.Default, Channel.UNLIMITED) {
     if (newMap.isEmpty() && currentMap.isNotEmpty()) {
         send(MapCleared)
