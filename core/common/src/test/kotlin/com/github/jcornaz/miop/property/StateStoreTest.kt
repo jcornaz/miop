@@ -9,7 +9,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
-import kotlin.coroutines.coroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -18,7 +17,7 @@ open class StateStoreTest : AsyncTest() {
     open fun <S> createStore(initialState: S): StateStore<S, (S) -> S> = StateStore(initialState)
 
     @Test
-    fun dispatchShouldMutateTheState() = runTest {
+    fun handleShouldMutateTheState() = runTest {
         val store = createStore(-1)
 
         assertEquals(-1, store.get())
@@ -39,7 +38,7 @@ open class StateStoreTest : AsyncTest() {
 
         expect(3)
 
-        store.dispatch { assertEquals(-1, it); 42 }
+        store.handle { assertEquals(-1, it); 42 }
         withTimeout(1000) { barrier.withLock { } }
         expect(5)
 
@@ -69,6 +68,7 @@ open class StateStoreTest : AsyncTest() {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun subscriptionShouldNotReceiveUnchangedState() = runTest {
         val store = createStore("Hello")
 

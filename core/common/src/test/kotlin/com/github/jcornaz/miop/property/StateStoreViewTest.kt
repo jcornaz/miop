@@ -5,13 +5,13 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.channels.consume
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
-import kotlin.coroutines.coroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 private val NUMBERS = listOf("zero", "one", "two", "three")
 
 class StateStoreViewTest : StateStoreTest() {
+
     override fun <S> createStore(initialState: S): StateStore<S, (S) -> S> =
         StateStore(initialState).map(transformState = { it }, transformEvent = { it })
 
@@ -40,7 +40,7 @@ class StateStoreViewTest : StateStoreTest() {
             }
         }
 
-        values.dispatch { it + 1 }
+        values.handle { it + 1 }
 
         withTimeout(1000) {
             job1.join()

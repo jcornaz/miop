@@ -7,6 +7,8 @@ import javafx.beans.value.ChangeListener
 import javafx.beans.value.ObservableValue
 import javafx.collections.ListChangeListener
 import javafx.collections.ObservableList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
@@ -16,8 +18,10 @@ import kotlinx.coroutines.javafx.JavaFx
  * Returns a [ReceiveChannel] through which all new value of this observable are sent.
  *
  * The result channel starts with the current value.
+ *
+ * Result channel shall be cancelled to unsubscribe from the source.
  */
-public fun <T> ObservableValue<out T>.openValueSubscription(): ReceiveChannel<T?> = produce(JavaFx, Channel.CONFLATED) {
+public fun <T> ObservableValue<out T>.openValueSubscription(): ReceiveChannel<T?> = GlobalScope.produce(Dispatchers.JavaFx, Channel.CONFLATED) {
     offer(value)
 
     val listener = ChangeListener<T?> { _, _, newValue -> offer(newValue) }
@@ -35,8 +39,10 @@ public fun <T> ObservableValue<out T>.openValueSubscription(): ReceiveChannel<T?
  * Returns a [ReceiveChannel] through which all the new list are sent each time it changes.
  *
  * The result channel starts with the current value.
+ *
+ * Result channel shall be cancelled to unsubscribe from the source.
  */
-public fun <E> ObservableList<out E>.openListSubscription(): ReceiveChannel<PersistentList<E>> = produce(JavaFx, Channel.CONFLATED) {
+public fun <E> ObservableList<out E>.openListSubscription(): ReceiveChannel<PersistentList<E>> = GlobalScope.produce(Dispatchers.JavaFx, Channel.CONFLATED) {
     var list: PersistentList<E> = toPersistentList().also { offer(it) }
 
     val listener = ListChangeListener<E> { change ->

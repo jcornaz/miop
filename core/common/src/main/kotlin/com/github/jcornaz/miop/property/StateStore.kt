@@ -1,6 +1,6 @@
 package com.github.jcornaz.miop.property
 
-import kotlinx.coroutines.Unconfined
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.launch
@@ -29,8 +29,13 @@ public interface StateStore<out S, in E> : SubscribableValue<S> {
 }
 
 /** Dispatch an event in order to mutate the state. The event may be scheduled for later */
+@Deprecated(
+    message = "Standalone coroutines are deprecated. Use `StateStore.handle`",
+    replaceWith = ReplaceWith("launch(Dispatchers.Unconfined) { handle(event) }", "kotlinx.coroutines.launch", "kotlinx.coroutines.Dispatchers")
+)
+@Suppress("DEPRECATION")
 fun <E> StateStore<*, E>.dispatch(event: E) {
-    launch(Unconfined) { handle(event) }
+    launch(Dispatchers.Unconfined) { handle(event) }
 }
 
 /**

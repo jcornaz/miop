@@ -8,7 +8,6 @@ import kotlinx.coroutines.channels.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
-import kotlin.coroutines.coroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -23,7 +22,7 @@ class PropertyOperatorsTest : AsyncTest() {
     }
 
     @Test
-    fun updatingTheSourceOfACombinedSubcribableShouldUpdateTheCombinedValue() = runTest {
+    fun updatingTheSourceOfACombinedSubscribableShouldUpdateTheCombinedValue() = runTest {
         val x = SubscribableVariable(1)
         val y = SubscribableVariable(1)
         val result = x.combineWith(y) { vx, vy -> vx * vy }

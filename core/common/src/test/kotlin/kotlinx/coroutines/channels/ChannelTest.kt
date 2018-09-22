@@ -5,7 +5,7 @@ import com.github.jcornaz.miop.test.AsyncTest
 import com.github.jcornaz.miop.test.assertThrows
 import com.github.jcornaz.miop.test.runTest
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Unconfined
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlin.test.Test
@@ -37,9 +37,9 @@ class ChannelTest : AsyncTest() {
     }
 
     @Test
-    fun testCancellingProduce() {
+    fun testCancellingProduce() = runTest {
         var onCompletionCalled = false
-        produce<Int>(Unconfined, onCompletion = { onCompletionCalled = true }) { }.cancel()
+        produce<Int>(Dispatchers.Unconfined, onCompletion = { onCompletionCalled = true }) { }.cancel()
         assertTrue(onCompletionCalled)
     }
 
@@ -48,7 +48,7 @@ class ChannelTest : AsyncTest() {
         val channel = Channel<Int>()
 
         expect(1)
-        val job = launch(Unconfined) {
+        val job = launch(Dispatchers.Unconfined) {
             expect(2)
             try {
                 channel.receive()
@@ -66,7 +66,7 @@ class ChannelTest : AsyncTest() {
     fun testCancelProduce() = runTest {
         val source = Channel<Int>()
 
-        val produced = produce<Int>(Unconfined, onCompletion = source.consumes()) {
+        val produced = produce<Int>(Dispatchers.Unconfined, onCompletion = source.consumes()) {
             source.receive()
         }
 

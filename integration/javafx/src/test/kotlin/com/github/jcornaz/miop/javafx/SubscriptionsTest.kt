@@ -11,16 +11,15 @@ import javafx.application.Platform
 import javafx.beans.value.ChangeListener
 import javafx.beans.value.ObservableValue
 import javafx.collections.FXCollections
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.withTestContext
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import kotlin.coroutines.coroutineContext
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -41,19 +40,19 @@ class SubscriptionsTest {
     @Test(timeout = 10_000)
     @Suppress("UNCHECKED_CAST")
     fun `ObservableValue#openSubscription should add listener to the observable value`() = runBlocking {
-        val context = coroutineContext + JavaFx
+        val context = coroutineContext + Dispatchers.JavaFx
 
         val observable = mock<ObservableValue<Int>> {
             on { value } doReturn 42
-            on { addListener(any<ChangeListener<in Int>>()) }.thenAnswer {
-                val listener = it.getArgument(0) as ChangeListener<in Int>
+            on { addListener(any<ChangeListener<in Int>>()) }.thenAnswer { invocation ->
+                val listener = invocation.getArgument(0) as ChangeListener<in Int>
 
                 launch(context) {
                     timer.await(1)
-                    listener.changed(it.mock as ObservableValue<out Int>, 42, 1)
+                    listener.changed(invocation.mock as ObservableValue<out Int>, 42, 1)
 
                     timer.await(2)
-                    listener.changed(it.mock as ObservableValue<out Int>, 1, 2)
+                    listener.changed(invocation.mock as ObservableValue<out Int>, 1, 2)
                 }
             }
         }
@@ -118,18 +117,18 @@ class SubscriptionsTest {
 
         timer.await(1)
 
-        withContext(JavaFx) { observable[1] = "Kotlin" }
+        withContext(Dispatchers.JavaFx) { observable[1] = "Kotlin" }
         timer.advanceTo(2)
         timer.await(3)
 
-        withContext(JavaFx) {
+        withContext(Dispatchers.JavaFx) {
             observable.clear()
             observable.addAll("one", "two")
             observable.remove("one")
             observable[0] = "Monday"
         }
 
-        withContext(JavaFx) {
+        withContext(Dispatchers.JavaFx) {
             observable.addAll("Tuesday", "Wednesday", "Thursday", "Friday")
         }
 
@@ -150,7 +149,7 @@ class SubscriptionsTest {
         }
 
         timer.await(1)
-        withContext(JavaFx) { observable.sort() }
+        withContext(Dispatchers.JavaFx) { observable.sort() }
         timer.advanceTo(2)
     }
 
@@ -167,7 +166,7 @@ class SubscriptionsTest {
         }
 
         timer.await(1)
-        withContext(JavaFx) {
+        withContext(Dispatchers.JavaFx) {
             observable.add(1, 'c')
             observable.add(1, 'b')
         }

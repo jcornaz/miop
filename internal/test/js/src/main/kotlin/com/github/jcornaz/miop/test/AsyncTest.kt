@@ -1,9 +1,6 @@
 package com.github.jcornaz.miop.test
 
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 actual abstract class AsyncTest actual constructor() {
     private var stepCount = 0
@@ -25,12 +22,12 @@ actual abstract class AsyncTest actual constructor() {
 
     protected actual fun expect(step: Int) {
         assertFalse(isFinished, "expect($step) has been called after finish($stepCount")
-        assertTrue(++stepCount == step, "unexpected step count (expected $step, but $stepCount was found)")
+        assertEquals(++stepCount, step, "unexpected step count (expected $step, but $stepCount was found)")
     }
 
     protected actual fun finish(step: Int) {
         assertTrue(isFinished, "finish has been called twice")
-        assertTrue(++stepCount == step, "unexpected step count (expected $step, but $stepCount was found)")
+        assertEquals(++stepCount, step, "unexpected step count (expected $step, but $stepCount was found)")
     }
 
     protected actual fun unreachable(createMessage: () -> String) {

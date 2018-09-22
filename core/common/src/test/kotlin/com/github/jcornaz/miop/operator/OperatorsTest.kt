@@ -1,20 +1,12 @@
 package com.github.jcornaz.miop.operator
 
-import com.github.jcornaz.miop.combineLatestWith
-import com.github.jcornaz.miop.distinctUntilChanged
-import com.github.jcornaz.miop.emptyReceiveChannel
-import com.github.jcornaz.miop.launchConsumeEach
-import com.github.jcornaz.miop.mergeWith
-import com.github.jcornaz.miop.receiveChannelOf
-import com.github.jcornaz.miop.switchMap
+import com.github.jcornaz.miop.*
 import com.github.jcornaz.miop.test.AsyncTest
 import com.github.jcornaz.miop.test.assertThrows
 import com.github.jcornaz.miop.test.runTest
-import kotlinx.coroutines.Unconfined
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.channels.first
-import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.channels.toList
 import kotlinx.coroutines.launch
 import kotlin.test.Test
@@ -30,7 +22,7 @@ class OperatorsTest : AsyncTest() {
         val result = source1.mergeWith(source2)
 
         expect(1)
-        launch(Unconfined) {
+        launch(Dispatchers.Unconfined) {
             expect(2)
             assertEquals(1, result.receive())
             expect(4)
@@ -111,7 +103,7 @@ class OperatorsTest : AsyncTest() {
         val result = source1.combineLatestWith(source2) { v1, v2 -> v1 to v2 }
 
         expect(1)
-        launch(Unconfined) {
+        launch(Dispatchers.Unconfined) {
             expect(2)
             assertEquals(2 to 3, result.receive())
             expect(5)
@@ -186,7 +178,7 @@ class OperatorsTest : AsyncTest() {
         val result = switch.switchMap { sources[it] }
 
         expect(1)
-        launch(Unconfined) {
+        launch(Dispatchers.Unconfined) {
             expect(2)
             assertEquals('a', result.receive())
             assertEquals('b', result.receive())
@@ -258,6 +250,7 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun launchConsumeEachShouldConsumeTheChannel() = runTest {
         val result = mutableListOf<Int>()
 

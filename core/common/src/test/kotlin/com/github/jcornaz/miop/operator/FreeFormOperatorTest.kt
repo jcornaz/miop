@@ -2,12 +2,11 @@ package com.github.jcornaz.miop.operator
 
 import com.github.jcornaz.miop.emptyReceiveChannel
 import com.github.jcornaz.miop.receiveChannelOf
-import com.github.jcornaz.miop.transform
 import com.github.jcornaz.miop.test.assertThrows
 import com.github.jcornaz.miop.test.runTest
+import com.github.jcornaz.miop.transform
 import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.withTimeout
-import kotlin.coroutines.coroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

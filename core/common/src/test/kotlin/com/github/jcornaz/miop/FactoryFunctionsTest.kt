@@ -3,8 +3,9 @@ package com.github.jcornaz.miop
 import com.github.jcornaz.miop.test.AsyncTest
 import com.github.jcornaz.miop.test.assertThrows
 import com.github.jcornaz.miop.test.runTest
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.launch
 import kotlin.test.*
 
 class FactoryFunctionsTest : AsyncTest() {
@@ -24,14 +25,14 @@ class FactoryFunctionsTest : AsyncTest() {
     }
 
     @Test
-    fun receiveChannelOfShouldReturnAChannelContainingTheGivenElements() {
+    fun receiveChannelOfShouldReturnAChannelContainingTheGivenElements() = runTest {
         val channel = receiveChannelOf(1, 2, 3)
 
         assertFalse(channel.isEmpty)
         assertFalse(channel.isClosedForReceive)
 
         expect(1)
-        launch(Unconfined) {
+        launch(Dispatchers.Unconfined) {
             expect(2)
             assertEquals(1, channel.receive())
             assertEquals(2, channel.receive())
@@ -52,11 +53,11 @@ class FactoryFunctionsTest : AsyncTest() {
     }
 
     @Test
-    fun openSubscriptionOnIterableShouldEmitsAllElementsOfTheIterable() {
+    fun openSubscriptionOnIterableShouldEmitsAllElementsOfTheIterable() = runTest {
         val channel = listOf(1, 2, 3).openSubscription(capacity = 3)
 
         expect(1)
-        launch(Unconfined) {
+        launch(Dispatchers.Unconfined) {
             expect(2)
             assertEquals(1, channel.receive())
             assertEquals(2, channel.receive())
@@ -67,11 +68,11 @@ class FactoryFunctionsTest : AsyncTest() {
     }
 
     @Test
-    fun openSubscriptionOnSequenceShouldEmitsAllElementsOfTheIterable() {
+    fun openSubscriptionOnSequenceShouldEmitsAllElementsOfTheIterable() = runTest {
         val channel = sequenceOf(1, 2, 3).openSubscription(capacity = 3)
 
         expect(1)
-        launch(Unconfined) {
+        launch(Dispatchers.Unconfined) {
             expect(2)
             assertEquals(1, channel.receive())
             assertEquals(2, channel.receive())

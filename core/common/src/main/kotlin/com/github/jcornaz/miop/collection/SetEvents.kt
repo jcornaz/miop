@@ -1,12 +1,12 @@
 package com.github.jcornaz.miop.collection
 
 import com.github.jcornaz.miop.transform
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
-import kotlin.coroutines.coroutineContext
 
 /**
  * Represent an event which happened in a [Set]
@@ -42,11 +42,11 @@ public fun <E> ReceiveChannel<Set<E>>.toSetEvents(initialSet: Set<E> = emptySet(
     val currentSet: MutableSet<E> = initialSet.toHashSet()
 
     input.consumeEach { newSet ->
-        handleNewSet(currentSet, newSet, coroutineContext[Job]).consumeEach { output.send(it) }
+        handleNewSet(currentSet, newSet).consumeEach { output.send(it) }
     }
 }
 
-private fun <E> handleNewSet(currentSet: MutableSet<E>, newSet: Set<E>, parent: Job?): ReceiveChannel<SetEvent<E>> = produce(parent = parent, capacity = Channel.UNLIMITED) {
+private fun <E> CoroutineScope.handleNewSet(currentSet: MutableSet<E>, newSet: Set<E>): ReceiveChannel<SetEvent<E>> = produce(Dispatchers.Default, Channel.UNLIMITED) {
     if (newSet.isEmpty() && currentSet.isNotEmpty()) {
         send(SetCleared)
         currentSet.clear()

@@ -3,7 +3,6 @@ package com.github.jcornaz.miop
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.coroutineContext
 
 /**
  * Operators for [ReceiveChannel]
@@ -17,20 +16,21 @@ public object Channels {
      *
      * If one source is closed with an exception, the result channel will be closed with the same exception and all other sources will be cancelled.
      */
-    public fun <T> merge(vararg sources: ReceiveChannel<T>): ReceiveChannel<T> = produce(Unconfined, onCompletion = { error -> sources.all { it.cancel(error) } }) {
-        val job = coroutineContext[Job]!!
+    public fun <T> merge(vararg sources: ReceiveChannel<T>): ReceiveChannel<T> =
+        GlobalScope.produce(Dispatchers.Unconfined, onCompletion = { error -> sources.all { it.cancel(error) } }) {
+            val job = coroutineContext[Job]!!
 
-        // Necessary to not deliver the exception to the uncaught exception handler
-        val context = coroutineContext + CoroutineExceptionHandler { _, throwable ->
-            job.cancel(throwable)
-        }
+            // Necessary to not deliver the exception to the uncaught exception handler
+            val context = coroutineContext + CoroutineExceptionHandler { _, throwable ->
+                job.cancel(throwable)
+            }
 
-        sources.forEach { source ->
-            launch(context) {
-                source.consumeEach { send(it) }
+            sources.forEach { source ->
+                launch(context) {
+                    source.consumeEach { send(it) }
+                }
             }
         }
-    }
 
     /**
      * Returns a [ReceiveChannel] which combine the most recently emitted items from each sources.
@@ -45,9 +45,9 @@ public object Channels {
     public fun <T1, T2, R> combineLatest(
         source1: ReceiveChannel<T1>,
         source2: ReceiveChannel<T2>,
-        context: CoroutineContext = Unconfined,
+        context: CoroutineContext = Dispatchers.Unconfined,
         combine: suspend (T1, T2) -> R
-    ): ReceiveChannel<R> = produce(context, onCompletion = { source1.cancel(it); source2.cancel(it) }) {
+    ): ReceiveChannel<R> = GlobalScope.produce(context, onCompletion = { source1.cancel(it); source2.cancel(it) }) {
         var v1: T1? = null
         var v2: T2? = null
 
@@ -76,10 +76,10 @@ public object Channels {
  * If the [block] fails the upstream channel is cancelled with the cause exception.
  */
 public fun <I, O> ReceiveChannel<I>.transform(
-    context: CoroutineContext = Unconfined,
+    context: CoroutineContext = Dispatchers.Unconfined,
     capacity: Int = 0,
-    block: suspend (input: ReceiveChannel<I>, output: SendChannel<O>) -> Unit
-): ReceiveChannel<O> = produce(context, capacity, onCompletion = consumes()) { block(this@transform, channel) }
+    block: suspend CoroutineScope.(input: ReceiveChannel<I>, output: SendChannel<O>) -> Unit
+): ReceiveChannel<O> = GlobalScope.produce(context, capacity, onCompletion = consumes()) { block(this@transform, channel) }
 
 /**
  * Return a [ReceiveChannel] through which elements of all given sources (including this channel) are sent as soon as received.
@@ -103,7 +103,7 @@ public fun <T> ReceiveChannel<T>.mergeWith(vararg others: ReceiveChannel<T>): Re
  */
 public fun <T1, T2, R> ReceiveChannel<T1>.combineLatestWith(
     other: ReceiveChannel<T2>,
-    context: CoroutineContext = Unconfined,
+    context: CoroutineContext = Dispatchers.Unconfined,
     combine: suspend (T1, T2) -> R
 ): ReceiveChannel<R> = Channels.combineLatest(this, other, context, combine)
 
@@ -116,20 +116,12 @@ public fun <T1, T2, R> ReceiveChannel<T1>.combineLatestWith(
  *
  * If the current source source is closed with an exception, the result channel will be closed with the same exception.
  */
-public fun <T, R> ReceiveChannel<T>.switchMap(context: CoroutineContext = Unconfined, transform: suspend (T) -> ReceiveChannel<R>): ReceiveChannel<R> = transform { input, output ->
-    val parent = coroutineContext[Job]!!
-
+public fun <T, R> ReceiveChannel<T>.switchMap(context: CoroutineContext = Dispatchers.Unconfined, transform: suspend (T) -> ReceiveChannel<R>): ReceiveChannel<R> = transform { input, output ->
     var job: Job? = null
     input.consumeEach { element ->
         job?.cancelAndJoin()
-        job = launch(context, parent = parent) {
-            try {
-                transform(element).consumeEach { output.send(it) }
-            } catch (cancellation: CancellationException) {
-                throw cancellation
-            } catch (error: Throwable) {
-                parent.cancel(error)
-            }
+        job = launch(context) {
+            transform(element).consumeEach { output.send(it) }
         }
     }
 }
@@ -139,12 +131,34 @@ public fun <T, R> ReceiveChannel<T>.switchMap(context: CoroutineContext = Unconf
  *
  * It allows to write `channel.launchConsumeEach(context) { ... }` instead of `launch(context) { channel.consumeEach { ... } }`
  */
+@Deprecated("Standalone coroutine builders are deprecated, use CoroutineScope.launch { source.consumeEach {} } instead")
 public fun <E> ReceiveChannel<E>.launchConsumeEach(
-    context: CoroutineContext = Unconfined,
+    context: CoroutineContext = Dispatchers.Unconfined,
     start: CoroutineStart = CoroutineStart.DEFAULT,
-    parent: Job? = null,
+    parent: Job?,
     action: suspend (E) -> Unit
-): Job = launch(context, start, parent, onCompletion = consumes()) {
+): Job {
+    val actualContext = if (parent == null) context else context + parent
+
+    return GlobalScope.launch(actualContext, start, onCompletion = consumes()) {
+        consumeEach { action(it) }
+    }
+}
+
+/**
+ * Launches new coroutine which consume the channel and execute [action] for each element.
+ *
+ * It allows to write `channel.launchConsumeEach(context) { ... }` instead of `launch(context) { channel.consumeEach { ... } }`
+ */
+@Deprecated(
+    message = "Standalone coroutine builders are deprecated, use CoroutineScope.launch { source.consumeEach {} } instead",
+    replaceWith = ReplaceWith("GlobalScope.launch(context, start, onCompletion = consumes()) { consumeEach { action(it) } }", "kotlinx.coroutines.GlobalScope", "kotlinx.coroutines.launch", "kotlinx.coroutines.channels.consumes", "kotlinx.coroutines.channels.consumeEach")
+)
+public fun <E> ReceiveChannel<E>.launchConsumeEach(
+    context: CoroutineContext = Dispatchers.Unconfined,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    action: suspend (E) -> Unit
+): Job = GlobalScope.launch(context, start, onCompletion = consumes()) {
     consumeEach { action(it) }
 }
 
@@ -220,9 +234,8 @@ public fun <E> ReceiveChannel<E>.debounce(timeSpan: Long): ReceiveChannel<E> = t
  *
  * @param capacity Max number of elements to buffer. Once the limit is reached, the producer will suspend. [Channel.UNLIMITED] and [Channel.CONFLATED] can be used.
  */
-public fun <E> ReceiveChannel<E>.buffer(capacity: Int = Channel.UNLIMITED): ReceiveChannel<E> = produce(Unconfined, capacity, onCompletion = consumes()) {
-    consumeEach { send(it) }
-}
+public fun <E> ReceiveChannel<E>.buffer(capacity: Int = Channel.UNLIMITED): ReceiveChannel<E> =
+    transform(capacity = capacity) { input, output -> input.consumeEach { output.send(it) } }
 
 /**
  * Buffers at most one element and conflates all subsequent emissions,
