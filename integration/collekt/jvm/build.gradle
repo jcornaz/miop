@@ -3,7 +3,16 @@ apply from: rootProject.file('gradle/jvm.gradle')
 dependencies {
     expectedBy project(":miop-collekt-common")
 
-    api 'com.github.jcornaz.collekt:collekt-core-jvm:0.0.2'
+    api project(':miop-jvm')
+    api 'com.github.jcornaz.collekt:collekt-core-jvm8:0.0.2'
 
     testCompile project(':miop-internal-test-jvm')
+}
+
+compileTestKotlin {
+    kotlinOptions {
+        freeCompilerArgs = [
+                '-Xuse-experimental=com.github.jcornaz.miop.collection.ExperimentalCollectionEvent'
+        ]
+    }
 }

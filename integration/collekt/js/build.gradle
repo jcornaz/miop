@@ -3,7 +3,16 @@ apply from: rootProject.file('gradle/js.gradle')
 dependencies {
     expectedBy project(":miop-collekt-common")
 
+    compile project(':miop-js')
     compile 'com.github.jcornaz.collekt:collekt-core-js:0.0.2'
 
     testCompile project(':miop-internal-test-js')
+}
+
+compileTestKotlin2Js {
+    kotlinOptions {
+        freeCompilerArgs = [
+                '-Xuse-experimental=com.github.jcornaz.miop.collection.ExperimentalCollectionEvent'
+        ]
+    }
 }
