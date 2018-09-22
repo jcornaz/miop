@@ -27,8 +27,7 @@ class WindowedTest : OperatorTest() {
             actual = windows.toList(),
             expected = listOf(
                 listOf(1, 2, 3),
-                listOf(3, 4, 5),
-                listOf(5, 6)
+                listOf(3, 4, 5)
             )
         )
     }
@@ -36,7 +35,7 @@ class WindowedTest : OperatorTest() {
     @Test
     fun testPartialWindow() = runTest {
         // given
-        val source = receiveChannelOf(1, 2, 3, 4, 5, 6, 7)
+        val source = receiveChannelOf(1, 2, 3, 4, 5, 6)
 
         // when
         val windows = source.windowed(3, 2, true)
@@ -47,8 +46,7 @@ class WindowedTest : OperatorTest() {
             expected = listOf(
                 listOf(1, 2, 3),
                 listOf(3, 4, 5),
-                listOf(5, 6, 7),
-                listOf(7)
+                listOf(5, 6)
             )
         )
     }
@@ -56,7 +54,7 @@ class WindowedTest : OperatorTest() {
     @Test
     fun windowShouldBeConsistentWithSequenceWindow() = runTest {
         // given
-        val sequence = generateSequence(0) { it + 1 }
+        val sequence = generateSequence(0) { it + 1 }.take(42)
         val source = sequence.openSubscription()
 
         // when
@@ -72,7 +70,7 @@ class WindowedTest : OperatorTest() {
     @Test
     fun windowWithPartialShouldBeConsistentWithSequenceWindowWithPartial() = runTest {
         // given
-        val sequence = generateSequence(0) { it + 1 }
+        val sequence = generateSequence(0) { it + 1 }.take(42)
         val source = sequence.openSubscription()
 
         // when
@@ -88,7 +86,7 @@ class WindowedTest : OperatorTest() {
     @Test
     fun windowDefaultShouldBeConsistentWithSequenceDefault() = runTest {
         // given
-        val sequence = generateSequence(0) { it + 1 }
+        val sequence = generateSequence(0) { it + 1 }.take(42)
         val source = sequence.openSubscription()
 
         // when

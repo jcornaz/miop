@@ -263,7 +263,42 @@ public inline fun <E> ReceiveChannel<E>.conflate(): ReceiveChannel<E> = buffer(C
  * @param partialWindows controls whether or not to keep partial windows in the end if any,
  * by default `false` which means partial windows won't be preserved
  */
-public fun <E> ReceiveChannel<E>.windowed(size: Int, step: Int = 1, partialWindows: Boolean = false): ReceiveChannel<List<E>> = TODO()
+public fun <E> ReceiveChannel<E>.windowed(size: Int, step: Int = 1, partialWindows: Boolean = false): ReceiveChannel<List<E>> {
+    require(size > 0 && step > 0) { cancel(); "size and step have to be greater than 0 but size was $size and step was $step" }
+
+    return transform { input, output ->
+
+        var window = ArrayList<E>(size)
+        var countDown = 0
+
+        input.consumeEach { element ->
+            if (countDown > 0) {
+                --countDown
+                return@consumeEach
+            }
+
+            window.add(element)
+
+            if (window.size == size) {
+                output.send(window)
+
+                val newWindow = ArrayList<E>(size)
+
+                if (step < window.size) {
+                    newWindow.addAll(window.subList(step, window.size))
+                } else {
+                    countDown = step - window.size
+                }
+
+                window = newWindow
+            }
+        }
+
+        if (window.isNotEmpty() && partialWindows) {
+            window.asSequence().windowed(size, step, true).forEach { output.send(it) }
+        }
+    }
+}
 
 /**
  * Splits aggregate received elements into lists not exceeding the given [size].
@@ -273,4 +308,4 @@ public fun <E> ReceiveChannel<E>.windowed(size: Int, step: Int = 1, partialWindo
  * @param size the number of elements to take in each list, must be positive and can be greater than the number of elements emitted by this source.
  */
 @Suppress("NOTHING_TO_INLINE")
-public inline fun <E> ReceiveChannel<E>.chunked(size: Int): ReceiveChannel<List<E>> = windowed(size, size)
+public inline fun <E> ReceiveChannel<E>.chunked(size: Int): ReceiveChannel<List<E>> = windowed(size, size, true)

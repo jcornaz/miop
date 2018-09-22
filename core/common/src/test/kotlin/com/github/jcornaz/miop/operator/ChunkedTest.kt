@@ -36,16 +36,16 @@ class ChunkedTest : OperatorTest() {
     @Test
     fun chunkedShouldBeConsistentWithSequenceChunked() = runTest {
         // given
-        val sequence = generateSequence(0) { it + 1 }
+        val sequence = generateSequence(0) { it + 1 }.take(42)
         val source = sequence.openSubscription()
 
         // when
-        val windows = source.chunked(4)
+        val windows = source.chunked(7)
 
         // then
         assertEquals(
             actual = windows.toList(),
-            expected = sequence.chunked(4).toList()
+            expected = sequence.chunked(7).toList()
         )
     }
 }
