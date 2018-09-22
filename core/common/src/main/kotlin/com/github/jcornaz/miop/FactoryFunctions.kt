@@ -23,11 +23,11 @@ public fun <E> receiveChannelOf(vararg values: E): ReceiveChannel<E> = GlobalSco
 /**
  * Return a [ReceiveChannel] which emits all elements of this iterable (in the same order)
  */
-fun <T> Iterable<T>.openSubscription(context: CoroutineContext = Dispatchers.Unconfined, capacity: Int = 0): ReceiveChannel<T> =
+public fun <T> Iterable<T>.openSubscription(context: CoroutineContext = Dispatchers.Unconfined, capacity: Int = 0): ReceiveChannel<T> =
         asSequence().openSubscription(context, capacity)
 
 /**
  * Return a [ReceiveChannel] which emits all elements of this sequence (in the same order)
  */
-fun <T> Sequence<T>.openSubscription(context: CoroutineContext = Dispatchers.Unconfined, capacity: Int = 0): ReceiveChannel<T> =
+public fun <T> Sequence<T>.openSubscription(context: CoroutineContext = Dispatchers.Unconfined, capacity: Int = 0): ReceiveChannel<T> =
         GlobalScope.produce(context, capacity = capacity) { forEach { send(it) } }

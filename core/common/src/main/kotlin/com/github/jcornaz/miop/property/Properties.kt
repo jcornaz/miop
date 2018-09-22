@@ -7,7 +7,7 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.first
 
 @Experimental(Experimental.Level.WARNING)
-annotation class ExperimentalSubscribable
+public annotation class ExperimentalSubscribable
 
 /**
  * Interface for a value holder where the value may change over time.
@@ -26,7 +26,7 @@ public interface SubscribableValue<out T> {
     public fun openSubscription(): ReceiveChannel<T>
 
     /** Returns the current value. May suspend until the value is available */
-    suspend fun get(): T = openSubscription().first()
+    public suspend fun get(): T = openSubscription().first()
 }
 
 /**
@@ -38,7 +38,7 @@ public interface SubscribableValue<out T> {
 public interface SubscribableVariable<T> : SubscribableValue<T> {
 
     /** Set a new value */
-    suspend fun set(value: T)
+    public suspend fun set(value: T)
 }
 
 /**

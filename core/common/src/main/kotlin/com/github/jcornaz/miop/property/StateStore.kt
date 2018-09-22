@@ -27,7 +27,7 @@ public interface StateStore<out S, in E> : SubscribableValue<S> {
      *
      * @return The state resulting of applying this event
      */
-    suspend fun handle(event: E): S
+    public suspend fun handle(event: E): S
 }
 
 /** Dispatch an event in order to mutate the state. The event may be scheduled for later */
@@ -36,7 +36,7 @@ public interface StateStore<out S, in E> : SubscribableValue<S> {
     replaceWith = ReplaceWith("launch(Dispatchers.Unconfined) { handle(event) }", "kotlinx.coroutines.launch", "kotlinx.coroutines.Dispatchers")
 )
 @UseExperimental(ExperimentalSubscribable::class)
-fun <E> StateStore<*, E>.dispatch(event: E) {
+public fun <E> StateStore<*, E>.dispatch(event: E) {
     GlobalScope.launch(Dispatchers.Unconfined) { handle(event) }
 }
 
