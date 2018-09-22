@@ -1,0 +1,7 @@
+apply from: rootProject.file('gradle/common.gradle')
+
+dependencies {
+    compile 'com.github.jcornaz.collekt:collekt-core-common:0.0.2'
+
+    testCompile project(':miop-internal-test-common')
+}

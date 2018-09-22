@@ -1,0 +1,9 @@
+apply from: rootProject.file('gradle/jvm.gradle')
+
+dependencies {
+    expectedBy project(":miop-collekt-common")
+
+    api 'com.github.jcornaz.collekt:collekt-core-jvm:0.0.2'
+
+    testCompile project(':miop-internal-test-jvm')
+}
