@@ -6,6 +6,7 @@ Migrate to Kotlin 1.3 RC and kotlinx.coroutines 0.26 (Structured concurrency)
 ### Added
 * `CoroutineScope.launchFx*Updater` functions (replace `ReceiveChannel.launchFx*Updater` functions)
 * Operators `windowed` and `chunked`
+* `failedReceiveChannel` factory function
 
 ### Changed
 * **[Breaking]** `ReceiveChannel.transform` provides a `CoroutineScope` as a receiver for the lambda

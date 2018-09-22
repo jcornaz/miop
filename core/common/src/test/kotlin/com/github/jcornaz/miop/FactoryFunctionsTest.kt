@@ -5,6 +5,7 @@ import com.github.jcornaz.miop.test.assertThrows
 import com.github.jcornaz.miop.test.runTest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import kotlin.test.*
 
@@ -22,6 +23,16 @@ class FactoryFunctionsTest : AsyncTest() {
     @Test
     fun manyInvocationOfEmptyReceiveChannelShouldReturnTheSameInstance() {
         assertSame<Any>(emptyReceiveChannel<Int>(), emptyReceiveChannel<String>())
+    }
+
+    @Test
+    fun consumingFailedReceiveChannelShouldThrowTheGivenError() = runTest {
+        val error = Exception("my exception")
+        val channel = failedReceiveChannel<String>(error)
+
+        val thrownError = assertThrows<Exception> { channel.consumeEach {  } }
+
+        assertSame(error, thrownError)
     }
 
     @Test
