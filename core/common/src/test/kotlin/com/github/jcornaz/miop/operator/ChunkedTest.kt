@@ -16,6 +16,7 @@ class ChunkedTest : OperatorTest() {
 
     @Test
     fun testChunked() = runTest {
+
         // given
         val source = receiveChannelOf(1, 2, 3, 4, 5, 6, 7)
 
@@ -35,6 +36,7 @@ class ChunkedTest : OperatorTest() {
 
     @Test
     fun chunkedShouldBeConsistentWithSequenceChunked() = runTest {
+
         // given
         val sequence = generateSequence(0) { it + 1 }.take(42)
         val source = sequence.openSubscription()

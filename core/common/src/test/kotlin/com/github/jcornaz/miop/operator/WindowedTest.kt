@@ -16,6 +16,7 @@ class WindowedTest : OperatorTest() {
 
     @Test
     fun testWindowed() = runTest {
+
         // given
         val source = receiveChannelOf(1, 2, 3, 4, 5, 6)
 
@@ -33,7 +34,28 @@ class WindowedTest : OperatorTest() {
     }
 
     @Test
+    fun testWindowedWithStepBiggerThanSize() = runTest {
+
+        // given
+        val source = receiveChannelOf(1, 2, 3, 4, 5, 6, 7, 8, 9)
+
+        // when
+        val windows = source.windowed(3, 4, true)
+
+        // then
+        assertEquals(
+            actual = windows.toList(),
+            expected = listOf(
+                listOf(1, 2, 3),
+                listOf(5, 6, 7),
+                listOf(9)
+            )
+        )
+    }
+
+    @Test
     fun testPartialWindow() = runTest {
+
         // given
         val source = receiveChannelOf(1, 2, 3, 4, 5, 6)
 
@@ -52,7 +74,25 @@ class WindowedTest : OperatorTest() {
     }
 
     @Test
+    fun windowedWithStepBiggerThanSizeShouldBeConsistentWithSequenceWindow() = runTest {
+
+        // given
+        val sequence = generateSequence(0) { it + 1 }.take(42)
+        val source = sequence.openSubscription()
+
+        // when
+        val windows = source.windowed(3, 4)
+
+        // then
+        assertEquals(
+            actual = windows.toList(),
+            expected = sequence.windowed(3, 4).toList()
+        )
+    }
+
+    @Test
     fun windowShouldBeConsistentWithSequenceWindow() = runTest {
+
         // given
         val sequence = generateSequence(0) { it + 1 }.take(42)
         val source = sequence.openSubscription()
@@ -69,6 +109,7 @@ class WindowedTest : OperatorTest() {
 
     @Test
     fun windowWithPartialShouldBeConsistentWithSequenceWindowWithPartial() = runTest {
+
         // given
         val sequence = generateSequence(0) { it + 1 }.take(42)
         val source = sequence.openSubscription()
@@ -85,6 +126,7 @@ class WindowedTest : OperatorTest() {
 
     @Test
     fun windowDefaultShouldBeConsistentWithSequenceDefault() = runTest {
+
         // given
         val sequence = generateSequence(0) { it + 1 }.take(42)
         val source = sequence.openSubscription()
