@@ -249,3 +249,28 @@ public fun <E> ReceiveChannel<E>.buffer(capacity: Int = Channel.UNLIMITED): Rece
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun <E> ReceiveChannel<E>.conflate(): ReceiveChannel<E> = buffer(Channel.CONFLATED)
+
+/**
+ * Returns a channel emitting snapshots of the window of the given [size]
+ * sliding along the source with the given [step], where each
+ * snapshot is a list.
+ *
+ * Several last lists may have less elements than the given [size].
+ *
+ * Both [size] and [step] must be positive and can be greater than the number of elements emitted by this source.
+ * @param size the number of elements to take in each window
+ * @param step the number of elements to move the window forward by on an each step, by default 1
+ * @param partialWindows controls whether or not to keep partial windows in the end if any,
+ * by default `false` which means partial windows won't be preserved
+ */
+public fun <E> ReceiveChannel<E>.windowed(size: Int, step: Int = 1, partialWindows: Boolean = false): ReceiveChannel<List<E>> = TODO()
+
+/**
+ * Splits aggregate received elements into lists not exceeding the given [size].
+ *
+ * The last list in the resulting channel may have less elements than the given [size].
+ *
+ * @param size the number of elements to take in each list, must be positive and can be greater than the number of elements emitted by this source.
+ */
+@Suppress("NOTHING_TO_INLINE")
+public inline fun <E> ReceiveChannel<E>.chunked(size: Int): ReceiveChannel<List<E>> = windowed(size, size)
