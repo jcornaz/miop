@@ -10,6 +10,8 @@ Migrate to Kotlin 1.3 RC and kotlinx.coroutines 0.26 (Structured concurrency)
 
 ### Changed
 * **[Breaking]** `ReceiveChannel.transform` provides a `CoroutineScope` as a receiver for the lambda
+* **[Breaking]** `StateStore<S, (S) -> S>(initialState)` factory signature has been simplified to `StateStore<S>(initialState: S)`
+    * This both make it easier to use for lambda-events and enforces the use of an explicit reducer for explicit event types 
 
 ### Marked Experimental
 * `com.github.jcornaz.miop.property.ExperimentalSubscribable` (level=warning) is applied to `SubcribableValue`,  `SubscribableVariable`, `StateStore` and related functions

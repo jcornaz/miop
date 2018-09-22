@@ -41,12 +41,12 @@ public fun <E> StateStore<*, E>.dispatch(event: E) {
 }
 
 /**
- * Create a [StateStore] with the [initialState].
+ * Create a [StateStore] with the [initialState] and `(S) -> S` event type.
  *
  * @param initialState Initial state of the store
  */
 @ExperimentalSubscribable
-public fun <S, E : (S) -> S> StateStore(initialState: S): StateStore<S, E> = StateStore(initialState) { state, event -> event(state) }
+public fun <S> StateStore(initialState: S): StateStore<S, (S) -> S> = StateStore(initialState) { state, event -> event(state) }
 
 /**
  * Create a [StateStore] with the [initialState] and a [reducer].
