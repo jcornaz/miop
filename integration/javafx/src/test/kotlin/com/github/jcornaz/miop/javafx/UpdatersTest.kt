@@ -217,6 +217,8 @@ class UpdatersTest : AsyncTest() {
 
         source.send(mapOf(0 to "Hello", 1 to "world"))
 
+        delay(500)
+
         withContext(Dispatchers.JavaFx) { assertEquals(mapOf(0 to "Hello", 1 to "world"), observable) }
 
         job.cancelAndJoin()
@@ -239,6 +241,8 @@ class UpdatersTest : AsyncTest() {
 
         source.send(mapOf(0 to "Hello", 1 to "kotlin"))
 
+        delay(500)
+
         withContext(Dispatchers.JavaFx) { assertEquals(mapOf(0 to "Hello", 1 to "kotlin"), observable) }
 
         job.cancelAndJoin()
@@ -260,6 +264,8 @@ class UpdatersTest : AsyncTest() {
         withContext(Dispatchers.JavaFx) { assertEquals(mapOf(0 to "Hello", 1 to "world"), observable) }
 
         source.send(mapOf(0 to "Hello"))
+
+        delay(500)
 
         withContext(Dispatchers.JavaFx) { assertEquals(mapOf(0 to "Hello"), observable) }
 

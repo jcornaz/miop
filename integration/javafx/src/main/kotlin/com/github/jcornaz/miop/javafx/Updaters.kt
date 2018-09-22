@@ -1,10 +1,13 @@
 package com.github.jcornaz.miop.javafx
 
-import com.github.jcornaz.collekt.toPersistentMap
+import com.github.jcornaz.miop.collection.ExperimentalCollectionEvent
+import com.github.jcornaz.miop.collection.plusAssign
+import com.github.jcornaz.miop.collection.toMapEvents
 import javafx.beans.property.Property
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.channels.consumes
 import kotlinx.coroutines.javafx.JavaFx
 import java.util.*
 
@@ -99,28 +102,15 @@ public fun <E> ReceiveChannel<List<E>>.launchFxListUpdater(target: MutableList<i
  *
  * The result or the scope shall be cancelled in order to cancel the channel
  */
-public fun <K, V> CoroutineScope.launchFxMapUpdater(target: MutableMap<K, in V>, source: ReceiveChannel<Map<K, V>>): Job =
-    launch(Dispatchers.JavaFx, javafxStart()) {
-        source.consumeEach { newMap ->
-            val iterator = target.iterator()
-            var toAdd = newMap.toPersistentMap()
+@UseExperimental(ExperimentalCollectionEvent::class)
+public fun <K, V> CoroutineScope.launchFxMapUpdater(target: MutableMap<in K, in V>, source: ReceiveChannel<Map<out K, V>>): Job =
+    launch(Dispatchers.JavaFx, javafxStart(), onCompletion = source.consumes()) {
+        target.clear()
 
-            while (iterator.hasNext()) {
-                val entry = iterator.next()
-                if (entry.key !in newMap) {
-                    iterator.remove()
-                } else {
-                    if (entry.value != newMap[entry.key]) {
+        val initialMap = source.receive()
+        target.putAll(initialMap)
 
-                        @Suppress("UNCHECKED_CAST")
-                        entry.setValue(newMap[entry.key] as V)
-                    }
-                    toAdd -= entry.key
-                }
-            }
-
-            target.putAll(toAdd)
-        }
+        source.toMapEvents(initialMap).consumeEach { target += it }
     }
 
 /**
@@ -129,7 +119,7 @@ public fun <K, V> CoroutineScope.launchFxMapUpdater(target: MutableMap<K, in V>,
  * The result or the [parent] shall be cancelled in order to cancel the channel
  */
 @Deprecated("launch the updater from a CoroutineScope")
-public fun <K, V> ReceiveChannel<Map<K, V>>.launchFxMapUpdater(target: MutableMap<K, in V>, parent: Job?): Job {
+public fun <K, V> ReceiveChannel<Map<out K, V>>.launchFxMapUpdater(target: MutableMap<in K, in V>, parent: Job?): Job {
     val scope = if (parent == null) GlobalScope else CoroutineScope(parent)
 
     return scope.launchFxMapUpdater(target, this)
@@ -141,7 +131,7 @@ public fun <K, V> ReceiveChannel<Map<K, V>>.launchFxMapUpdater(target: MutableMa
  * The result shall be cancelled in order to cancel the channel
  */
 @Deprecated("launch the updater from a CoroutineScope", ReplaceWith("GlobalScope.launchFxMapUpdater(target, this)", "kotlinx.coroutines.GlobalScope"))
-public fun <K, V> ReceiveChannel<Map<K, V>>.launchFxMapUpdater(target: MutableMap<K, in V>): Job =
+public fun <K, V> ReceiveChannel<Map<out K, V>>.launchFxMapUpdater(target: MutableMap<in K, in V>): Job =
     GlobalScope.launchFxMapUpdater(target, this)
 
 
@@ -151,10 +141,10 @@ public fun <K, V> ReceiveChannel<Map<K, V>>.launchFxMapUpdater(target: MutableMa
  *
  * The result or the scope shall be cancelled in order to cancel the channel
  */
-public fun <E> CoroutineScope.launchFxCollectionUpdater(target: MutableCollection<E>, source: ReceiveChannel<Collection<E>>): Job =
+public fun <E> CoroutineScope.launchFxCollectionUpdater(target: MutableCollection<in E>, source: ReceiveChannel<Collection<E>>): Job =
     launch(Dispatchers.JavaFx, javafxStart()) {
 
-        val currentElementCounts = HashMap<E, Int>()
+        val currentElementCounts = HashMap<Any?, Int>()
 
         target.forEach { element ->
             currentElementCounts[element] = currentElementCounts[element]?.let { it + 1 } ?: 1
@@ -206,7 +196,7 @@ public fun <E> CoroutineScope.launchFxCollectionUpdater(target: MutableCollectio
  * The result or the [parent] shall be cancelled in order to cancel the channel
  */
 @Deprecated("launch the updater from a CoroutineScope")
-public fun <E> ReceiveChannel<Collection<E>>.launchFxCollectionUpdater(target: MutableCollection<E>, parent: Job?): Job {
+public fun <E> ReceiveChannel<Collection<E>>.launchFxCollectionUpdater(target: MutableCollection<in E>, parent: Job?): Job {
     val scope = if (parent == null) GlobalScope else CoroutineScope(parent)
 
     return scope.launchFxCollectionUpdater(target, this)
@@ -219,7 +209,7 @@ public fun <E> ReceiveChannel<Collection<E>>.launchFxCollectionUpdater(target: M
  * The result shall be cancelled in order to cancel the channel
  */
 @Deprecated("launch the updater from a CoroutineScope", ReplaceWith("GlobalScope.launchFxCollectionUpdater(target, this)", "kotlinx.coroutines.GlobalScope"))
-public fun <E> ReceiveChannel<Collection<E>>.launchFxCollectionUpdater(target: MutableCollection<E>): Job =
+public fun <E> ReceiveChannel<Collection<E>>.launchFxCollectionUpdater(target: MutableCollection<in E>): Job =
     GlobalScope.launchFxCollectionUpdater(target, this)
 
 /**

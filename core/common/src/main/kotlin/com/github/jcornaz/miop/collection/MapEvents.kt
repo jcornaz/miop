@@ -48,7 +48,7 @@ public operator fun <K, V> MutableMap<in K, in V>.plusAssign(event: MapEvent<K, 
  * Compute deltas between each received map and emits the corresponding events.
  */
 @ExperimentalCollectionEvent
-public fun <K, V> ReceiveChannel<Map<K, V>>.toMapEvents(initialMap: Map<K, V> = emptyMap()): ReceiveChannel<MapEvent<K, V>> = transform { input, output ->
+public fun <K, V> ReceiveChannel<Map<out K, V>>.toMapEvents(initialMap: Map<out K, V> = emptyMap()): ReceiveChannel<MapEvent<K, V>> = transform { input, output ->
     val currentMap: MutableMap<K, V> = HashMap(initialMap)
 
     input.consumeEach { newMap ->
@@ -57,7 +57,7 @@ public fun <K, V> ReceiveChannel<Map<K, V>>.toMapEvents(initialMap: Map<K, V> = 
 }
 
 @ExperimentalCollectionEvent
-private fun <K, V> CoroutineScope.handleNewMap(currentMap: MutableMap<K, V>, newMap: Map<K, V>): ReceiveChannel<MapEvent<K, V>> = produce(Dispatchers.Default, Channel.UNLIMITED) {
+private fun <K, V> CoroutineScope.handleNewMap(currentMap: MutableMap<K, V>, newMap: Map<out K, V>): ReceiveChannel<MapEvent<K, V>> = produce(Dispatchers.Default, Channel.UNLIMITED) {
     if (newMap.isEmpty() && currentMap.isNotEmpty()) {
         send(MapCleared)
         currentMap.clear()
