@@ -3,3 +3,11 @@ apply from: rootProject.file('gradle/common.gradle')
 dependencies {
     testCompile project(':miop-internal-test-common')
 }
+
+compileTestKotlinCommon {
+    kotlinOptions {
+        freeCompilerArgs = [
+                '-Xuse-experimental=com.github.jcornaz.miop.property.ExperimentalSubscribable'
+        ]
+    }
+}

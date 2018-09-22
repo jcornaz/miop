@@ -1,6 +1,7 @@
 package com.github.jcornaz.miop.property
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.launch
@@ -16,6 +17,7 @@ import kotlinx.coroutines.sync.withLock
  *
  * This concept is heavily inspired from [redux](https://redux.js.org).
  */
+@ExperimentalSubscribable
 public interface StateStore<out S, in E> : SubscribableValue<S> {
 
     /**
@@ -33,9 +35,9 @@ public interface StateStore<out S, in E> : SubscribableValue<S> {
     message = "Standalone coroutines are deprecated. Use `StateStore.handle`",
     replaceWith = ReplaceWith("launch(Dispatchers.Unconfined) { handle(event) }", "kotlinx.coroutines.launch", "kotlinx.coroutines.Dispatchers")
 )
-@Suppress("DEPRECATION")
+@UseExperimental(ExperimentalSubscribable::class)
 fun <E> StateStore<*, E>.dispatch(event: E) {
-    launch(Dispatchers.Unconfined) { handle(event) }
+    GlobalScope.launch(Dispatchers.Unconfined) { handle(event) }
 }
 
 /**
@@ -43,6 +45,7 @@ fun <E> StateStore<*, E>.dispatch(event: E) {
  *
  * @param initialState Initial state of the store
  */
+@ExperimentalSubscribable
 public fun <S, E : (S) -> S> StateStore(initialState: S): StateStore<S, E> = StateStore(initialState) { state, event -> event(state) }
 
 /**
@@ -51,16 +54,19 @@ public fun <S, E : (S) -> S> StateStore(initialState: S): StateStore<S, E> = Sta
  * @param initialState Initial state of the store
  * @param reducer Function called for each dispatched event and responsible to return a new state. Should handle events in a fast and non-blocking manner.
  */
+@ExperimentalSubscribable
 public fun <S, E> StateStore(initialState: S, reducer: (state: S, event: E) -> S): StateStore<S, E> = SimpleStateStore(initialState, reducer)
 
 /**
  * Returns a [StateStore] which is a *view* on this store, transforming the state from it with [transformState] and delegating events transformed by [transformEvent]
  */
+@ExperimentalSubscribable
 public fun <S1, S2, E1, E2> StateStore<S1, E1>.map(
     transformState: (S1) -> S2,
     transformEvent: (E2) -> E1
 ): StateStore<S2, E2> = StateStoreView(this, transformState, transformEvent)
 
+@ExperimentalSubscribable
 private class SimpleStateStore<out S, in A>(
     initialState: S,
     private val reducer: (state: S, event: A) -> S
@@ -79,6 +85,7 @@ private class SimpleStateStore<out S, in A>(
     override fun openSubscription(): ReceiveChannel<S> = broadcast.openSubscription()
 }
 
+@ExperimentalSubscribable
 private class StateStoreView<in S1, out S2, out E1, in E2>(
     private val origin: StateStore<S1, E1>,
     private val transformState: (S1) -> S2,

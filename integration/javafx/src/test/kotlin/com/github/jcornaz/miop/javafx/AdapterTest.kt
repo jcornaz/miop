@@ -12,6 +12,7 @@ import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
 
+@Suppress("DEPRECATION")
 class AdapterTest {
 
     private lateinit var timer: ManualTimer

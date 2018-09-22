@@ -6,6 +6,9 @@ import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.first
 
+@Experimental(Experimental.Level.WARNING)
+annotation class ExperimentalSubscribable
+
 /**
  * Interface for a value holder where the value may change over time.
  *
@@ -13,6 +16,7 @@ import kotlinx.coroutines.channels.first
  *
  * The channel returned by [openSubscription] is "conflated" and start by the current value if any.
  */
+@ExperimentalSubscribable
 public interface SubscribableValue<out T> {
 
     /**
@@ -30,6 +34,7 @@ public interface SubscribableValue<out T> {
  *
  * Provide ability to get and set the current value with [set].
  */
+@ExperimentalSubscribable
 public interface SubscribableVariable<T> : SubscribableValue<T> {
 
     /** Set a new value */
@@ -39,6 +44,7 @@ public interface SubscribableVariable<T> : SubscribableValue<T> {
 /**
  * Create an instance of [SubscribableValue] with the given [value]
  */
+@ExperimentalSubscribable
 public fun <T> SubscribableValue(value: T): SubscribableValue<T> = object : SubscribableValue<T> {
     override suspend fun get(): T = value
     override fun openSubscription() = receiveChannelOf(value)
@@ -47,6 +53,7 @@ public fun <T> SubscribableValue(value: T): SubscribableValue<T> = object : Subs
 /**
  * Create an instance of [SubscribableVariable] initialized with the given [initialValue]
  */
+@ExperimentalSubscribable
 public fun <T> SubscribableVariable(initialValue: T): SubscribableVariable<T> = object : SubscribableVariable<T> {
     private val broadcast = ConflatedBroadcastChannel(initialValue)
 

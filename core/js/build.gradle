@@ -5,3 +5,11 @@ dependencies {
 
     testCompile project(':miop-internal-test-js')
 }
+
+compileTestKotlin2Js {
+    kotlinOptions {
+        freeCompilerArgs = [
+                '-Xuse-experimental=com.github.jcornaz.miop.property.ExperimentalSubscribable'
+        ]
+    }
+}

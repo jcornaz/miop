@@ -21,3 +21,11 @@ test {
         exceptionFormat = 'full'
     }
 }
+
+compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs = [
+                '-Xuse-experimental=kotlin.Experimental'
+        ]
+    }
+}

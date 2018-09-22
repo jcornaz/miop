@@ -5,3 +5,11 @@ dependencies {
 
     testCompile project(':miop-internal-test-jvm')
 }
+
+compileTestKotlin {
+    kotlinOptions {
+        freeCompilerArgs = [
+                '-Xuse-experimental=com.github.jcornaz.miop.property.ExperimentalSubscribable'
+        ]
+    }
+}
