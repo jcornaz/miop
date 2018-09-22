@@ -1,0 +1,16 @@
+apply from: rootProject.file('gradle/common.gradle')
+
+dependencies {
+    compile project(':miop-common')
+    compile 'com.github.jcornaz.collekt:collekt-core-common:0.0.2'
+
+    testCompile project(':miop-internal-test-common')
+}
+
+compileTestKotlinCommon {
+    kotlinOptions {
+        freeCompilerArgs = [
+                '-Xuse-experimental=com.github.jcornaz.miop.collection.ExperimentalCollectionEvent'
+        ]
+    }
+}

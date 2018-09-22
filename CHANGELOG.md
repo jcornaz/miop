@@ -7,7 +7,9 @@ Migrate to Kotlin 1.3 RC and kotlinx.coroutines 0.26 (Structured concurrency)
 * `CoroutineScope.launchFx*Updater` functions (replace `ReceiveChannel.launchFx*Updater` functions)
 * Operators `windowed` and `chunked`
 * `failedReceiveChannel` factory function
-
+* integration modules for [collekt](https://github.com/jcornaz/collekt): (`miop-collekt-common`, `miop-collekt-jvm` and `miop-collekt-js`)
+    * Provide `PersistentMap.plus(MapEvent)` and `PersistentSet.plus(SetEvent)` operators
+  
 ### Changed
 * **[Breaking]** `ReceiveChannel.transform` provides a `CoroutineScope` as a receiver for the lambda
 * **[Breaking]** `StateStore<S, (S) -> S>(initialState)` factory signature has been simplified to `StateStore<S>(initialState: S)`
