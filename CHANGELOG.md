@@ -9,10 +9,16 @@ Migrate to Kotlin 1.3 RC and kotlinx.coroutines 0.26 (Structured concurrency)
 ### Changed
 * **[Breaking]** `ReceiveChannel.transform` provides a `CoroutineScope` as a receiver for the lambda
 
+### Marked Experimental
+* `com.github.jcornaz.miop.property.ExperimentalSubscribable` (level=warning) is applied to `SubcribableValue`,  `SubscribableVariable`, `StateStore` and related functions
+* **[Breaking]** `com.github.jcornaz.miop.collection.ExperimentalCollectionEvent` (level=error) is applied to collection events and related functions 
+
 ### Deprecated
 * `launchConsumeEach` (use `launch { consumeEach {} }` instead)
 * `StateStore.dispatch` (use `StateStore.handle` instead)
 * `ReceiveChannel.launchFx*Updater` functions (use `CoroutineScope.launchFx*Updater` functions instead)
+* `SubscribableValue` adapters for JavaFx properties (use updaters and subscriptions instead)
+* `IoPool` (use kotlinx.coroutines' `Dispatchers.IO` instead)
 
 ### Dependencies updated
 * **[Breaking]** Kotlin: 1.3-rc-57
