@@ -11,4 +11,5 @@ import kotlinx.coroutines.CoroutineDispatcher
  *
  * This dispatcher is better for IO operations as well as blocking operation.
  */
+@Deprecated("Use Dispatechers.IO from JVM")
 expect val IoPool: CoroutineDispatcher
