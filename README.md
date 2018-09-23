@@ -7,13 +7,14 @@
 
 Reactive operator collection for coroutines channels which are not yet included in [kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines).
 
-**ATTENTION:** Version `0.1.0` shall be used with Kotlin 1.3-M1 only. For Kotlin 1.2.+, use the version `0.0.4`.
+**ATTENTION:** Version `0.2.0` shall be used with Kotlin `1.3-rc-57` only. For Kotlin 1.2.+, use the version `0.0.4`.
 
 ## Features
 * multi-platform (available modules: `common`, `jvm` and `js`)
 
 ### Factory functions
 * `emptyReceiveChannel(): ReceiveChannel<T>`
+* `failedReceiveChannel(error: Throwable): ReceiveChannel<T>`
 * `receiveChannelOf(vararg values: T): ReceiveChannel<T>`
 * `Iterable<T>.openSubscription(): ReceiveChannel<T>`
 * `Sequence<T>.openSubscription(): ReceiveChannel<T>`
@@ -23,28 +24,34 @@ Reactive operator collection for coroutines channels which are not yet included 
 * `combineLatest` and `combineLatestWith`
 * `switchMap`
 * `buffer` and `conflate`
+* `windowed` and `chunked`
 * `debounce`
 
-### Subscribables
+### Subscribables (Experimental)
 * `SubscribableValue` and `SubscribableVariable`
 * `map`, `switchMap` and `combine` operators for `SubscribableValue`
-* `StateStore` same concept as *store* in [redux](https://redux.js.org/)
+* `StateStore` (same concept as *store* in [redux](https://redux.js.org/))
 * `map(transformState, transformEvent)` operator for `StateStore`  
 
-### JavaFx integration (module 'miop-javafx')
+### Event computation for collection (Experimental)
+* `ReceiveChannel<Set<E>>.toSetEvents(): ReceiveChannel<SetEvent<E>>`
+* `ReceiveChannel<Map<K, V>>.toSetEvents(): ReceiveChannel<MapEvent<K, V>>`
+
+### [Collekt](https://github.com/jcornaz/collekt) Integration
+**modules 'miop-collekt-common', 'miop-collekt-jvm' and 'miop-collekt-js'**
+* `PersistentMap.plus(MapEvent)` operator
+* `PersistentSet.plus(SetEvent)` operator
+
+### JavaFx integration
+**module 'miop-javafx'**
 * `openValueSubscription(): ReceiveChannel<T>` extension function on `ObservableValue<T>` 
 * `ObservableValue.asSubscribableValue()` adapter 
 * `Property.asSubscribableVariable()` adapter
-* Launch updaters for JavaFx obserable from a `ReceiveChannel` 
-    * `launchFxUpdater` (for property)
-    * `launchFxCollectionUpdater` and `launchFxSetUpdater` (ignore element order)
-    * `launchFxListUpdater` (preserve element order)
-    * `launchFxMapUpdater`
+* Launch updaters for JavaFx property and observable value according to a `ReceiveChannel` source 
 
 ## Incoming features
 * New operators
   * `mergeMap`
-  * `chunked` and `windowed`
 * Kotlin/Native support
 
 ## Add the library to your project
@@ -60,8 +67,15 @@ repositories {
 
 dependencies {
 
-    // replace 'jvm' by 'javafx', 'common' or 'js' according to your needs
-    compile 'com.github.jcornaz.miop:miop-jvm:0.1.0' // Kotlin 1.3-M1
-    compile 'com.github.jcornaz.miop:miop-jvm:0.0.4' // Kotlin 1.2
+    // Replace 'jvm' by 'common' or 'js' according to the platform
+    compile 'com.github.jcornaz.miop:miop-jvm:0.2.0' // Needs Kotlin 1.3-rc-57
+    compile 'com.github.jcornaz.miop:miop-jvm:0.0.4' // Needs Kotlin 1.2.+ a
+    
+    // JavaFx integration
+    compile 'com.github.jcornaz.miop:miop-jvm:0.2.0' // Needs Kotlin 1.3-rc-57
+    compile 'com.github.jcornaz.miop:miop-jvm:0.0.4' // Needs Kotlin 1.2.+ a
+   
+    // Collekt integration. Replace 'jvm' by 'common' or 'js' according to the platform
+    compile 'com.github.jcornaz.miop:miop-collekt-jvm:0.2.0' // Needs Kotlin 1.3-rc-57
 }
 ```

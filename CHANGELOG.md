@@ -1,11 +1,11 @@
 # Change log
 
-## 0.2-SNAPSHOT (Unreleased)
-Migrate to Kotlin 1.3 RC and kotlinx.coroutines 0.26 (Structured concurrency)
+## 0.2.0 (2018-09-23)
+Migrate to Kotlin 1.3 RC and coroutines 0.26 (Structured concurrency)
 
 ### Added
-* `CoroutineScope.launchFx*Updater` functions (replace `ReceiveChannel.launchFx*Updater` functions in `miop-javafx` module)
-* `launchFxListUpdater` capable of react to *key-set* subscription, creating and disposing the item of the updated list (in `miop-javafx` module)
+* `CoroutineScope.launchFx*Updater` functions to replace `ReceiveChannel.launchFx*Updater` functions (in `miop-javafx` module)
+* `CoroutineScope.launchFxListUpdater` capable of react to *key-set* subscription, creating and disposing the item of the updated list (in `miop-javafx` module)
 * Operators `windowed` and `chunked`
 * `failedReceiveChannel` factory function
 * integration modules for [collekt](https://github.com/jcornaz/collekt): (`miop-collekt-common`, `miop-collekt-jvm` and `miop-collekt-js`)
@@ -13,8 +13,7 @@ Migrate to Kotlin 1.3 RC and kotlinx.coroutines 0.26 (Structured concurrency)
   
 ### Changed
 * **[Breaking]** `ReceiveChannel.transform` provides a `CoroutineScope` as a receiver for the lambda
-* **[Breaking]** `StateStore<S, (S) -> S>(initialState)` factory signature has been simplified to `StateStore<S>(initialState: S)`
-    * This both make it easier to use for lambda-events and enforces the use of an explicit reducer for explicit event types 
+* **[Breaking]** `StateStore<S, (S) -> S>(initialState)` factory signature has been simplified to `StateStore<S>(initialState: S)` 
 
 ### Marked Experimental
 * `com.github.jcornaz.miop.property.ExperimentalSubscribable` (level=warning) is applied to `SubcribableValue`,  `SubscribableVariable`, `StateStore` and related functions
