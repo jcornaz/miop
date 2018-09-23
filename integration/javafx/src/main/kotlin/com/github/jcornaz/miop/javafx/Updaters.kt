@@ -1,16 +1,12 @@
 package com.github.jcornaz.miop.javafx
 
-import com.github.jcornaz.miop.collection.ExperimentalCollectionEvent
-import com.github.jcornaz.miop.collection.plusAssign
-import com.github.jcornaz.miop.collection.toMapEvents
-import com.github.jcornaz.miop.collection.toSetEvents
+import com.github.jcornaz.miop.collection.*
 import javafx.beans.property.Property
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.consumes
 import kotlinx.coroutines.javafx.JavaFx
-import java.util.*
 
 /**
  * Start a new job in the JavaFx thread which update the [target] with each elements received
@@ -47,7 +43,7 @@ public fun <T> ReceiveChannel<T>.launchFxUpdater(target: Property<in T>): Job =
  * The result or the scope shall be cancelled in order to cancel the channel
  */
 public fun <E> CoroutineScope.launchFxListUpdater(target: MutableList<in E>, source: ReceiveChannel<List<E>>): Job =
-    launch(Dispatchers.JavaFx, javafxStart()) {
+    launch(Dispatchers.JavaFx, javafxStart(), onCompletion = source.consumes()) {
         source.consumeEach { newList ->
             when {
                 target.isEmpty() -> target.addAll(newList)
@@ -76,6 +72,48 @@ public fun <E> CoroutineScope.launchFxListUpdater(target: MutableList<in E>, sou
             }
         }
     }
+
+@UseExperimental(ExperimentalCollectionEvent::class)
+public fun <K, V> CoroutineScope.launchFxListUpdater(
+    target: MutableList<V>,
+    source: ReceiveChannel<Set<K>>,
+    disposeItem: (V) -> Unit,
+    createItem: (K) -> V
+): Job = launch(Dispatchers.JavaFx, javafxStart(), onCompletion = source.consumes()) {
+    target.forEach(disposeItem)
+    target.clear()
+
+    val initialKeySet = source.receiveOrNull() ?: return@launch
+    val entryMap: MutableMap<K, V> = HashMap(initialKeySet.size)
+
+    try {
+        initialKeySet.forEach { entryMap[it] = createItem(it) }
+        target.addAll(entryMap.values)
+
+        source.toSetEvents(entryMap.keys).consumeEach { event ->
+            when (event) {
+                is SetElementAdded -> {
+                    val item = createItem(event.element)
+                    entryMap[event.element] = item
+                    target.add(item)
+                }
+                is SetElementRemoved -> {
+                    val item = entryMap.remove(event.element) ?: return@consumeEach
+                    disposeItem(item)
+                    target.remove(item)
+                }
+                SetCleared -> {
+                    entryMap.values.forEach(disposeItem)
+                    entryMap.clear()
+                    target.clear()
+                }
+            }
+        }
+    } finally {
+        entryMap.values.forEach(disposeItem)
+        target.clear()
+    }
+}
 
 /**
  * Start a new job in the JavaFx thread which update the [target] with each new list received
@@ -108,7 +146,7 @@ public fun <K, V> CoroutineScope.launchFxMapUpdater(target: MutableMap<in K, in 
     launch(Dispatchers.JavaFx, javafxStart(), onCompletion = source.consumes()) {
         target.clear()
 
-        val initialMap = source.receive()
+        val initialMap = source.receiveOrNull() ?: return@launch
         target.putAll(initialMap)
 
         source.toMapEvents(initialMap).consumeEach { target += it }
@@ -135,7 +173,6 @@ public fun <K, V> ReceiveChannel<Map<out K, V>>.launchFxMapUpdater(target: Mutab
 public fun <K, V> ReceiveChannel<Map<out K, V>>.launchFxMapUpdater(target: MutableMap<in K, in V>): Job =
     GlobalScope.launchFxMapUpdater(target, this)
 
-
 /**
  * Start a job in the JavaFx thread which keeps up-to-date the [target] collection.
  * Order of elements is ignored. Only consider the elements and their occurrence count.
@@ -143,7 +180,7 @@ public fun <K, V> ReceiveChannel<Map<out K, V>>.launchFxMapUpdater(target: Mutab
  * The result or the scope shall be cancelled in order to cancel the channel
  */
 public fun <E> CoroutineScope.launchFxCollectionUpdater(target: MutableCollection<in E>, source: ReceiveChannel<Collection<E>>): Job =
-    launch(Dispatchers.JavaFx, javafxStart()) {
+    launch(Dispatchers.JavaFx, javafxStart(), onCompletion = source.consumes()) {
 
         val currentElementCounts = HashMap<Any?, Int>()
 
