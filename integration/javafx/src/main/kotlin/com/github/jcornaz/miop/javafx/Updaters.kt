@@ -3,6 +3,7 @@ package com.github.jcornaz.miop.javafx
 import com.github.jcornaz.miop.collection.ExperimentalCollectionEvent
 import com.github.jcornaz.miop.collection.plusAssign
 import com.github.jcornaz.miop.collection.toMapEvents
+import com.github.jcornaz.miop.collection.toSetEvents
 import javafx.beans.property.Property
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -217,8 +218,16 @@ public fun <E> ReceiveChannel<Collection<E>>.launchFxCollectionUpdater(target: M
  *
  * The result or the scope shall be cancelled in order to cancel the channel
  */
+@UseExperimental(ExperimentalCollectionEvent::class)
 public fun <E> CoroutineScope.launchFxSetUpdater(target: MutableSet<in E>, source: ReceiveChannel<Set<E>>): Job =
-    launchFxCollectionUpdater(target, source)
+    launch(Dispatchers.JavaFx, javafxStart(), onCompletion = source.consumes()) {
+        target.clear()
+
+        val initialSet = source.receive()
+        target.addAll(initialSet)
+
+        source.toSetEvents(initialSet).consumeEach { target += it }
+    }
 
 /**
  * Start a new job in the JavaFx thread which update the [target] with each new set received
