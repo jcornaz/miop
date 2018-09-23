@@ -25,7 +25,7 @@ actual abstract class AsyncTest {
     }
 
     protected actual fun expect(step: Int) {
-        assertFalse(isFinished.get(), "expect($step) has been called after finish(${stepCount.get()}")
+        assertFalse(isFinished.get(), "expect($step) has been called after finish(${stepCount.get()})")
         assertEquals(stepCount.incrementAndGet(), step, "unexpected step count (expected $step, but ${stepCount.get()} was found)")
     }
 
