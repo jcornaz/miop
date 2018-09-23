@@ -75,12 +75,11 @@ public fun <E> CoroutineScope.launchFxListUpdater(target: MutableList<in E>, sou
 
 @UseExperimental(ExperimentalCollectionEvent::class)
 public fun <K, V> CoroutineScope.launchFxListUpdater(
-    target: MutableList<V>,
+    target: MutableList<in V>,
     source: ReceiveChannel<Set<K>>,
     disposeItem: (V) -> Unit,
     createItem: (K) -> V
 ): Job = launch(Dispatchers.JavaFx, javafxStart(), onCompletion = source.consumes()) {
-    target.forEach(disposeItem)
     target.clear()
 
     val initialKeySet = source.receiveOrNull() ?: return@launch
