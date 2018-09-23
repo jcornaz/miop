@@ -80,13 +80,14 @@ public fun <K, V> CoroutineScope.launchFxListUpdater(
     disposeItem: (V) -> Unit,
     createItem: (K) -> V
 ): Job = launch(Dispatchers.JavaFx, javafxStart(), onCompletion = source.consumes()) {
-    target.clear()
 
     val initialKeySet = source.receiveOrNull() ?: return@launch
     val entryMap: MutableMap<K, V> = HashMap(initialKeySet.size)
 
     try {
         initialKeySet.forEach { entryMap[it] = createItem(it) }
+
+        target.clear()
         target.addAll(entryMap.values)
 
         source.toSetEvents(entryMap.keys).consumeEach { event ->
@@ -142,9 +143,9 @@ public fun <E> ReceiveChannel<List<E>>.launchFxListUpdater(target: MutableList<i
 @UseExperimental(ExperimentalCollectionEvent::class)
 public fun <K, V> CoroutineScope.launchFxMapUpdater(target: MutableMap<in K, in V>, source: ReceiveChannel<Map<out K, V>>): Job =
     launch(Dispatchers.JavaFx, javafxStart(), onCompletion = source.consumes()) {
-        target.clear()
-
         val initialMap = source.receiveOrNull() ?: return@launch
+
+        target.clear()
         target.putAll(initialMap)
 
         source.toMapEvents(initialMap).consumeEach { target += it }
@@ -256,9 +257,9 @@ public fun <E> ReceiveChannel<Collection<E>>.launchFxCollectionUpdater(target: M
 @UseExperimental(ExperimentalCollectionEvent::class)
 public fun <E> CoroutineScope.launchFxSetUpdater(target: MutableSet<in E>, source: ReceiveChannel<Set<E>>): Job =
     launch(Dispatchers.JavaFx, javafxStart(), onCompletion = source.consumes()) {
-        target.clear()
-
         val initialSet = source.receive()
+
+        target.clear()
         target.addAll(initialSet)
 
         source.toSetEvents(initialSet).consumeEach { target += it }

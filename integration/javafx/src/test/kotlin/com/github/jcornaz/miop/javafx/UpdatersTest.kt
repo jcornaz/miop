@@ -1,18 +1,22 @@
 package com.github.jcornaz.miop.javafx
 
+import com.github.jcornaz.miop.emptyReceiveChannel
 import com.github.jcornaz.miop.test.AsyncTest
 import com.github.jcornaz.miop.test.ManualTimer
-import com.github.jcornaz.miop.test.runTest
 import com.github.jcornaz.miop.test.delayTest
+import com.github.jcornaz.miop.test.runTest
 import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.collections.ListChangeListener
 import javafx.collections.MapChangeListener
 import javafx.collections.SetChangeListener
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.javafx.JavaFx
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -20,6 +24,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 class UpdatersTest : AsyncTest() {
 
@@ -65,6 +70,22 @@ class UpdatersTest : AsyncTest() {
     }
 
     @Test
+    fun propertyShouldNotBeModifiedByAnEmptySource() = runTest(Dispatchers.JavaFx) {
+        val source = emptyReceiveChannel<String>()
+        val property = SimpleStringProperty("Hello world")
+
+        property.addListener { _, _, _ ->
+            fail("property should not be modified")
+        }
+
+        withTimeout(1000) {
+            launchFxUpdater(property, source).join()
+        }
+
+        assertEquals("Hello world", property.value)
+    }
+
+    @Test
     fun listUpdaterShouldAddNewElementsToTheList() = runTest(Dispatchers.JavaFx) {
         val source = Channel<List<String>>(Channel.CONFLATED).apply { send(listOf("Hello")) }
         val observable = FXCollections.observableArrayList<String>()
@@ -106,6 +127,22 @@ class UpdatersTest : AsyncTest() {
         assertEquals(listOf("b", "c"), observable)
 
         job.cancelAndJoin()
+    }
+
+    @Test
+    fun listUpdaterShouldNotModifyTargetWithAnEmptySource() = runTest(Dispatchers.JavaFx) {
+        val source = emptyReceiveChannel<List<String>>()
+        val observable = FXCollections.observableArrayList<String>("Hello", "world")
+
+        observable.addListener { _: ListChangeListener.Change<out String> ->
+            fail("target list should not be modified")
+        }
+
+        withTimeout(1000) {
+            launchFxListUpdater(observable, source).join()
+        }
+
+        assertEquals(listOf("Hello", "world"), observable)
     }
 
     @Test
@@ -172,6 +209,22 @@ class UpdatersTest : AsyncTest() {
         assertEquals(setOf("b", "c"), observable)
 
         job.cancelAndJoin()
+    }
+
+    @Test
+    fun collectionUpdaterShouldNotModifyTargetWithAnEmptySource() = runTest(Dispatchers.JavaFx) {
+        val source = emptyReceiveChannel<List<String>>()
+        val observable = FXCollections.observableSet(mutableSetOf("Hello", "world"))
+
+        observable.addListener { _: SetChangeListener.Change<out String> ->
+            fail("target list should not be modified")
+        }
+
+        withTimeout(1000) {
+            launchFxCollectionUpdater(observable, source).join()
+        }
+
+        assertEquals(setOf("Hello", "world"), observable)
     }
 
     @Test
@@ -265,9 +318,32 @@ class UpdatersTest : AsyncTest() {
     }
 
     @Test
-    fun updateListFromKeySetShouldAddItems() = runTest(Dispatchers.JavaFx) {
+    fun mapUpdaterShouldNotModifyTargetWithAnEmptySource() = runTest(Dispatchers.JavaFx) {
+        val source = emptyReceiveChannel<Map<Int, String>>()
+        val observable = FXCollections.observableHashMap<Int, String>().apply {
+            put(0, "Hello")
+            put(1, "world")
+        }
+
+        observable.addListener { _: MapChangeListener.Change<out Int, out String> ->
+            fail("target list should not be modified")
+        }
+
+        withTimeout(1000) {
+            launchFxMapUpdater(observable, source).join()
+        }
+
+        assertEquals(mapOf(0 to "Hello", 1 to "world"), observable)
+    }
+
+    @Test
+    fun listUpdaterFromKeySetShouldAddItems() = runTest(Dispatchers.JavaFx) {
         val source = Channel<Set<Int>>(Channel.CONFLATED).apply { send(setOf(0, 1, 2, 3)) }
         val observableList = FXCollections.observableArrayList<Item>()
+
+        observableList.addListener { _: ListChangeListener.Change<out Item> ->
+            assertTrue(Platform.isFxApplicationThread())
+        }
 
         val job = launchFxListUpdater(observableList, source, Item::dispose, ::Item)
 
@@ -287,9 +363,13 @@ class UpdatersTest : AsyncTest() {
     }
 
     @Test
-    fun updateListFromKeySetShouldRemoveItems() = runTest(Dispatchers.JavaFx) {
+    fun listUpdaterFromKeySetShouldRemoveItems() = runTest(Dispatchers.JavaFx) {
         val source = Channel<Set<Int>>(Channel.CONFLATED).apply { send(setOf(0, 1, 2, 3)) }
         val observableList = FXCollections.observableArrayList<Item>()
+
+        observableList.addListener { _: ListChangeListener.Change<out Item> ->
+            assertTrue(Platform.isFxApplicationThread())
+        }
 
         val job = launchFxListUpdater(observableList, source, Item::dispose, ::Item)
 
@@ -315,9 +395,13 @@ class UpdatersTest : AsyncTest() {
     }
 
     @Test
-    fun updateListFromKeySetShouldClearItems() = runTest(Dispatchers.JavaFx) {
+    fun listUpdaterFromKeySetShouldClearItems() = runTest(Dispatchers.JavaFx) {
         val source = Channel<Set<Int>>(Channel.CONFLATED).apply { send(setOf(0, 1, 2, 3)) }
         val observableList = FXCollections.observableArrayList<Item>()
+
+        observableList.addListener { _: ListChangeListener.Change<out Item> ->
+            assertTrue(Platform.isFxApplicationThread())
+        }
 
         val job = launchFxListUpdater(observableList, source, Item::dispose, ::Item)
 
@@ -334,6 +418,22 @@ class UpdatersTest : AsyncTest() {
         assertTrue(previousItems.all { it.isDisposed })
 
         job.cancelAndJoin()
+    }
+
+    @Test
+    fun listUpdaterFromKeySetShouldNotModifyTargetWithAnEmptySource() = runTest(Dispatchers.JavaFx) {
+        val source = emptyReceiveChannel<Set<Int>>()
+        val observable = FXCollections.observableArrayList(Item(0), Item(1))
+
+        observable.addListener { _: ListChangeListener.Change<out Item> ->
+            fail("target list should not be modified")
+        }
+
+        withTimeout(1000) {
+            launchFxListUpdater(observable, source, { fail("No item should be created") }, { fail("No item should be disposed") }).join()
+        }
+
+        assertEquals(listOf(0, 1), observable.map { it.value })
     }
 
     private class Item(val value: Int) {
