@@ -3,6 +3,7 @@ package com.github.jcornaz.miop.javafx
 import com.github.jcornaz.miop.test.AsyncTest
 import com.github.jcornaz.miop.test.ManualTimer
 import com.github.jcornaz.miop.test.runTest
+import com.github.jcornaz.miop.test.delayTest
 import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
@@ -78,6 +79,8 @@ class UpdatersTest : AsyncTest() {
 
         source.send(listOf("Hello", "world"))
 
+        delayTest()
+
         assertEquals(listOf("Hello", "world"), observable)
 
         job.cancelAndJoin()
@@ -97,6 +100,8 @@ class UpdatersTest : AsyncTest() {
         assertEquals(listOf("a", "b", "c", "d"), observable)
 
         source.send(listOf("b", "c"))
+
+        delayTest()
 
         assertEquals(listOf("b", "c"), observable)
 
@@ -118,6 +123,8 @@ class UpdatersTest : AsyncTest() {
 
         source.send(listOf("Hello", "world"))
 
+        delayTest()
+
         assertEquals(listOf("Hello", "world"), observable)
 
         job.cancelAndJoin()
@@ -138,6 +145,8 @@ class UpdatersTest : AsyncTest() {
 
         source.send(listOf("b", "c"))
 
+        delayTest()
+
         assertEquals(listOf("b", "c"), observable)
 
         job.cancelAndJoin()
@@ -157,6 +166,8 @@ class UpdatersTest : AsyncTest() {
         assertEquals(setOf("a", "b"), observable)
 
         source.send(listOf("b", "c"))
+
+        delayTest()
 
         assertEquals(setOf("b", "c"), observable)
 
@@ -180,6 +191,8 @@ class UpdatersTest : AsyncTest() {
 
         source.send(listOf("a", "b"))
 
+        delayTest()
+
         assertEquals(listOf("b", "a"), observable)
 
         job.cancelAndJoin()
@@ -200,7 +213,7 @@ class UpdatersTest : AsyncTest() {
 
         source.send(mapOf(0 to "Hello", 1 to "world"))
 
-        delay(500)
+        delayTest()
 
         assertEquals(mapOf(0 to "Hello", 1 to "world"), observable)
 
@@ -222,7 +235,7 @@ class UpdatersTest : AsyncTest() {
 
         source.send(mapOf(0 to "Hello", 1 to "kotlin"))
 
-        delay(500)
+        delayTest()
 
         assertEquals(mapOf(0 to "Hello", 1 to "kotlin"), observable)
 
@@ -244,7 +257,7 @@ class UpdatersTest : AsyncTest() {
 
         source.send(mapOf(0 to "Hello"))
 
-        delay(500)
+        delayTest()
 
         assertEquals(mapOf(0 to "Hello"), observable)
 
@@ -263,7 +276,7 @@ class UpdatersTest : AsyncTest() {
 
         source.send(setOf(0, 1, 2, 3, 4))
 
-        delay(500)
+        delayTest()
 
         assertEquals(listOf(0, 1, 2, 3, 4), observableList.map { it.value })
         assertTrue(observableList.none { it.isDisposed })
@@ -287,7 +300,7 @@ class UpdatersTest : AsyncTest() {
 
         source.send(setOf(0, 2))
 
-        delay(500)
+        delayTest()
 
         assertEquals(listOf(0, 2), observableList.map { it.value })
         assertTrue(observableList.none { it.isDisposed })
@@ -315,7 +328,7 @@ class UpdatersTest : AsyncTest() {
 
         source.send(emptySet())
 
-        delay(500)
+        delayTest()
 
         assertTrue(observableList.isEmpty())
         assertTrue(previousItems.all { it.isDisposed })
