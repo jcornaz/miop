@@ -1,5 +1,7 @@
 # Change log
 
+## 0.3-SNAPSHOT (Unreleased)
+
 ## 0.2.0 (2018-09-23)
 Migrate to Kotlin 1.3 RC and coroutines 0.26 (Structured concurrency)
 
