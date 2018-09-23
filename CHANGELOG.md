@@ -21,7 +21,6 @@ Migrate to Kotlin 1.3 RC and kotlinx.coroutines 0.26 (Structured concurrency)
 
 ### Deprecated
 * `launchConsumeEach` (use `launch { consumeEach {} }` instead)
-* `StateStore.dispatch` (use `StateStore.handle` instead)
 * `ReceiveChannel.launchFx*Updater` functions (use `CoroutineScope.launchFx*Updater` functions instead)
 * `SubscribableValue` adapters for JavaFx properties (use updaters and subscriptions instead)
 * `IoPool` (use kotlinx.coroutines' `Dispatchers.IO` instead)

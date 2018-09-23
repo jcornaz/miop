@@ -38,7 +38,7 @@ open class StateStoreTest : AsyncTest() {
 
         expect(3)
 
-        store.handle { assertEquals(-1, it); 42 }
+        store.dispatch { assertEquals(-1, it); 42 }
         withTimeout(1000) { barrier.withLock { } }
         expect(5)
 
@@ -68,7 +68,6 @@ open class StateStoreTest : AsyncTest() {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun subscriptionShouldNotReceiveUnchangedState() = runTest {
         val store = createStore("Hello")
 

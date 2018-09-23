@@ -31,10 +31,6 @@ public interface StateStore<out S, in E> : SubscribableValue<S> {
 }
 
 /** Dispatch an event in order to mutate the state. The event may be scheduled for later */
-@Deprecated(
-    message = "Standalone coroutines are deprecated. Use `StateStore.handle`",
-    replaceWith = ReplaceWith("launch(Dispatchers.Unconfined) { handle(event) }", "kotlinx.coroutines.launch", "kotlinx.coroutines.Dispatchers")
-)
 @UseExperimental(ExperimentalSubscribable::class)
 public fun <E> StateStore<*, E>.dispatch(event: E) {
     GlobalScope.launch(Dispatchers.Unconfined) { handle(event) }
@@ -67,17 +63,17 @@ public fun <S1, S2, E1, E2> StateStore<S1, E1>.map(
 ): StateStore<S2, E2> = StateStoreView(this, transformState, transformEvent)
 
 @ExperimentalSubscribable
-private class SimpleStateStore<out S, in A>(
+private class SimpleStateStore<out S, in E>(
     initialState: S,
-    private val reducer: (state: S, event: A) -> S
-) : StateStore<S, A> {
+    private val reducer: (state: S, event: E) -> S
+) : StateStore<S, E> {
 
     private val broadcast = ConflatedBroadcastChannel(initialState)
     private val mutex = Mutex()
 
     override suspend fun get(): S = broadcast.value
 
-    override suspend fun handle(event: A): S = mutex.withLock {
+    override suspend fun handle(event: E): S = mutex.withLock {
         val previousState = broadcast.value
         reducer(previousState, event).also { if (it !== previousState) broadcast.send(it) }
     }
