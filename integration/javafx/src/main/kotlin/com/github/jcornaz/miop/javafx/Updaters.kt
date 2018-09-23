@@ -73,6 +73,15 @@ public fun <E> CoroutineScope.launchFxListUpdater(target: MutableList<in E>, sou
         }
     }
 
+/**
+ * Start a new job in the JavaFx thread which update the [target] for each new key-set received
+ *
+ * The target list will receive items created with [createItem] for each keys of emitted by [source]
+ *
+ * [disposeItem] is called for each item which have to be removed from [target]
+ *
+ * The result or the scope shall be cancelled in order to cancel the channel
+ */
 @UseExperimental(ExperimentalCollectionEvent::class)
 public fun <K, V> CoroutineScope.launchFxListUpdater(
     target: MutableList<in V>,
