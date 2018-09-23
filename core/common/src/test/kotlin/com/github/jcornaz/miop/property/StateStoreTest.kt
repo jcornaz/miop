@@ -2,9 +2,9 @@ package com.github.jcornaz.miop.property
 
 import com.github.jcornaz.miop.test.AsyncTest
 import com.github.jcornaz.miop.test.runTest
+import com.github.jcornaz.miop.test.delayTest
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.channels.first
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -85,7 +85,7 @@ open class StateStoreTest : AsyncTest() {
 
         expect(3)
         store.dispatch { it } // should not resume the job
-        delay(500)
+        delayTest()
         expect(4)
 
         store.dispatch { "World" } // should resume the job
