@@ -110,7 +110,6 @@ public fun <K, V> CoroutineScope.launchFxListUpdater(
         }
     } finally {
         entryMap.values.forEach(disposeItem)
-        target.clear()
     }
 }
 
