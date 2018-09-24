@@ -52,6 +52,8 @@ Reactive operator collection for coroutines channels which are not yet included 
 ## Incoming features
 * New operators
   * `mergeMap`
+  * `scan`
+* Improved collection events computation/handling
 * Kotlin/Native support
 
 ## Add the library to your project
