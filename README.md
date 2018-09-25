@@ -7,7 +7,7 @@
 
 Reactive operator collection for coroutines channels which are not yet included in [kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines).
 
-**ATTENTION:** Version `0.2.0` shall be used with Kotlin `1.3-rc-57` only. For Kotlin 1.2.+, use the version `0.0.4`.
+**ATTENTION:** Version `0.2.0` shall be used with Kotlin `1.3.0-rc-57` only. For Kotlin 1.2.+, use the version `0.0.4`.
 
 ## Features
 * multi-platform (available modules: `common`, `jvm` and `js`)
@@ -70,14 +70,14 @@ repositories {
 dependencies {
 
     // Replace 'jvm' by 'common' or 'js' according to the platform
-    compile 'com.github.jcornaz.miop:miop-jvm:0.2.0' // Needs Kotlin 1.3-rc-57
-    compile 'com.github.jcornaz.miop:miop-jvm:0.0.4' // Needs Kotlin 1.2.+ a
+    compile 'com.github.jcornaz.miop:miop-jvm:0.2.0' // Needs Kotlin 1.3.0-rc-57
+    compile 'com.github.jcornaz.miop:miop-jvm:0.0.4' // Needs Kotlin 1.2.0+ a
     
     // JavaFx integration
-    compile 'com.github.jcornaz.miop:miop-jvm:0.2.0' // Needs Kotlin 1.3-rc-57
+    compile 'com.github.jcornaz.miop:miop-jvm:0.2.0' // Needs Kotlin 1.3.0-rc-57
     compile 'com.github.jcornaz.miop:miop-jvm:0.0.4' // Needs Kotlin 1.2.+ a
    
     // Collekt integration. Replace 'jvm' by 'common' or 'js' according to the platform
-    compile 'com.github.jcornaz.miop:miop-collekt-jvm:0.2.0' // Needs Kotlin 1.3-rc-57
+    compile 'com.github.jcornaz.miop:miop-collekt-jvm:0.2.0' // Needs Kotlin 1.3.0-rc-57
 }
 ```
