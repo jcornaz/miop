@@ -3,7 +3,7 @@
 [![Project status](https://img.shields.io/badge/status-experimental-yellow.svg)](https://gist.githubusercontent.com/jcornaz/46736c3d1f21b4c929bd97549b7406b2/raw/ProjectStatusFlow)
 [![JitPack](https://jitpack.io/v/jcornaz/miop.svg)](https://jitpack.io/#jcornaz/miop)
 [![Build status](https://travis-ci.com/jcornaz/miop.svg?branch=master)](https://travis-ci.com/jcornaz/miop)
-[![Technical debt](https://sonarcloud.io/api/project_badges/measure?project=jcornaz_miop&metric=sqale_index)](https://sonarcloud.io/dashboard?id=jcornaz_miop)
+[![Quality gate](https://sonarcloud.io/api/project_badges/measure?project=jcornaz_miop&metric=alert_status)](https://sonarcloud.io/dashboard?id=jcornaz_miop)
 
 Reactive operator collection for coroutines channels which are not yet included in [kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines).
 
