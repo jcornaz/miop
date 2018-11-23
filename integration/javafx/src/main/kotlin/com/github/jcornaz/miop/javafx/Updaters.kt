@@ -5,7 +5,6 @@ import javafx.beans.property.Property
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.channels.consumes
 import kotlinx.coroutines.javafx.JavaFx
 
 /**
@@ -37,13 +36,14 @@ public fun <T> ReceiveChannel<T>.launchFxUpdater(target: Property<in T>, parent:
 public fun <T> ReceiveChannel<T>.launchFxUpdater(target: Property<in T>): Job =
     GlobalScope.launchFxUpdater(target, this)
 
+
 /**
  * Start a new job in the JavaFx thread which update the [target] with each new list received
  *
  * The result or the scope shall be cancelled in order to cancel the channel
  */
 public fun <E> CoroutineScope.launchFxListUpdater(target: MutableList<in E>, source: ReceiveChannel<List<E>>): Job =
-    launch(Dispatchers.JavaFx, javafxStart(), onCompletion = source.consumes()) {
+    launch(Dispatchers.JavaFx, CoroutineStart.ATOMIC) {
         source.consumeEach { newList ->
             when {
                 target.isEmpty() -> target.addAll(newList)
@@ -72,7 +72,6 @@ public fun <E> CoroutineScope.launchFxListUpdater(target: MutableList<in E>, sou
             }
         }
     }
-
 /**
  * Start a new job in the JavaFx thread which update the [target] for each new key-set received
  *
@@ -88,7 +87,7 @@ public fun <K, V> CoroutineScope.launchFxListUpdater(
     source: ReceiveChannel<Set<K>>,
     disposeItem: (V) -> Unit,
     createItem: (K) -> V
-): Job = launch(Dispatchers.JavaFx, javafxStart(), onCompletion = source.consumes()) {
+): Job = launch(Dispatchers.JavaFx, CoroutineStart.ATOMIC) {
 
     val initialKeySet = source.receiveOrNull() ?: return@launch
     val entryMap: MutableMap<K, V> = HashMap(initialKeySet.size)
@@ -151,7 +150,7 @@ public fun <E> ReceiveChannel<List<E>>.launchFxListUpdater(target: MutableList<i
  */
 @UseExperimental(ExperimentalCollectionEvent::class)
 public fun <K, V> CoroutineScope.launchFxMapUpdater(target: MutableMap<in K, in V>, source: ReceiveChannel<Map<out K, V>>): Job =
-    launch(Dispatchers.JavaFx, javafxStart(), onCompletion = source.consumes()) {
+    launch(Dispatchers.JavaFx, CoroutineStart.ATOMIC) {
         val initialMap = source.receiveOrNull() ?: return@launch
 
         target.clear()
@@ -188,7 +187,7 @@ public fun <K, V> ReceiveChannel<Map<out K, V>>.launchFxMapUpdater(target: Mutab
  * The result or the scope shall be cancelled in order to cancel the channel
  */
 public fun <E> CoroutineScope.launchFxCollectionUpdater(target: MutableCollection<in E>, source: ReceiveChannel<Collection<E>>): Job =
-    launch(Dispatchers.JavaFx, javafxStart(), onCompletion = source.consumes()) {
+    launch(Dispatchers.JavaFx, CoroutineStart.ATOMIC) {
 
         val currentElementCounts = HashMap<Any?, Int>()
 
@@ -265,7 +264,7 @@ public fun <E> ReceiveChannel<Collection<E>>.launchFxCollectionUpdater(target: M
  */
 @UseExperimental(ExperimentalCollectionEvent::class)
 public fun <E> CoroutineScope.launchFxSetUpdater(target: MutableSet<in E>, source: ReceiveChannel<Set<E>>): Job =
-    launch(Dispatchers.JavaFx, javafxStart(), onCompletion = source.consumes()) {
+    launch(Dispatchers.JavaFx, CoroutineStart.ATOMIC) {
         val initialSet = source.receive()
 
         target.clear()

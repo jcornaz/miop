@@ -134,13 +134,13 @@ public fun <T, R> ReceiveChannel<T>.switchMap(context: CoroutineContext = Dispat
 @Deprecated("Standalone coroutine builders are deprecated, use CoroutineScope.launch { source.consumeEach {} } instead")
 public fun <E> ReceiveChannel<E>.launchConsumeEach(
     context: CoroutineContext = Dispatchers.Unconfined,
-    start: CoroutineStart = CoroutineStart.DEFAULT,
+    start: CoroutineStart = CoroutineStart.ATOMIC,
     parent: Job?,
     action: suspend (E) -> Unit
 ): Job {
     val actualContext = if (parent == null) context else context + parent
 
-    return GlobalScope.launch(actualContext, start, onCompletion = consumes()) {
+    return GlobalScope.launch(actualContext, start) {
         consumeEach { action(it) }
     }
 }
@@ -156,9 +156,9 @@ public fun <E> ReceiveChannel<E>.launchConsumeEach(
 )
 public fun <E> ReceiveChannel<E>.launchConsumeEach(
     context: CoroutineContext = Dispatchers.Unconfined,
-    start: CoroutineStart = CoroutineStart.DEFAULT,
+    start: CoroutineStart = CoroutineStart.ATOMIC,
     action: suspend (E) -> Unit
-): Job = GlobalScope.launch(context, start, onCompletion = consumes()) {
+): Job = GlobalScope.launch(context, start) {
     consumeEach { action(it) }
 }
 

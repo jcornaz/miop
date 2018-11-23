@@ -44,7 +44,7 @@ class ManualTimer {
         mutex.withLock {
             if (!pendingContinuations.isEmpty()) {
                 pendingContinuations.entries.forEach { (time, continuations) ->
-                    continuations.forEach { it.completeExceptionally(AssertionError("Unreached time: $time")) }
+                    continuations.forEach { it.cancel(AssertionError("Unreached time: $time")) }
                 }
                 pendingContinuations.clear()
                 throw AssertionError("The timer has been terminated before all suspended code was resumed")
