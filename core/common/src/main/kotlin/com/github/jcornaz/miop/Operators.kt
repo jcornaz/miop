@@ -16,20 +16,18 @@ public object Channels {
      *
      * If one source is closed with an exception, the result channel will be closed with the same exception and all other sources will be cancelled.
      */
-    @UseExperimental(InternalCoroutinesApi::class)
     public fun <T> merge(vararg sources: ReceiveChannel<T>): ReceiveChannel<T> =
-        GlobalScope.produce(Dispatchers.Unconfined, onCompletion = { error -> sources.all { it.cancel(error) } }) {
-            val job = coroutineContext[Job]!!
-
-            // Necessary to not deliver the exception to the uncaught exception handler
-            val context = coroutineContext + CoroutineExceptionHandler { _, throwable ->
-                job.cancel(throwable)
-            }
-
-            sources.forEach { source ->
-                launch(context) {
-                    source.consumeEach { send(it) }
+        GlobalScope.produceAtomic(Dispatchers.Unconfined) {
+            try {
+                coroutineScope {
+                    sources.forEach { source ->
+                        launch(Dispatchers.Unconfined) {
+                            source.consumeEach { send(it) }
+                        }
+                    }
                 }
+            } finally {
+                sources.forEach(ReceiveChannel<T>::cancel)
             }
         }
 
@@ -43,13 +41,12 @@ public object Channels {
      * @param context Context on which execute [combine]
      * @param combine Function to combine elements from the sources
      */
-    @UseExperimental(InternalCoroutinesApi::class)
     public fun <T1, T2, R> combineLatest(
         source1: ReceiveChannel<T1>,
         source2: ReceiveChannel<T2>,
         context: CoroutineContext = Dispatchers.Unconfined,
         combine: suspend (T1, T2) -> R
-    ): ReceiveChannel<R> = GlobalScope.produce(context, onCompletion = { source1.cancel(it); source2.cancel(it) }) {
+    ): ReceiveChannel<R> = GlobalScope.produceAtomic(context) {
         var v1: T1? = null
         var v2: T2? = null
 
@@ -77,12 +74,17 @@ public object Channels {
  * The upstream channel is consumed. When [block] is finished, the upstream channel is cancelled (if not already completed).
  * If the [block] fails the upstream channel is cancelled with the cause exception.
  */
-@UseExperimental(InternalCoroutinesApi::class)
 public fun <I, O> ReceiveChannel<I>.transform(
     context: CoroutineContext = Dispatchers.Unconfined,
     capacity: Int = 0,
     block: suspend CoroutineScope.(input: ReceiveChannel<I>, output: SendChannel<O>) -> Unit
-): ReceiveChannel<O> = GlobalScope.produce(context, capacity, onCompletion = consumes()) { block(this@transform, channel) }
+): ReceiveChannel<O> = GlobalScope.produceAtomic(context, capacity) {
+    try {
+        block(this@transform, channel)
+    } finally {
+        this@transform.cancel()
+    }
+}
 
 /**
  * Return a [ReceiveChannel] through which elements of all given sources (including this channel) are sent as soon as received.

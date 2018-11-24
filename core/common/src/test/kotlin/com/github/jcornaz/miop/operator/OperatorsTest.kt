@@ -151,10 +151,8 @@ class OperatorsTest : AsyncTest() {
     @Test
     fun ifASourceMergedByCombineLatestFailsTheResultShouldFailAndTheOtherSourcesShouldBeCancelled() = runTest {
         val source1 = Channel<Int>()
-        val source2 = Channel<Int>()
+        val source2 = failedReceiveChannel<Int>(Exception("my exception"))
         val result = source1.combineLatestWith(source2) { v1, v2 -> v1 to v2 }
-
-        source2.cancel(Exception("my exception"))
 
         assertTrue(source1.isClosedForReceive, "other source should be closed for receive")
         assertTrue(result.isClosedForReceive, "result should be closed for receive")
