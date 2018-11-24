@@ -16,6 +16,7 @@ public object Channels {
      *
      * If one source is closed with an exception, the result channel will be closed with the same exception and all other sources will be cancelled.
      */
+    @UseExperimental(InternalCoroutinesApi::class)
     public fun <T> merge(vararg sources: ReceiveChannel<T>): ReceiveChannel<T> =
         GlobalScope.produce(Dispatchers.Unconfined, onCompletion = { error -> sources.all { it.cancel(error) } }) {
             val job = coroutineContext[Job]!!
@@ -42,6 +43,7 @@ public object Channels {
      * @param context Context on which execute [combine]
      * @param combine Function to combine elements from the sources
      */
+    @UseExperimental(InternalCoroutinesApi::class)
     public fun <T1, T2, R> combineLatest(
         source1: ReceiveChannel<T1>,
         source2: ReceiveChannel<T2>,
@@ -75,6 +77,7 @@ public object Channels {
  * The upstream channel is consumed. When [block] is finished, the upstream channel is cancelled (if not already completed).
  * If the [block] fails the upstream channel is cancelled with the cause exception.
  */
+@UseExperimental(InternalCoroutinesApi::class)
 public fun <I, O> ReceiveChannel<I>.transform(
     context: CoroutineContext = Dispatchers.Unconfined,
     capacity: Int = 0,
