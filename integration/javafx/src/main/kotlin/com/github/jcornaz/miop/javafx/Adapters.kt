@@ -6,6 +6,7 @@ import com.github.jcornaz.miop.property.SubscribableVariable
 import javafx.beans.property.Property
 import javafx.beans.value.ObservableValue
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.withContext
 
@@ -32,13 +33,14 @@ public fun <T> ObservableValue<out T>.asSubscribableValue(): SubscribableValue<T
 public fun <T> Property<T>.asSubscribableVariable(): SubscribableVariable<T?> = PropertyAdapter(this)
 
 @ExperimentalSubscribable
+@UseExperimental(ExperimentalCoroutinesApi::class)
 private class ObservableValueAdapter<out T>(private val observable: ObservableValue<out T>) : SubscribableValue<T?> {
     override suspend fun get(): T? = withContext(Dispatchers.JavaFx) { observable.value }
-
     override fun openSubscription() = observable.openValueSubscription()
 }
 
 @ExperimentalSubscribable
+@UseExperimental(ExperimentalCoroutinesApi::class)
 private class PropertyAdapter<T>(private val property: Property<T>) : SubscribableVariable<T?> {
 
     override suspend fun get(): T? = withContext(Dispatchers.JavaFx) { property.value }
