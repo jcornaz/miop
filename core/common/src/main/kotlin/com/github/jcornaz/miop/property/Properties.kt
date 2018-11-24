@@ -48,6 +48,7 @@ public interface SubscribableVariable<T> : SubscribableValue<T> {
  * Create an instance of [SubscribableValue] with the given [value]
  */
 @ExperimentalSubscribable
+@UseExperimental(ExperimentalCoroutinesApi::class)
 public fun <T> SubscribableValue(value: T): SubscribableValue<T> = object : SubscribableValue<T> {
     override suspend fun get(): T = value
     override fun openSubscription() = receiveChannelOf(value)
@@ -57,7 +58,7 @@ public fun <T> SubscribableValue(value: T): SubscribableValue<T> = object : Subs
  * Create an instance of [SubscribableVariable] initialized with the given [initialValue]
  */
 @ExperimentalSubscribable
-@UseExperimental(ExperimentalCoroutinesApi::class)
+@UseExperimental(ExperimentalCoroutinesApi::class, ObsoleteCoroutinesApi::class)
 public fun <T> SubscribableVariable(initialValue: T): SubscribableVariable<T> = object : SubscribableVariable<T> {
     private val broadcast = ConflatedBroadcastChannel(initialValue)
 

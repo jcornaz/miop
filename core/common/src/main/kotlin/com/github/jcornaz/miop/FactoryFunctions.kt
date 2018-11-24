@@ -66,12 +66,12 @@ internal fun <E> CoroutineScope.produceAtomic(context: CoroutineContext = EmptyC
             job.cancel()
         }
 
-        @Suppress("EXPERIMENTAL_OVERRIDE", "EXPERIMENTAL_API_USAGE")
+        @Suppress("EXPERIMENTAL_OVERRIDE", "EXPERIMENTAL_API_USAGE", "OverridingDeprecatedMember", "DEPRECATION")
         override fun cancel(cause: Throwable?): Boolean {
             return job.cancel(cause)
         }
 
-        @Suppress("EXPERIMENTAL_OVERRIDE", "EXPERIMENTAL_API_USAGE")
+        @Suppress("EXPERIMENTAL_OVERRIDE", "EXPERIMENTAL_API_USAGE", "OverridingDeprecatedMember", "DEPRECATION")
         override fun cancel0(): Boolean {
             return job.cancel(null)
         }

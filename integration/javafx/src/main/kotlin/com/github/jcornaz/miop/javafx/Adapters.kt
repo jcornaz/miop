@@ -14,9 +14,9 @@ import kotlinx.coroutines.withContext
  *
  * Any change of the [ObservableValue] value would be notified to open subscriptions
  */
-@ExperimentalSubscribable
 @Suppress("DeprecatedCallableAddReplaceWith")
 @Deprecated("Use updaters and subscriptions instead")
+@UseExperimental(ExperimentalSubscribable::class)
 public fun <T> ObservableValue<out T>.asSubscribableValue(): SubscribableValue<T?> = ObservableValueAdapter(this)
 
 /**
@@ -26,9 +26,9 @@ public fun <T> ObservableValue<out T>.asSubscribableValue(): SubscribableValue<T
  *
  * Any change in this [SubscribableVariable] would be transmitted to the property (notifying listeners of the property)
  */
-@ExperimentalSubscribable
 @Suppress("DeprecatedCallableAddReplaceWith")
 @Deprecated("Use updaters and subscriptions instead")
+@UseExperimental(ExperimentalSubscribable::class)
 public fun <T> Property<T>.asSubscribableVariable(): SubscribableVariable<T?> = PropertyAdapter(this)
 
 @ExperimentalSubscribable
