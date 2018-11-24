@@ -3,6 +3,8 @@ package com.github.jcornaz.miop.collection
 import com.github.jcornaz.miop.transform
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
@@ -48,6 +50,7 @@ public operator fun <K, V> MutableMap<in K, in V>.plusAssign(event: MapEvent<K, 
  * Compute deltas between each received map and emits the corresponding events.
  */
 @ExperimentalCollectionEvent
+@UseExperimental(ObsoleteCoroutinesApi::class)
 public fun <K, V> ReceiveChannel<Map<out K, V>>.toMapEvents(initialMap: Map<out K, V> = emptyMap()): ReceiveChannel<MapEvent<K, V>> = transform { input, output ->
     val currentMap: MutableMap<K, V> = HashMap(initialMap)
 
@@ -57,6 +60,7 @@ public fun <K, V> ReceiveChannel<Map<out K, V>>.toMapEvents(initialMap: Map<out 
 }
 
 @ExperimentalCollectionEvent
+@UseExperimental(ExperimentalCoroutinesApi::class)
 private fun <K, V> CoroutineScope.handleNewMap(currentMap: MutableMap<K, V>, newMap: Map<out K, V>): ReceiveChannel<MapEvent<K, V>> = produce(Dispatchers.Default, Channel.UNLIMITED) {
     if (newMap.isEmpty() && currentMap.isNotEmpty()) {
         send(MapCleared)
