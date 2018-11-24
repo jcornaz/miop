@@ -4,10 +4,7 @@ import com.github.jcornaz.miop.operator.DummyException
 import com.github.jcornaz.miop.test.AsyncTest
 import com.github.jcornaz.miop.test.assertThrows
 import com.github.jcornaz.miop.test.runTest
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -37,6 +34,7 @@ class ChannelTest : AsyncTest() {
     }
 
     @Test
+    @UseExperimental(InternalCoroutinesApi::class)
     fun testCancellingProduce() = runTest {
         var onCompletionCalled = false
         produce<Int>(Dispatchers.Unconfined, onCompletion = { onCompletionCalled = true }) { }.cancel()
@@ -63,6 +61,7 @@ class ChannelTest : AsyncTest() {
     }
 
     @Test
+    @UseExperimental(InternalCoroutinesApi::class)
     fun testCancelProduce() = runTest {
         val source = Channel<Int>()
 
