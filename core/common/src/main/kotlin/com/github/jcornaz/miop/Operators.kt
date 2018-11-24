@@ -148,7 +148,7 @@ public fun <T, R> ReceiveChannel<T>.switchMap(context: CoroutineContext = Dispat
  *
  * It allows to write `channel.launchConsumeEach(context) { ... }` instead of `launch(context) { channel.consumeEach { ... } }`
  */
-@Deprecated("Standalone coroutine builders are deprecated, use CoroutineScope.launch { source.consumeEach {} } instead")
+@Deprecated("Standalone coroutine builders are deprecated, use CoroutineScope.launch { source.consumeEach {} } instead", level = DeprecationLevel.ERROR)
 @UseExperimental(ExperimentalCoroutinesApi::class, ObsoleteCoroutinesApi::class)
 public fun <E> ReceiveChannel<E>.launchConsumeEach(
     context: CoroutineContext = Dispatchers.Unconfined,
@@ -170,6 +170,7 @@ public fun <E> ReceiveChannel<E>.launchConsumeEach(
  */
 @Deprecated(
     message = "Standalone coroutine builders are deprecated, use CoroutineScope.launch { source.consumeEach {} } instead",
+    level = DeprecationLevel.ERROR,
     replaceWith = ReplaceWith(
         expression = "GlobalScope.launch(context, start, onCompletion = consumes()) { consumeEach { action(it) } }",
         imports = ["kotlinx.coroutines.GlobalScope", "kotlinx.coroutines.launch", "kotlinx.coroutines.channels.consumes", "kotlinx.coroutines.channels.consumeEach"]

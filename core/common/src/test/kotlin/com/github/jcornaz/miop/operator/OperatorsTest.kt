@@ -248,24 +248,6 @@ class OperatorsTest : AsyncTest() {
     }
 
     @Test
-    @Suppress("DEPRECATION")
-    fun launchConsumeEachShouldConsumeTheChannel() = runTest {
-        val result = mutableListOf<Int>()
-
-        val channel = receiveChannelOf(1, 2, 3)
-
-        val job = channel.launchConsumeEach {
-            result += it
-        }
-
-        job.join()
-
-        assertEquals(listOf(1, 2, 3), result)
-
-        assertTrue(channel.isClosedForReceive)
-    }
-
-    @Test
     fun distinctUntilChangedShouldNotSendTwiceTheSameValueInARow() = runTest {
         val receivedValues = receiveChannelOf(1, 2, 2, 2, 3, 2, 1, 1).distinctUntilChanged().toList()
 
