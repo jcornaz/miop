@@ -15,3 +15,12 @@ compileKotlinCommon {
         ]
     }
 }
+
+compileTestKotlinCommon {
+    kotlinOptions {
+        freeCompilerArgs = [
+                '-Xuse-experimental=kotlin.kotlinx.coroutines.ObsoleteCoroutinesApi',
+                '-Xuse-experimental=kotlin.kotlinx.coroutines.ExperimentalCoroutinesApi',
+        ]
+    }
+}
