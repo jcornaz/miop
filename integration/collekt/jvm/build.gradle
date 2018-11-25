@@ -4,9 +4,10 @@ dependencies {
     expectedBy project(":miop-collekt-common")
 
     api project(':miop-jvm')
-    api 'com.github.jcornaz.collekt:collekt-core-jvm8:0.0.2'
+    api "com.github.jcornaz.collekt:collekt-api-jvm:$collekt_version"
 
     testCompile project(':miop-internal-test-jvm')
+    testCompile "com.github.jcornaz.collekt:collekt-core-jvm:$collekt_version"
 }
 
 compileTestKotlin {
