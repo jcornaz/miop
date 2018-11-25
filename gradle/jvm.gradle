@@ -24,7 +24,7 @@ test {
 
 compileKotlin {
     kotlinOptions {
-        freeCompilerArgs = [
+        freeCompilerArgs += [
                 '-Xuse-experimental=kotlin.Experimental'
         ]
     }
@@ -32,7 +32,7 @@ compileKotlin {
 
 compileTestKotlin {
     kotlinOptions {
-        freeCompilerArgs = [
+        freeCompilerArgs += [
                 '-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi',
                 '-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi'
         ]

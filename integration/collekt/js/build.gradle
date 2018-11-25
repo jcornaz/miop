@@ -11,7 +11,7 @@ dependencies {
 
 compileTestKotlin2Js {
     kotlinOptions {
-        freeCompilerArgs = [
+        freeCompilerArgs += [
                 '-Xuse-experimental=com.github.jcornaz.miop.collection.ExperimentalCollectionEvent'
         ]
     }

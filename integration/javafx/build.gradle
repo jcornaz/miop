@@ -15,7 +15,7 @@ compileKotlin {
 
 compileTestKotlin {
     kotlinOptions {
-        freeCompilerArgs = [
+        freeCompilerArgs += [
                 '-Xuse-experimental=com.github.jcornaz.miop.property.ExperimentalSubscribable'
         ]
     }

@@ -9,7 +9,7 @@ dependencies {
 
 compileTestKotlinCommon {
     kotlinOptions {
-        freeCompilerArgs = [
+        freeCompilerArgs += [
                 '-Xuse-experimental=com.github.jcornaz.miop.collection.ExperimentalCollectionEvent'
         ]
     }
