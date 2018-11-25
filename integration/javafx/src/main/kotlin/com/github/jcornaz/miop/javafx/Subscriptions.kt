@@ -8,6 +8,7 @@ import javafx.beans.value.ObservableValue
 import javafx.collections.ListChangeListener
 import javafx.collections.ObservableList
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -21,6 +22,7 @@ import kotlinx.coroutines.javafx.JavaFx
  *
  * Result channel shall be cancelled to unsubscribe from the source.
  */
+@ExperimentalCoroutinesApi
 public fun <T> ObservableValue<out T>.openValueSubscription(): ReceiveChannel<T?> = GlobalScope.produce(Dispatchers.JavaFx, Channel.CONFLATED) {
     offer(value)
 
@@ -42,6 +44,7 @@ public fun <T> ObservableValue<out T>.openValueSubscription(): ReceiveChannel<T?
  *
  * Result channel shall be cancelled to unsubscribe from the source.
  */
+@ExperimentalCoroutinesApi
 public fun <E> ObservableList<out E>.openListSubscription(): ReceiveChannel<PersistentList<E>> = GlobalScope.produce(Dispatchers.JavaFx, Channel.CONFLATED) {
     var list: PersistentList<E> = toPersistentList().also { offer(it) }
 

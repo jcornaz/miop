@@ -10,7 +10,6 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 /**
  * Theses are assumption of the channels in kotlinx.coroutines.
@@ -27,20 +26,13 @@ class ChannelTest : AsyncTest() {
 
     @Test
     fun testFailedChannel() = runTest {
-        val channel = Channel<Int>().apply { cancel(DummyException("something went wrong")) }
+        val channel = Channel<Int>().apply { close(DummyException("something went wrong")) }
 
         val e1 = assertThrows<DummyException> { channel.receive() }
         assertEquals("something went wrong", e1.message)
 
         val e2 = assertThrows<DummyException> { channel.send(0) }
         assertEquals("something went wrong", e2.message)
-    }
-
-    @Test
-    fun testCancellingProduce() = runTest {
-        var onCompletionCalled = false
-        produce<Int>(Dispatchers.Unconfined, onCompletion = { onCompletionCalled = true }) { }.cancel()
-        assertTrue(onCompletionCalled)
     }
 
     @Test
@@ -66,8 +58,12 @@ class ChannelTest : AsyncTest() {
     fun testCancelProduce() = runTest {
         val source = Channel<Int>()
 
-        val produced = produce<Int>(Dispatchers.Unconfined, onCompletion = source.consumes()) {
-            source.receive()
+        val produced = produce<Int>(Dispatchers.Unconfined) {
+            try {
+                source.receive()
+            } finally {
+                source.cancel()
+            }
         }
 
         produced.cancel()

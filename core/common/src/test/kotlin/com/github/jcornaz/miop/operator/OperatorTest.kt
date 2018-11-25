@@ -1,6 +1,7 @@
 package com.github.jcornaz.miop.operator
 
 import com.github.jcornaz.miop.emptyReceiveChannel
+import com.github.jcornaz.miop.failedReceiveChannel
 import com.github.jcornaz.miop.test.assertThrows
 import com.github.jcornaz.miop.test.runTest
 import kotlinx.coroutines.channels.*
@@ -16,14 +17,14 @@ abstract class OperatorTest {
     @Test
     fun testCancel() = runTest {
         val source = Channel<Int>()
-        source.operator().cancel(DummyException("something went wrong"))
+        source.operator().cancel()
 
         assertThrows<Exception> { source.send(0) }
     }
 
     @Test
     fun shouldEmitTheUpstreamErrorIfAny() = runTest {
-        val exception = assertThrows<Exception> { produce<Int> { throw Exception("my exception") }.operator().first() }
+        val exception = assertThrows<DummyException> { failedReceiveChannel<Int>(DummyException("my exception")).operator().first() }
         assertEquals("my exception", exception.message)
     }
 

@@ -1,6 +1,7 @@
 package com.github.jcornaz.miop.property
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -31,7 +32,8 @@ public interface StateStore<out S, in E> : SubscribableValue<S> {
 }
 
 /** Dispatch an event in order to mutate the state. The event may be scheduled for later */
-@UseExperimental(ExperimentalSubscribable::class)
+@ExperimentalSubscribable
+@UseExperimental(ExperimentalCoroutinesApi::class)
 public fun <E> StateStore<*, E>.dispatch(event: E) {
     GlobalScope.launch(Dispatchers.Unconfined) { handle(event) }
 }
@@ -63,6 +65,7 @@ public fun <S1, S2, E1, E2> StateStore<S1, E1>.map(
 ): StateStore<S2, E2> = StateStoreView(this, transformState, transformEvent)
 
 @ExperimentalSubscribable
+@UseExperimental(ExperimentalCoroutinesApi::class)
 private class SimpleStateStore<out S, in E>(
     initialState: S,
     private val reducer: (state: S, event: E) -> S

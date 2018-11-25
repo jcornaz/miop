@@ -16,19 +16,20 @@ public object Channels {
      *
      * If one source is closed with an exception, the result channel will be closed with the same exception and all other sources will be cancelled.
      */
+    @ObsoleteCoroutinesApi
+    @UseExperimental(ExperimentalCoroutinesApi::class)
     public fun <T> merge(vararg sources: ReceiveChannel<T>): ReceiveChannel<T> =
-        GlobalScope.produce(Dispatchers.Unconfined, onCompletion = { error -> sources.all { it.cancel(error) } }) {
-            val job = coroutineContext[Job]!!
-
-            // Necessary to not deliver the exception to the uncaught exception handler
-            val context = coroutineContext + CoroutineExceptionHandler { _, throwable ->
-                job.cancel(throwable)
-            }
-
-            sources.forEach { source ->
-                launch(context) {
-                    source.consumeEach { send(it) }
+        GlobalScope.produceAtomic(Dispatchers.Unconfined) {
+            try {
+                coroutineScope {
+                    sources.forEach { source ->
+                        launch(Dispatchers.Unconfined) {
+                            source.consumeEach { send(it) }
+                        }
+                    }
                 }
+            } finally {
+                sources.forEach(ReceiveChannel<T>::cancel)
             }
         }
 
@@ -42,12 +43,14 @@ public object Channels {
      * @param context Context on which execute [combine]
      * @param combine Function to combine elements from the sources
      */
+    @ObsoleteCoroutinesApi
+    @UseExperimental(ExperimentalCoroutinesApi::class)
     public fun <T1, T2, R> combineLatest(
         source1: ReceiveChannel<T1>,
         source2: ReceiveChannel<T2>,
         context: CoroutineContext = Dispatchers.Unconfined,
         combine: suspend (T1, T2) -> R
-    ): ReceiveChannel<R> = GlobalScope.produce(context, onCompletion = { source1.cancel(it); source2.cancel(it) }) {
+    ): ReceiveChannel<R> = GlobalScope.produceAtomic(context) {
         var v1: T1? = null
         var v2: T2? = null
 
@@ -75,11 +78,19 @@ public object Channels {
  * The upstream channel is consumed. When [block] is finished, the upstream channel is cancelled (if not already completed).
  * If the [block] fails the upstream channel is cancelled with the cause exception.
  */
+@ObsoleteCoroutinesApi
+@UseExperimental(ExperimentalCoroutinesApi::class)
 public fun <I, O> ReceiveChannel<I>.transform(
     context: CoroutineContext = Dispatchers.Unconfined,
     capacity: Int = 0,
     block: suspend CoroutineScope.(input: ReceiveChannel<I>, output: SendChannel<O>) -> Unit
-): ReceiveChannel<O> = GlobalScope.produce(context, capacity, onCompletion = consumes()) { block(this@transform, channel) }
+): ReceiveChannel<O> = GlobalScope.produceAtomic(context, capacity) {
+    try {
+        block(this@transform, channel)
+    } finally {
+        this@transform.cancel()
+    }
+}
 
 /**
  * Return a [ReceiveChannel] through which elements of all given sources (including this channel) are sent as soon as received.
@@ -88,6 +99,7 @@ public fun <I, O> ReceiveChannel<I>.transform(
  *
  * If one source is closed with an exception, the result channel will be closed with the same exception and all other sources will be cancelled.
  */
+@ObsoleteCoroutinesApi
 public fun <T> ReceiveChannel<T>.mergeWith(vararg others: ReceiveChannel<T>): ReceiveChannel<T> =
     Channels.merge(this, *others)
 
@@ -101,6 +113,8 @@ public fun <T> ReceiveChannel<T>.mergeWith(vararg others: ReceiveChannel<T>): Re
  * @param context Context on which execute [combine]
  * @param combine Function to combine elements from the sources
  */
+@ObsoleteCoroutinesApi
+@UseExperimental(ExperimentalCoroutinesApi::class)
 public fun <T1, T2, R> ReceiveChannel<T1>.combineLatestWith(
     other: ReceiveChannel<T2>,
     context: CoroutineContext = Dispatchers.Unconfined,
@@ -110,12 +124,15 @@ public fun <T1, T2, R> ReceiveChannel<T1>.combineLatestWith(
 /**
  * Return a [ReceiveChannel] which emits the items of the latest result of [transform] which is called for each elements of this channel.
  *
- * Each time a new element is received from this channel, the previous result of [transform] is cancelled, and [transform] is called to get the new source to consume and to send elements the result of [switchMap]
+ * Each time a new element is received from this channel, the previous result of [transform] is cancelled, and [transform] is called to get the new source to consume and to send elements
+ * the result of [switchMap]
  *
  * Cancelling the result channel will cancel the current source (latest result of [transform]).
  *
  * If the current source source is closed with an exception, the result channel will be closed with the same exception.
  */
+@ObsoleteCoroutinesApi
+@UseExperimental(ExperimentalCoroutinesApi::class)
 public fun <T, R> ReceiveChannel<T>.switchMap(context: CoroutineContext = Dispatchers.Unconfined, transform: suspend (T) -> ReceiveChannel<R>): ReceiveChannel<R> = transform { input, output ->
     var job: Job? = null
     input.consumeEach { element ->
@@ -131,16 +148,17 @@ public fun <T, R> ReceiveChannel<T>.switchMap(context: CoroutineContext = Dispat
  *
  * It allows to write `channel.launchConsumeEach(context) { ... }` instead of `launch(context) { channel.consumeEach { ... } }`
  */
-@Deprecated("Standalone coroutine builders are deprecated, use CoroutineScope.launch { source.consumeEach {} } instead")
+@Deprecated("Standalone coroutine builders are deprecated, use CoroutineScope.launch { source.consumeEach {} } instead", level = DeprecationLevel.ERROR)
+@UseExperimental(ExperimentalCoroutinesApi::class, ObsoleteCoroutinesApi::class)
 public fun <E> ReceiveChannel<E>.launchConsumeEach(
     context: CoroutineContext = Dispatchers.Unconfined,
-    start: CoroutineStart = CoroutineStart.DEFAULT,
+    start: CoroutineStart = CoroutineStart.ATOMIC,
     parent: Job?,
     action: suspend (E) -> Unit
 ): Job {
     val actualContext = if (parent == null) context else context + parent
 
-    return GlobalScope.launch(actualContext, start, onCompletion = consumes()) {
+    return GlobalScope.launch(actualContext, start) {
         consumeEach { action(it) }
     }
 }
@@ -152,13 +170,18 @@ public fun <E> ReceiveChannel<E>.launchConsumeEach(
  */
 @Deprecated(
     message = "Standalone coroutine builders are deprecated, use CoroutineScope.launch { source.consumeEach {} } instead",
-    replaceWith = ReplaceWith("GlobalScope.launch(context, start, onCompletion = consumes()) { consumeEach { action(it) } }", "kotlinx.coroutines.GlobalScope", "kotlinx.coroutines.launch", "kotlinx.coroutines.channels.consumes", "kotlinx.coroutines.channels.consumeEach")
+    level = DeprecationLevel.ERROR,
+    replaceWith = ReplaceWith(
+        expression = "GlobalScope.launch(context, start, onCompletion = consumes()) { consumeEach { action(it) } }",
+        imports = ["kotlinx.coroutines.GlobalScope", "kotlinx.coroutines.launch", "kotlinx.coroutines.channels.consumes", "kotlinx.coroutines.channels.consumeEach"]
+    )
 )
+@UseExperimental(ObsoleteCoroutinesApi::class, ExperimentalCoroutinesApi::class)
 public fun <E> ReceiveChannel<E>.launchConsumeEach(
     context: CoroutineContext = Dispatchers.Unconfined,
-    start: CoroutineStart = CoroutineStart.DEFAULT,
+    start: CoroutineStart = CoroutineStart.ATOMIC,
     action: suspend (E) -> Unit
-): Job = GlobalScope.launch(context, start, onCompletion = consumes()) {
+): Job = GlobalScope.launch(context, start) {
     consumeEach { action(it) }
 }
 
@@ -167,6 +190,8 @@ public fun <E> ReceiveChannel<E>.launchConsumeEach(
  *
  * Example: for the source: [1, 2, 2, 1, 2] [distinctUntilChanged] will emit: [1, 2, 1, 2]
  */
+@ObsoleteCoroutinesApi
+@UseExperimental(ExperimentalCoroutinesApi::class)
 public fun <E> ReceiveChannel<E>.distinctUntilChanged(): ReceiveChannel<E> = transform { input, output ->
     var latest = try {
         input.receive()
@@ -187,6 +212,7 @@ public fun <E> ReceiveChannel<E>.distinctUntilChanged(): ReceiveChannel<E> = tra
 /**
  * Returns a [ReceiveChannel] which emits the element of this channel, unless the element has the same reference as the last emitted element.
  */
+@ObsoleteCoroutinesApi
 public fun <E> ReceiveChannel<E>.distinctReferenceUntilChanged(): ReceiveChannel<E> = transform { input, output ->
     var latest = try {
         input.receive()
@@ -207,6 +233,7 @@ public fun <E> ReceiveChannel<E>.distinctReferenceUntilChanged(): ReceiveChannel
 /**
  * Returns a [ReceiveChannel] emitting the elements of this channel which are instance of [E]
  */
+@ObsoleteCoroutinesApi
 public inline fun <reified E> ReceiveChannel<*>.filterIsInstance(): ReceiveChannel<E> = transform { input, output ->
     input.consumeEach {
         if (it is E) output.send(it)
@@ -218,6 +245,7 @@ public inline fun <reified E> ReceiveChannel<*>.filterIsInstance(): ReceiveChann
  *
  * Only emit an element received if the given [timeSpan] (in millisecond) has passed without it emitting another item.
  */
+@ObsoleteCoroutinesApi
 public fun <E> ReceiveChannel<E>.debounce(timeSpan: Long): ReceiveChannel<E> = transform { input, output ->
     var job: Job? = null
     input.consumeEach { element ->
@@ -234,6 +262,7 @@ public fun <E> ReceiveChannel<E>.debounce(timeSpan: Long): ReceiveChannel<E> = t
  *
  * @param capacity Max number of elements to buffer. Once the limit is reached, the producer will suspend. [Channel.UNLIMITED] and [Channel.CONFLATED] can be used.
  */
+@ObsoleteCoroutinesApi
 public fun <E> ReceiveChannel<E>.buffer(capacity: Int = Channel.UNLIMITED): ReceiveChannel<E> =
     transform(capacity = capacity) { input, output -> input.consumeEach { output.send(it) } }
 
@@ -247,6 +276,7 @@ public fun <E> ReceiveChannel<E>.buffer(capacity: Int = Channel.UNLIMITED): Rece
  *
  * @see ConflatedChannel
  */
+@ObsoleteCoroutinesApi
 @Suppress("NOTHING_TO_INLINE")
 public inline fun <E> ReceiveChannel<E>.conflate(): ReceiveChannel<E> = buffer(Channel.CONFLATED)
 
@@ -263,6 +293,7 @@ public inline fun <E> ReceiveChannel<E>.conflate(): ReceiveChannel<E> = buffer(C
  * @param partialWindows controls whether or not to keep partial windows in the end if any,
  * by default `false` which means partial windows won't be preserved
  */
+@ObsoleteCoroutinesApi
 public fun <E> ReceiveChannel<E>.windowed(size: Int, step: Int = 1, partialWindows: Boolean = false): ReceiveChannel<List<E>> {
     require(size > 0 && step > 0) { cancel(); "size and step have to be greater than 0 but size was $size and step was $step" }
 
@@ -307,5 +338,6 @@ public fun <E> ReceiveChannel<E>.windowed(size: Int, step: Int = 1, partialWindo
  *
  * @param size the number of elements to take in each list, must be positive and can be greater than the number of elements emitted by this source.
  */
+@ObsoleteCoroutinesApi
 @Suppress("NOTHING_TO_INLINE")
 public inline fun <E> ReceiveChannel<E>.chunked(size: Int): ReceiveChannel<List<E>> = windowed(size, size, true)

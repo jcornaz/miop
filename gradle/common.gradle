@@ -10,8 +10,17 @@ dependencies {
 
 compileKotlinCommon {
     kotlinOptions {
-        freeCompilerArgs = [
+        freeCompilerArgs += [
                 '-Xuse-experimental=kotlin.Experimental'
+        ]
+    }
+}
+
+compileTestKotlinCommon {
+    kotlinOptions {
+        freeCompilerArgs += [
+                '-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi',
+                '-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi'
         ]
     }
 }

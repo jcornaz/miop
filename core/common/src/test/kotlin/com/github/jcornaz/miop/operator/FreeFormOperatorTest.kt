@@ -32,8 +32,7 @@ class FreeFormOperatorTest : OperatorTest() {
 
         val result: ReceiveChannel<String> = source.transform { _, _ -> throw DummyException("something went wrong") }
 
-        val e1 = assertThrows<DummyException> { source.receive() }
-        assertEquals("something went wrong", e1.message)
+        assertThrows<Exception> { source.receive() }
 
         val e2 = assertThrows<DummyException> { result.receive() }
         assertEquals("something went wrong", e2.message)

@@ -2,6 +2,8 @@ package com.github.jcornaz.miop.property
 
 import com.github.jcornaz.miop.distinctUntilChanged
 import com.github.jcornaz.miop.receiveChannelOf
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.first
@@ -26,6 +28,7 @@ public interface SubscribableValue<out T> {
     public fun openSubscription(): ReceiveChannel<T>
 
     /** Returns the current value. May suspend until the value is available */
+    @UseExperimental(ObsoleteCoroutinesApi::class)
     public suspend fun get(): T = openSubscription().first()
 }
 
@@ -45,6 +48,7 @@ public interface SubscribableVariable<T> : SubscribableValue<T> {
  * Create an instance of [SubscribableValue] with the given [value]
  */
 @ExperimentalSubscribable
+@UseExperimental(ExperimentalCoroutinesApi::class)
 public fun <T> SubscribableValue(value: T): SubscribableValue<T> = object : SubscribableValue<T> {
     override suspend fun get(): T = value
     override fun openSubscription() = receiveChannelOf(value)
@@ -54,6 +58,7 @@ public fun <T> SubscribableValue(value: T): SubscribableValue<T> = object : Subs
  * Create an instance of [SubscribableVariable] initialized with the given [initialValue]
  */
 @ExperimentalSubscribable
+@UseExperimental(ExperimentalCoroutinesApi::class, ObsoleteCoroutinesApi::class)
 public fun <T> SubscribableVariable(initialValue: T): SubscribableVariable<T> = object : SubscribableVariable<T> {
     private val broadcast = ConflatedBroadcastChannel(initialValue)
 

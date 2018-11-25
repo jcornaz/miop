@@ -20,7 +20,6 @@ import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -56,7 +55,7 @@ class UpdatersTest : AsyncTest() {
 
         val job = launchFxUpdater(property, source)
 
-        withTimeout(1, TimeUnit.SECONDS) {
+        withTimeout(1000) {
             timer.await(nextTime)
 
             expectedValue = "world"

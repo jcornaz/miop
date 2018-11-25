@@ -6,6 +6,7 @@ import com.github.jcornaz.miop.property.SubscribableVariable
 import javafx.beans.property.Property
 import javafx.beans.value.ObservableValue
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.withContext
 
@@ -14,9 +15,9 @@ import kotlinx.coroutines.withContext
  *
  * Any change of the [ObservableValue] value would be notified to open subscriptions
  */
-@ExperimentalSubscribable
 @Suppress("DeprecatedCallableAddReplaceWith")
 @Deprecated("Use updaters and subscriptions instead")
+@UseExperimental(ExperimentalSubscribable::class)
 public fun <T> ObservableValue<out T>.asSubscribableValue(): SubscribableValue<T?> = ObservableValueAdapter(this)
 
 /**
@@ -26,19 +27,20 @@ public fun <T> ObservableValue<out T>.asSubscribableValue(): SubscribableValue<T
  *
  * Any change in this [SubscribableVariable] would be transmitted to the property (notifying listeners of the property)
  */
-@ExperimentalSubscribable
 @Suppress("DeprecatedCallableAddReplaceWith")
 @Deprecated("Use updaters and subscriptions instead")
+@UseExperimental(ExperimentalSubscribable::class)
 public fun <T> Property<T>.asSubscribableVariable(): SubscribableVariable<T?> = PropertyAdapter(this)
 
 @ExperimentalSubscribable
+@UseExperimental(ExperimentalCoroutinesApi::class)
 private class ObservableValueAdapter<out T>(private val observable: ObservableValue<out T>) : SubscribableValue<T?> {
     override suspend fun get(): T? = withContext(Dispatchers.JavaFx) { observable.value }
-
     override fun openSubscription() = observable.openValueSubscription()
 }
 
 @ExperimentalSubscribable
+@UseExperimental(ExperimentalCoroutinesApi::class)
 private class PropertyAdapter<T>(private val property: Property<T>) : SubscribableVariable<T?> {
 
     override suspend fun get(): T? = withContext(Dispatchers.JavaFx) { property.value }

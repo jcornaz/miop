@@ -75,10 +75,8 @@ class OperatorsTest : AsyncTest() {
     @Test
     fun ifASourceMergedByMergeWithFailsTheResultShouldFailAndTheOtherSourcesShouldBeCancelled() = runTest {
         val source1 = Channel<Int>()
-        val source2 = Channel<Int>()
+        val source2 = failedReceiveChannel<Int>(Exception("my exception"))
         val result = source1.mergeWith(source2)
-
-        source2.cancel(Exception("my exception"))
 
         assertTrue(source1.isClosedForReceive, "other source should be closed for receive")
         assertTrue(result.isClosedForReceive, "result should be closed for receive")
@@ -151,10 +149,8 @@ class OperatorsTest : AsyncTest() {
     @Test
     fun ifASourceMergedByCombineLatestFailsTheResultShouldFailAndTheOtherSourcesShouldBeCancelled() = runTest {
         val source1 = Channel<Int>()
-        val source2 = Channel<Int>()
+        val source2 = failedReceiveChannel<Int>(Exception("my exception"))
         val result = source1.combineLatestWith(source2) { v1, v2 -> v1 to v2 }
-
-        source2.cancel(Exception("my exception"))
 
         assertTrue(source1.isClosedForReceive, "other source should be closed for receive")
         assertTrue(result.isClosedForReceive, "result should be closed for receive")
@@ -247,24 +243,6 @@ class OperatorsTest : AsyncTest() {
 
         assertTrue(result.isClosedForReceive)
         assertEquals("my exception", assertThrows<Exception> { result.receive() }.message)
-    }
-
-    @Test
-    @Suppress("DEPRECATION")
-    fun launchConsumeEachShouldConsumeTheChannel() = runTest {
-        val result = mutableListOf<Int>()
-
-        val channel = receiveChannelOf(1, 2, 3)
-
-        val job = channel.launchConsumeEach {
-            result += it
-        }
-
-        job.join()
-
-        assertEquals(listOf(1, 2, 3), result)
-
-        assertTrue(channel.isClosedForReceive)
     }
 
     @Test

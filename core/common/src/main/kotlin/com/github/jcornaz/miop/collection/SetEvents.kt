@@ -3,6 +3,8 @@ package com.github.jcornaz.miop.collection
 import com.github.jcornaz.miop.transform
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
@@ -43,6 +45,7 @@ public operator fun <E> MutableSet<in E>.plusAssign(event: SetEvent<E>) {
  * Compute deltas between each received set and emits the corresponding events.
  */
 @ExperimentalCollectionEvent
+@UseExperimental(ObsoleteCoroutinesApi::class)
 public fun <E> ReceiveChannel<Set<E>>.toSetEvents(initialSet: Set<E> = emptySet()): ReceiveChannel<SetEvent<E>> = transform { input, output ->
 
     val currentSet: MutableSet<E> = initialSet.toHashSet()
@@ -53,6 +56,7 @@ public fun <E> ReceiveChannel<Set<E>>.toSetEvents(initialSet: Set<E> = emptySet(
 }
 
 @ExperimentalCollectionEvent
+@UseExperimental(ExperimentalCoroutinesApi::class)
 private fun <E> CoroutineScope.handleNewSet(currentSet: MutableSet<E>, newSet: Set<E>): ReceiveChannel<SetEvent<E>> = produce(Dispatchers.Default, Channel.UNLIMITED) {
     if (newSet.isEmpty() && currentSet.isNotEmpty()) {
         send(SetCleared)
