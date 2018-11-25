@@ -3,9 +3,13 @@
 ## 0.3-SNAPSHOT (Unreleased)
 
 ### Dependencies
-#### miop-collekt
-* **[BREAKING]** Depend on `collekt-api-*` instead of `collekt-core-*`
-* Upgrade dependency of collekt from `0.0.2` to `0.0.3`
+#### core
+* Update Kotlin from `1.3.0-rc-57` to `1.3.10`
+* Update kotlinx.coroutines from `0.26.1-eap13` to `1.0.0`
+
+#### collekt
+* **[BREAKING]** Depend on `collekt-api-*` instead of `collekt-core-*` (* being `common`, `js` or `jvm` depending on the platform)
+* Update dependency of collekt from `0.0.2` to `0.0.3`
 
 ## 0.2.0 (2018-09-23)
 Migrate to Kotlin 1.3 RC and coroutines 0.26 (Structured concurrency)
