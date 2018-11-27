@@ -2,6 +2,9 @@
 
 ## 0.3-SNAPSHOT (Unreleased)
 
+### Added
+* `produceAtomic` coroutine builder. An alternative to `produce` which guarantee that the block is always invoked.
+ 
 ### Dependencies
 * Update Kotlin from `1.3.0-rc-57` to `1.3.10`
 * Update kotlinx.coroutines from `0.26.1-eap13` to `1.0.0`
