@@ -1,13 +1,11 @@
 package kotlinx.coroutines.channels
 
 import com.github.jcornaz.miop.operator.DummyException
+import com.github.jcornaz.miop.receiveChannelOf
 import com.github.jcornaz.miop.test.AsyncTest
 import com.github.jcornaz.miop.test.assertThrows
 import com.github.jcornaz.miop.test.runTest
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -69,5 +67,16 @@ class ChannelTest : AsyncTest() {
         produced.cancel()
 
         assertThrows<Exception> { source.receive() }
+    }
+
+    @Test
+    fun produceTransmitErrorToParentScope() = runTest {
+        val exception = assertThrows<DummyException> {
+            coroutineScope {
+                produce<Int> { throw DummyException("my exception") }
+            }
+        }
+
+        assertEquals("my exception", exception.message)
     }
 }

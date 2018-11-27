@@ -29,17 +29,25 @@ class ProduceAtomicTest {
     }
 
     @Test
-    fun shouldTransmitThrownError() = runTest {
-        assertThrows<DummyException> {
+    fun shouldTransmitErrorToDownstream() = runTest {
+        val result = GlobalScope.produceAtomic<Int> {
+            throw DummyException("my exception")
+        }
+
+        val exception = assertThrows<DummyException> { result.receive() }
+        assertEquals("my exception", exception.message)
+    }
+
+    @Test
+    fun shouldTransmitErrorToParentScope() = runTest {
+        val exception = assertThrows<DummyException> {
             coroutineScope {
-                val result = produceAtomic<Int> {
+                produceAtomic<Int> {
                     throw DummyException("my exception")
                 }
-
-                val exception = assertThrows<DummyException> { result.receive() }
-                assertEquals("my exception", exception.message)
             }
         }
+        assertEquals("my exception", exception.message)
     }
 
     @Test

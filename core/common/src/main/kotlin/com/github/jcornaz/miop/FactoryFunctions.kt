@@ -57,6 +57,7 @@ public fun <E> CoroutineScope.produceAtomic(context: CoroutineContext = EmptyCor
             result.close()
         } catch (error: Throwable) {
             result.close(error)
+            throw error
         }
     }
 
