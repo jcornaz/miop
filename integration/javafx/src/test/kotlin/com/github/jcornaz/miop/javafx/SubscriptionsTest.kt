@@ -3,10 +3,10 @@ package com.github.jcornaz.miop.javafx
 import com.github.jcornaz.collekt.api.PersistentList
 import com.github.jcornaz.miop.test.ManualTimer
 import com.github.jcornaz.miop.test.runTest
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.doAnswer
-import com.nhaarman.mockito_kotlin.doReturn
-import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doAnswer
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 import javafx.application.Platform
 import javafx.beans.value.ChangeListener
 import javafx.beans.value.ObservableValue
