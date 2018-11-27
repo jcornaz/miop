@@ -86,7 +86,7 @@ public fun <I, O> ReceiveChannel<I>.transform(
     block: suspend CoroutineScope.(input: ReceiveChannel<I>, output: SendChannel<O>) -> Unit
 ): ReceiveChannel<O> = GlobalScope.produceAtomic(context, capacity) {
     try {
-        block(this@transform, channel)
+        coroutineScope { block(this@transform, channel) }
     } finally {
         this@transform.cancel()
     }
