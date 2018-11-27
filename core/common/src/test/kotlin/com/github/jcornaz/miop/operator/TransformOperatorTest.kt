@@ -6,13 +6,15 @@ import com.github.jcornaz.miop.test.assertThrows
 import com.github.jcornaz.miop.test.runTest
 import com.github.jcornaz.miop.transform
 import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class FreeFormOperatorTest : OperatorTest() {
+class TransformOperatorTest : OperatorTest() {
     override fun <T> ReceiveChannel<T>.operator(): ReceiveChannel<T> =
-            transform { input, output -> input.consumeEach { output.send(it) } }
+        transform { input, output -> input.consumeEach { output.send(it) } }
 
     @Test
     fun testSimpleTransform() = runTest {
@@ -45,5 +47,28 @@ class FreeFormOperatorTest : OperatorTest() {
         withTimeout(1000) {
             assertThrows<ClosedReceiveChannelException> { result.receive() }
         }
+    }
+
+    @Test
+    fun shouldWaitForChildCoroutine() = runTest {
+        val channel = produce {
+            delay(300)
+            send(1)
+            delay(300)
+            send(2)
+        }
+
+        val result = channel.transform<Int, Int> { input, output ->
+            launch {
+                delay(400)
+                output.send(input.receive())
+                launch {
+                    delay(400)
+                    output.send(input.receive())
+                }
+            }
+        }
+
+        assertEquals(listOf(1, 2), result.toList())
     }
 }
