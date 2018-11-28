@@ -49,7 +49,11 @@ public fun <T> Sequence<T>.openSubscription(context: CoroutineContext = Dispatch
 public fun <E> CoroutineScope.produceAtomic(context: CoroutineContext = EmptyCoroutineContext, capacity: Int = 0, block: suspend ProducerScope<E>.() -> Unit): ReceiveChannel<E> {
     val result = Channel<E>(capacity)
 
-    val job = launch(context, CoroutineStart.ATOMIC) {
+    val exceptionHandler = context[CoroutineExceptionHandler]
+        ?: coroutineContext[CoroutineExceptionHandler]
+        ?: CoroutineExceptionHandler { _, _ -> /* ignore */ }
+
+    val job = launch(context + exceptionHandler, CoroutineStart.ATOMIC) {
         try {
             coroutineScope {
                 SimpleProducerScope(result, coroutineContext).block()
