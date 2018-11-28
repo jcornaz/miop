@@ -45,12 +45,15 @@ public fun <T> Sequence<T>.openSubscription(context: CoroutineContext = Dispatch
 /**
  * Equivalent of [produce] but starting atomically. (It is guaranteed that [block] is invoked, even if the job is cancelled)
  */
-
 @ExperimentalCoroutinesApi
-internal fun <E> CoroutineScope.produceAtomic(context: CoroutineContext = EmptyCoroutineContext, capacity: Int = 0, block: suspend ProducerScope<E>.() -> Unit): ReceiveChannel<E> {
+public fun <E> CoroutineScope.produceAtomic(context: CoroutineContext = EmptyCoroutineContext, capacity: Int = 0, block: suspend ProducerScope<E>.() -> Unit): ReceiveChannel<E> {
     val result = Channel<E>(capacity)
 
-    val job = launch(context, CoroutineStart.ATOMIC) {
+    val exceptionHandler = context[CoroutineExceptionHandler]
+        ?: coroutineContext[CoroutineExceptionHandler]
+        ?: CoroutineExceptionHandler { _, _ -> /* ignore */ }
+
+    val job = launch(context + exceptionHandler, CoroutineStart.ATOMIC) {
         try {
             coroutineScope {
                 SimpleProducerScope(result, coroutineContext).block()
@@ -58,6 +61,7 @@ internal fun <E> CoroutineScope.produceAtomic(context: CoroutineContext = EmptyC
             result.close()
         } catch (error: Throwable) {
             result.close(error)
+            throw error
         }
     }
 

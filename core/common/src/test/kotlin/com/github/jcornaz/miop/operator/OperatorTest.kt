@@ -2,15 +2,19 @@ package com.github.jcornaz.miop.operator
 
 import com.github.jcornaz.miop.emptyReceiveChannel
 import com.github.jcornaz.miop.failedReceiveChannel
+import com.github.jcornaz.miop.test.AsyncTest
 import com.github.jcornaz.miop.test.assertThrows
 import com.github.jcornaz.miop.test.runTest
-import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.first
+import kotlinx.coroutines.channels.toList
 import kotlinx.coroutines.withTimeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-abstract class OperatorTest {
+abstract class OperatorTest : AsyncTest() {
 
     abstract fun <T> ReceiveChannel<T>.operator(): ReceiveChannel<T>
 
