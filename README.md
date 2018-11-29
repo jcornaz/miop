@@ -5,7 +5,7 @@
 [![Build status](https://travis-ci.com/jcornaz/miop.svg?branch=master)](https://travis-ci.com/jcornaz/miop)
 [![Quality gate](https://sonarcloud.io/api/project_badges/measure?project=jcornaz_miop&metric=alert_status)](https://sonarcloud.io/dashboard?id=jcornaz_miop)
 
-Reactive operator collection for coroutines channels which are not yet included in [kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines).
+Reactive operator collection for coroutines channels.
 
 **ATTENTION:** Version `0.2.0` shall be used with Kotlin `1.3.0-rc-57` only. For Kotlin 1.2.+, use the version `0.0.4`.
 
@@ -50,6 +50,12 @@ Reactive operator collection for coroutines channels which are not yet included 
 * Launch updaters for JavaFx property and observable value according to a `ReceiveChannel` source 
 
 ## Incoming features
+Ordered by implementation priority
+* Parallelization
+  * `parallel` operator allowing to parallelize any operator chain
+  * `parallelMap` alias for `parallel { map { /*  transform */ } }`
+  * `parallelFilter` alias for `parallel { filter { /*  predicate */ } }`
+  * `parallelMapOrdered`
 * New operators
   * `mergeMap`
   * `scan`
