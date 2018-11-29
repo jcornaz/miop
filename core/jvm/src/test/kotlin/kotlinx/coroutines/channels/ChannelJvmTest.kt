@@ -2,6 +2,7 @@ package kotlinx.coroutines.channels
 
 import com.github.jcornaz.miop.operator.DummyException
 import com.github.jcornaz.miop.test.assertThrows
+import com.github.jcornaz.miop.test.delayTest
 import com.github.jcornaz.miop.test.runTest
 import kotlinx.coroutines.*
 import org.amshove.kluent.shouldBeNull
@@ -19,7 +20,7 @@ class ChannelJvmTest {
             GlobalScope.produce<String>(Dispatchers.Unconfined) { throw DummyException() }.first()
         }
 
-        delay(500)
+        delayTest()
 
         uncaughtException.shouldBeNull()
     }
@@ -34,7 +35,7 @@ class ChannelJvmTest {
             GlobalScope.produce(Dispatchers.Unconfined) { send(1) }.map { throw DummyException() }.consumeEach { }
         }
 
-        delay(500)
+        delayTest()
 
         uncaughtException.shouldBeNull()
     }

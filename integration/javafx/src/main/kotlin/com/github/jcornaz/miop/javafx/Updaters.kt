@@ -48,36 +48,36 @@ public fun <T> ReceiveChannel<T>.launchFxUpdater(target: Property<in T>): Job =
  */
 @ObsoleteCoroutinesApi
 @UseExperimental(ExperimentalCoroutinesApi::class)
-public fun <E> CoroutineScope.launchFxListUpdater(target: MutableList<in E>, source: ReceiveChannel<List<E>>): Job =
-    launch(Dispatchers.JavaFx, javafxStart()) {
-        source.consumeEach { newList ->
-            when {
-                target.isEmpty() -> target.addAll(newList)
-                newList.isEmpty() -> target.clear()
-                else -> {
-                    val sourceIterator = newList.iterator()
-                    val targetIterator = target.listIterator()
-                    var index = 0
-
-                    while (sourceIterator.hasNext() && targetIterator.hasNext()) {
-                        val sourceElement = sourceIterator.next()
-
-                        if (sourceElement !== targetIterator.next()) {
-                            targetIterator.set(sourceElement)
-                        }
-
-                        ++index
-                    }
-
-                    if (targetIterator.hasNext()) {
-                        target.subList(index, target.size).clear()
-                    } else if (sourceIterator.hasNext()) {
-                        sourceIterator.forEachRemaining { target.add(it) }
-                    }
-                }
-            }
+public fun <E> CoroutineScope.launchFxListUpdater(target: MutableList<in E>, source: ReceiveChannel<List<E>>): Job = launch(Dispatchers.JavaFx, javafxStart()) {
+    source.consumeEach { newList ->
+        when {
+            target.isEmpty() -> target.addAll(newList)
+            newList.isEmpty() -> target.clear()
+            else -> target.set(newList)
         }
     }
+}
+
+private fun <E> MutableList<in E>.set(newList: List<E>) {
+    val sourceIterator = newList.iterator()
+    val targetIterator = listIterator()
+    var index = 0
+
+    while (sourceIterator.hasNext() && targetIterator.hasNext()) {
+        val sourceElement = sourceIterator.next()
+
+        if (sourceElement !== targetIterator.next()) {
+            targetIterator.set(sourceElement)
+        }
+
+        ++index
+    }
+
+    when {
+        targetIterator.hasNext() -> subList(index, size).clear()
+        sourceIterator.hasNext() -> sourceIterator.forEachRemaining { add(it) }
+    }
+}
 
 /**
  * Start a new job in the JavaFx thread which update the [target] for each new key-set received
@@ -88,47 +88,10 @@ public fun <E> CoroutineScope.launchFxListUpdater(target: MutableList<in E>, sou
  *
  * The result or the scope shall be cancelled in order to cancel the channel
  */
-@ObsoleteCoroutinesApi
-@UseExperimental(ExperimentalCollectionEvent::class, ExperimentalCoroutinesApi::class)
-public fun <K, V> CoroutineScope.launchFxListUpdater(
-    target: MutableList<in V>,
-    source: ReceiveChannel<Set<K>>,
-    disposeItem: (V) -> Unit,
-    createItem: (K) -> V
-): Job = launch(Dispatchers.JavaFx, javafxStart()) {
-
-    val initialKeySet = source.receiveOrNull() ?: return@launch
-    val entryMap: MutableMap<K, V> = HashMap(initialKeySet.size)
-
-    try {
-        initialKeySet.forEach { entryMap[it] = createItem(it) }
-
-        target.clear()
-        target.addAll(entryMap.values)
-
-        source.toSetEvents(entryMap.keys).consumeEach { event ->
-            when (event) {
-                is SetElementAdded -> {
-                    val item = createItem(event.element)
-                    entryMap[event.element] = item
-                    target.add(item)
-                }
-                is SetElementRemoved -> {
-                    val item = entryMap.remove(event.element) ?: return@consumeEach
-                    disposeItem(item)
-                    target.remove(item)
-                }
-                SetCleared -> {
-                    entryMap.values.forEach(disposeItem)
-                    entryMap.clear()
-                    target.clear()
-                }
-            }
-        }
-    } finally {
-        entryMap.values.forEach(disposeItem)
-    }
-}
+@Deprecated("Use launchFxCollectionUpdater instead", ReplaceWith("launchFxCollectionUpdater(target, source, disposeItem, createItem)"))
+@UseExperimental(ExperimentalCollectionEvent::class, ExperimentalCoroutinesApi::class, ObsoleteCoroutinesApi::class)
+public fun <K, V> CoroutineScope.launchFxListUpdater(target: MutableList<in V>, source: ReceiveChannel<Set<K>>, disposeItem: (V) -> Unit, createItem: (K) -> V): Job =
+    launchFxCollectionUpdater(target, source, disposeItem, createItem)
 
 /**
  * Start a new job in the JavaFx thread which update the [target] with each new list received
@@ -193,6 +156,58 @@ public fun <K, V> ReceiveChannel<Map<out K, V>>.launchFxMapUpdater(target: Mutab
 public fun <K, V> ReceiveChannel<Map<out K, V>>.launchFxMapUpdater(target: MutableMap<in K, in V>): Job =
     GlobalScope.launchFxMapUpdater(target, this)
 
+
+/**
+ * Start a new job in the JavaFx thread which update the [target] for each new key-set received
+ *
+ * The target list will receive items created with [createItem] for each keys of emitted by [source]
+ *
+ * [disposeItem] is called for each item which have to be removed from [target]
+ *
+ * The result or the scope shall be cancelled in order to cancel the channel
+ */
+@ObsoleteCoroutinesApi
+@UseExperimental(ExperimentalCollectionEvent::class, ExperimentalCoroutinesApi::class)
+public fun <K, V> CoroutineScope.launchFxCollectionUpdater(
+    target: MutableCollection<in V>,
+    source: ReceiveChannel<Set<K>>,
+    disposeItem: (V) -> Unit,
+    createItem: (K) -> V
+): Job = launch(Dispatchers.JavaFx, javafxStart()) {
+
+    val initialKeySet = source.receiveOrNull() ?: return@launch
+    val entryMap: MutableMap<K, V> = HashMap(initialKeySet.size)
+
+    try {
+        initialKeySet.forEach { entryMap[it] = createItem(it) }
+
+        target.clear()
+        target.addAll(entryMap.values)
+
+        source.toSetEvents(entryMap.keys).consumeEach { event ->
+            when (event) {
+                is SetElementAdded -> {
+                    val item = createItem(event.element)
+                    entryMap[event.element] = item
+                    target.add(item)
+                }
+                is SetElementRemoved -> {
+                    val item = entryMap.remove(event.element) ?: return@consumeEach
+                    disposeItem(item)
+                    target.remove(item)
+                }
+                SetCleared -> {
+                    entryMap.values.forEach(disposeItem)
+                    entryMap.clear()
+                    target.clear()
+                }
+            }
+        }
+    } finally {
+        entryMap.values.forEach(disposeItem)
+    }
+}
+
 /**
  * Start a job in the JavaFx thread which keeps up-to-date the [target] collection.
  * Order of elements is ignored. Only consider the elements and their occurrence count.
@@ -201,53 +216,51 @@ public fun <K, V> ReceiveChannel<Map<out K, V>>.launchFxMapUpdater(target: Mutab
  */
 @ObsoleteCoroutinesApi
 @UseExperimental(ExperimentalCoroutinesApi::class)
-public fun <E> CoroutineScope.launchFxCollectionUpdater(target: MutableCollection<in E>, source: ReceiveChannel<Collection<E>>): Job =
-    launch(Dispatchers.JavaFx, javafxStart()) {
+public fun <E> CoroutineScope.launchFxCollectionUpdater(target: MutableCollection<in E>, source: ReceiveChannel<Collection<E>>): Job = launch(Dispatchers.JavaFx, javafxStart()) {
+    var currentElementCounts: Map<in E, Int> = target.countElements()
 
-        val currentElementCounts = HashMap<Any?, Int>()
+    source.consumeEach { newCollection ->
+        val newElementCounts = target.addNewElements(newCollection, currentElementCounts)
 
-        target.forEach { element ->
-            currentElementCounts[element] = currentElementCounts[element]?.let { it + 1 } ?: 1
-        }
+        target.removeExcess(currentElementCounts, newElementCounts)
 
-        source.consumeEach { newCollection ->
-            val newElementCounts = HashMap<E, Int>()
+        currentElementCounts = newElementCounts
+    }
+}
 
-            newCollection.forEach { element ->
-                val newCount = newElementCounts[element]?.let { it + 1 } ?: 1
-                newElementCounts[element] = newCount
+private fun <E> Collection<E>.countElements(): Map<E, Int> {
+    val counts = HashMap<E, Int>()
 
-                if (newCount > currentElementCounts[element] ?: 0) {
-                    target.add(element)
-                    currentElementCounts[element] = currentElementCounts[element]?.let { it + 1 } ?: 1
-                }
-            }
+    forEach { element -> counts[element] = counts[element]?.let { it + 1 } ?: 1 }
 
-            val iterator = currentElementCounts.iterator()
-            while (iterator.hasNext()) {
-                val entry = iterator.next()
+    return counts
+}
 
-                val newCount = newElementCounts[entry.key]?.takeUnless { it <= 0 }
+private fun <E> MutableCollection<in E>.addNewElements(newCollection: Collection<E>, currentElementCounts: Map<in E, Int>): Map<in E, Int> {
+    val newElementCounts = HashMap<E, Int>()
 
-                if (entry.value > (newCount ?: 0)) {
+    newCollection.forEach { element ->
+        val newCount = newElementCounts[element]?.let { it + 1 } ?: 1
+        newElementCounts[element] = newCount
 
-                    if (target is Set<*>) {
-                        if (newCount == null) target.remove(entry.key)
-                    } else {
-                        repeat(entry.value - (newCount ?: 0)) {
-                            target.remove(entry.key)
-                        }
-                    }
-
-                    if (newCount == null) {
-                        iterator.remove()
-                    } else {
-                        entry.setValue(newCount)
-                    }
-                }
-            }
+        if (newCount > currentElementCounts[element] ?: 0) {
+            add(element)
         }
     }
+
+    return newElementCounts
+}
+
+private fun <E> MutableCollection<in E>.removeExcess(currentElementCounts: Map<in E, Int>, newElementCounts: Map<in E, Int>) {
+    currentElementCounts.forEach { element, oldCount ->
+        val newCount = (newElementCounts[element] ?: 0)
+        when {
+            newCount == 0 && this is Set<*> -> remove(element)
+            newCount == 0 -> repeat(oldCount) { remove(element) }
+            newCount < oldCount && this !is Set<*> -> repeat(oldCount - newCount) { remove(element) }
+        }
+    }
+}
 
 /**
  * Start a job in the JavaFx thread which keeps up-to-date the [target] collection.
