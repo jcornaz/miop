@@ -51,22 +51,9 @@ public fun <E> ObservableList<out E>.openListSubscription(): ReceiveChannel<Pers
     val listener = ListChangeListener<E> { change ->
         while (change.next()) {
             when {
-                change.wasPermutated() -> {
-                    val previous = list
-                    for (oldIndex in (change.from until change.to)) {
-                        list = list.with(change.getPermutation(oldIndex), previous[oldIndex])
-                    }
-                }
-                change.wasUpdated() -> {
-                    list = when {
-                        change.to - change.from == 1 -> list.with(change.from, change.list[change.from])
-                        change.from == 0 && change.to == list.size -> change.list.toPersistentList()
-                        else -> list.subList(0, change.from) + change.list.subList(change.from, change.to) + list.subList(change.to, list.size)
-                    }
-                }
-                change.wasRemoved() || change.wasAdded() -> {
-                    list = list.subList(0, change.from) + change.addedSubList + list.subList(list.size - (change.list.size - change.to), list.size)
-                }
+                change.wasPermutated() -> list = permute<E>(list, change)
+                change.wasUpdated() -> list = update<E>(list, change)
+                change.wasRemoved() || change.wasAdded() -> list = removeAndAdd<E>(list, change)
             }
         }
         offer(list)
@@ -79,4 +66,29 @@ public fun <E> ObservableList<out E>.openListSubscription(): ReceiveChannel<Pers
     } finally {
         removeListener(listener)
     }
+}
+
+private fun <E> permute(list: PersistentList<E>, change: ListChangeListener.Change<out E>): PersistentList<E> {
+    var list1 = list
+    val previous = list1
+    for (oldIndex in (change.from until change.to)) {
+        list1 = list1.with(change.getPermutation(oldIndex), previous[oldIndex])
+    }
+    return list1
+}
+
+private fun <E> update(list: PersistentList<E>, change: ListChangeListener.Change<out E>): PersistentList<E> {
+    var list1 = list
+    list1 = when {
+        change.to - change.from == 1 -> list1.with(change.from, change.list[change.from])
+        change.from == 0 && change.to == list1.size -> change.list.toPersistentList()
+        else -> list1.subList(0, change.from) + change.list.subList(change.from, change.to) + list1.subList(change.to, list1.size)
+    }
+    return list1
+}
+
+private fun <E> removeAndAdd(list: PersistentList<E>, change: ListChangeListener.Change<out E>): PersistentList<E> {
+    var list1 = list
+    list1 = list1.subList(0, change.from) + change.addedSubList + list1.subList(list1.size - (change.list.size - change.to), list1.size)
+    return list1
 }
