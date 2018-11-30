@@ -8,6 +8,11 @@ import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.first
 
+/**
+ * Denote the experimental API for subscribable.
+ *
+ * The future of this api is very uncertain and is likely to be replaced an API from kotlinx.coroutines
+ */
 @Experimental(Experimental.Level.WARNING)
 public annotation class ExperimentalSubscribable
 

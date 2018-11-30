@@ -24,7 +24,6 @@ class StateStoreJvmTest {
             dispatch { barrier.unlock(); it }
         }
 
-
         withTimeout(1000) { barrier.withLock { } }
 
         assertNotNull(exception)

@@ -3,11 +3,11 @@ package com.github.jcornaz.miop.property
 import com.github.jcornaz.miop.operator.DummyException
 import com.github.jcornaz.miop.produceAtomic
 import com.github.jcornaz.miop.test.assertThrows
+import com.github.jcornaz.miop.test.delayTest
 import com.github.jcornaz.miop.test.runTest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.first
-import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeNull
 import org.junit.Test
 
@@ -23,7 +23,7 @@ class ProduceAtomicJvmTest {
             GlobalScope.produceAtomic<String>(Dispatchers.Unconfined) { throw DummyException() }.first()
         }
 
-        delay(500)
+        delayTest()
 
         uncaughtException.shouldBeNull()
     }

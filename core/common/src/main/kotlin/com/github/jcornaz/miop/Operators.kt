@@ -43,6 +43,7 @@ public object Channels {
      * @param context Context on which execute [combine]
      * @param combine Function to combine elements from the sources
      */
+    @Suppress("UNCHECKED_CAST")
     @ObsoleteCoroutinesApi
     @UseExperimental(ExperimentalCoroutinesApi::class)
     public fun <T1, T2, R> combineLatest(
@@ -294,40 +295,37 @@ public inline fun <E> ReceiveChannel<E>.conflate(): ReceiveChannel<E> = buffer(C
  * by default `false` which means partial windows won't be preserved
  */
 @ObsoleteCoroutinesApi
-public fun <E> ReceiveChannel<E>.windowed(size: Int, step: Int = 1, partialWindows: Boolean = false): ReceiveChannel<List<E>> {
-    require(size > 0 && step > 0) { cancel(); "size and step have to be greater than 0 but size was $size and step was $step" }
+public fun <E> ReceiveChannel<E>.windowed(size: Int, step: Int = 1, partialWindows: Boolean = false): ReceiveChannel<List<E>> = transform { input, output ->
+    require(size > 0 && step > 0) { "size and step have to be greater than 0 but size was $size and step was $step" }
 
-    return transform { input, output ->
+    var window = ArrayList<E>(size)
+    var countDown = 0
 
-        var window = ArrayList<E>(size)
-        var countDown = 0
-
-        input.consumeEach { element ->
-            if (countDown > 0) {
-                --countDown
-                return@consumeEach
-            }
-
-            window.add(element)
-
-            if (window.size == size) {
-                output.send(window)
-
-                val newWindow = ArrayList<E>(size)
-
-                if (step < window.size) {
-                    newWindow.addAll(window.subList(step, window.size))
-                } else {
-                    countDown = step - window.size
-                }
-
-                window = newWindow
-            }
+    input.consumeEach { element ->
+        if (countDown > 0) {
+            --countDown
+            return@consumeEach
         }
 
-        if (window.isNotEmpty() && partialWindows) {
-            window.asSequence().windowed(size, step, true).forEach { output.send(it) }
+        window.add(element)
+
+        if (window.size == size) {
+            output.send(window)
+
+            val newWindow = ArrayList<E>(size)
+
+            if (step < window.size) {
+                newWindow.addAll(window.subList(step, window.size))
+            } else {
+                countDown = step - window.size
+            }
+
+            window = newWindow
         }
+    }
+
+    if (window.isNotEmpty() && partialWindows) {
+        window.asSequence().windowed(size, step, true).forEach { output.send(it) }
     }
 }
 
