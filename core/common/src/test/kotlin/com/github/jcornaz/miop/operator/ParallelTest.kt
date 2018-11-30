@@ -15,7 +15,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ParallelTest : OperatorTest() {
-    override fun <T> ReceiveChannel<T>.operator(): ReceiveChannel<T> =
+    override fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> =
         parallel { map { it } }
 
     @Test

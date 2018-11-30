@@ -10,7 +10,7 @@ import kotlin.test.assertEquals
 
 open class DistinctReferenceUntilChangedTest : OperatorTest() {
 
-    override fun <T> ReceiveChannel<T>.operator(): ReceiveChannel<T> =
+    override fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> =
         distinctReferenceUntilChanged()
 
     @Test
@@ -18,6 +18,6 @@ open class DistinctReferenceUntilChangedTest : OperatorTest() {
         val ref1 = "Hello"
         val ref2 = "world"
 
-        assertEquals(listOf(ref1, ref2, ref1, ref2), receiveChannelOf(ref1, ref2, ref2, ref2, ref1, ref2).operator().toList())
+        assertEquals(listOf(ref1, ref2, ref1, ref2), receiveChannelOf(ref1, ref2, ref2, ref2, ref1, ref2).identityOperation().toList())
     }
 }

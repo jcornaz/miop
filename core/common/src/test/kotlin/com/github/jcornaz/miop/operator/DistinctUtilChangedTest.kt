@@ -10,11 +10,11 @@ import kotlin.test.assertEquals
 
 class DistinctUtilChangedTest : DistinctReferenceUntilChangedTest() {
 
-    override fun <T> ReceiveChannel<T>.operator(): ReceiveChannel<T> =
+    override fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> =
         distinctUntilChanged()
 
     @Test
     fun shouldNotEmitLastItemIfEquals() = runTest {
-        assertEquals(listOf("a", "b", "a", "b"), receiveChannelOf("a", "a", "b", "b", "a", "b").operator().toList())
+        assertEquals(listOf("a", "b", "a", "b"), receiveChannelOf("a", "a", "b", "b", "a", "b").identityOperation().toList())
     }
 }

@@ -16,25 +16,25 @@ import kotlin.test.assertTrue
 
 abstract class OperatorTest : AsyncTest() {
 
-    abstract fun <T> ReceiveChannel<T>.operator(): ReceiveChannel<T>
+    abstract fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T>
 
     @Test
     fun testCancel() = runTest {
         val source = Channel<Int>()
-        source.operator().cancel()
+        source.identityOperation().cancel()
 
         assertThrows<Exception> { source.send(0) }
     }
 
     @Test
     fun shouldEmitTheUpstreamErrorIfAny() = runTest {
-        val exception = assertThrows<DummyException> { failedReceiveChannel<Int>(DummyException("my exception")).operator().first() }
+        val exception = assertThrows<DummyException> { failedReceiveChannel<Int>(DummyException("my exception")).identityOperation().first() }
         assertEquals("my exception", exception.message)
     }
 
     @Test
     fun shouldReturnEmptyChannelForAnEmptySource() = runTest {
-        val result = emptyReceiveChannel<String>().operator()
+        val result = emptyReceiveChannel<String>().identityOperation()
 
         withTimeout(1000) {
             assertTrue(result.toList().isEmpty())

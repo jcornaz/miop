@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 
 class WindowedTest : OperatorTest() {
 
-    override fun <T> ReceiveChannel<T>.operator(): ReceiveChannel<T> = windowed(1, 1).map { it.first() }
+    override fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> = windowed(1, 1).map { it.first() }
 
     @Test
     fun testWindowed() = runTest {

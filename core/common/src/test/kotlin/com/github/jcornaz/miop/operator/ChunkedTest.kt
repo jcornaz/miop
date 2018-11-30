@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 
 class ChunkedTest : OperatorTest() {
 
-    override fun <T> ReceiveChannel<T>.operator(): ReceiveChannel<T> = chunked(1).map { it.first() }
+    override fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> = chunked(1).map { it.first() }
 
     @Test
     fun testChunked() = runTest {
