@@ -12,7 +12,7 @@ import kotlinx.coroutines.withTimeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class TransformOperatorTest : OperatorTest() {
+class TransformTest : OperatorTest() {
     override fun <T> ReceiveChannel<T>.operator(): ReceiveChannel<T> =
         transform { input, output -> input.consumeEach { output.send(it) } }
 
