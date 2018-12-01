@@ -13,7 +13,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class ParallelFilterTest : OperatorTest() {
+class ParallelFilterTest : ParallelOperatorTest() {
     override fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> =
         parallelFilter { true }
 
@@ -30,7 +30,7 @@ class ParallelFilterTest : OperatorTest() {
     }
 
     @Test
-    fun shouldNoExceedGivenConcurrency() = runTest {
+    fun shouldNoExceedGivenParallelism() = runTest {
         val result = measureTimeMillis {
             receiveChannelOf(1, 2, 3, 4, 5, 6)
                 .parallelFilter(parallelism = 2) {

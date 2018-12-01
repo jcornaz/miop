@@ -36,8 +36,10 @@ internal expect val defaultParallelism: Int
 @UseExperimental(ExperimentalCoroutinesApi::class)
 public fun <T, R> ReceiveChannel<T>.parallel(parallelism: Int = defaultParallelism, pipeline: ReceiveChannel<T>.() -> ReceiveChannel<R>): ReceiveChannel<R> =
     transform { input, output ->
+        val context = Dispatchers.Default + CoroutineExceptionHandler { _, _ -> /* ignore */ }
+
         repeat(parallelism) { _ ->
-            launch(Dispatchers.Default, start = CoroutineStart.ATOMIC) {
+            launch(context, start = CoroutineStart.ATOMIC) {
                 input.map(Dispatchers.Default) { it }.pipeline().sendTo(output)
             }
         }
@@ -49,17 +51,13 @@ public fun <T, R> ReceiveChannel<T>.parallel(parallelism: Int = defaultParalleli
  * [transform] is executed concurrently accordingly to [parallelism].
  *
  * Order of elements is not guaranteed.
+ *
+ * @see parallel
  */
 @ObsoleteCoroutinesApi
 @UseExperimental(ExperimentalCoroutinesApi::class)
 public fun <T, R> ReceiveChannel<T>.parallelMap(context: CoroutineContext = Dispatchers.Default, parallelism: Int = defaultParallelism, transform: suspend (T) -> R): ReceiveChannel<R> =
-    transform { input, output ->
-        repeat(parallelism) {
-            launch(Dispatchers.Default, start = CoroutineStart.ATOMIC) {
-                input.map(context, transform).sendTo(output)
-            }
-        }
-    }
+    parallel(parallelism) { map(context, transform) }
 
 /**
  * Parallel version of [map].
@@ -67,14 +65,10 @@ public fun <T, R> ReceiveChannel<T>.parallelMap(context: CoroutineContext = Disp
  * [predicate] is executed concurrently accordingly to [parallelism].
  *
  * Order of elements is not guaranteed.
+ *
+ * @see parallel
  */
 @ObsoleteCoroutinesApi
 @UseExperimental(ExperimentalCoroutinesApi::class)
 public fun <T> ReceiveChannel<T>.parallelFilter(context: CoroutineContext = Dispatchers.Default, parallelism: Int = defaultParallelism, predicate: suspend (T) -> Boolean): ReceiveChannel<T> =
-    transform { input, output ->
-        repeat(parallelism) {
-            launch(Dispatchers.Default, start = CoroutineStart.ATOMIC) {
-                input.filter(context, predicate).sendTo(output)
-            }
-        }
-    }
+    parallel(parallelism) { filter(context, predicate) }

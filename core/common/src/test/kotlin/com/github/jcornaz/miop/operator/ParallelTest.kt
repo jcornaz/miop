@@ -14,7 +14,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class ParallelTest : OperatorTest() {
+class ParallelTest : ParallelOperatorTest() {
     override fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> =
         parallel { map { it } }
 
@@ -33,7 +33,7 @@ class ParallelTest : OperatorTest() {
     }
 
     @Test
-    fun shouldNoExceedGivenConcurrency() = runTest {
+    fun shouldNoExceedGivenParallelism() = runTest {
         val result = measureTimeMillis {
             receiveChannelOf(1, 2, 3, 4, 5, 6)
                 .parallel(2) {
