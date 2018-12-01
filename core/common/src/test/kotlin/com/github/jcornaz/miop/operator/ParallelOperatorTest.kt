@@ -15,7 +15,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-abstract class ParallelOperatorTest : AsyncTest() {
+abstract class ParallelOperatorTest {
 
     abstract fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T>
 
