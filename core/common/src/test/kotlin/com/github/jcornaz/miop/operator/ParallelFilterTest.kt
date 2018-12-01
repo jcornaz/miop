@@ -21,7 +21,7 @@ class ParallelFilterTest : OperatorTest() {
     fun shouldParallelize() = runTest {
         withTimeout(1100) {
             receiveChannelOf(1, 2, 3, 4)
-                .parallelFilter(concurrency = 4) {
+                .parallelFilter(parallelism = 4) {
                     delay(1000)
                     true
                 }
@@ -33,7 +33,7 @@ class ParallelFilterTest : OperatorTest() {
     fun shouldNoExceedGivenConcurrency() = runTest {
         val result = measureTimeMillis {
             receiveChannelOf(1, 2, 3, 4, 5, 6)
-                .parallelFilter(concurrency = 2) {
+                .parallelFilter(parallelism = 2) {
                     delay(500)
                     true
                 }
@@ -46,7 +46,7 @@ class ParallelFilterTest : OperatorTest() {
     @Test
     fun shouldFilterBasedOnPredicate() = runTest {
         val result = receiveChannelOf(1, 2, 3, 4, 5, 6)
-            .parallelFilter(concurrency = 3) { it % 2 == 0 }
+            .parallelFilter(parallelism = 3) { it % 2 == 0 }
             .toSet()
 
         assertEquals(setOf(2, 4, 6), result)

@@ -6,12 +6,12 @@ import kotlinx.coroutines.channels.filter
 import kotlinx.coroutines.channels.map
 import kotlin.coroutines.CoroutineContext
 
-internal expect val defaultConcurrency: Int
+internal expect val defaultParallelism: Int
 
 /**
  * Start a parallel pipeline.
  *
- * This method will concurrently call [pipeline] (given the [concurrency]) and return a channel to which all results are merged.
+ * This method will concurrently call [pipeline] (given the [parallelism]) and return a channel to which all results are merged.
  *
  * Usage example:
  * ```kotlin
@@ -34,9 +34,9 @@ internal expect val defaultConcurrency: Int
  */
 @ObsoleteCoroutinesApi
 @UseExperimental(ExperimentalCoroutinesApi::class)
-public fun <T, R> ReceiveChannel<T>.parallel(concurrency: Int = defaultConcurrency, pipeline: ReceiveChannel<T>.() -> ReceiveChannel<R>): ReceiveChannel<R> =
+public fun <T, R> ReceiveChannel<T>.parallel(parallelism: Int = defaultParallelism, pipeline: ReceiveChannel<T>.() -> ReceiveChannel<R>): ReceiveChannel<R> =
     transform { input, output ->
-        repeat(concurrency) { _ ->
+        repeat(parallelism) { _ ->
             launch(Dispatchers.Default, start = CoroutineStart.ATOMIC) {
                 input.map(Dispatchers.Default) { it }.pipeline().sendTo(output)
             }
@@ -46,15 +46,15 @@ public fun <T, R> ReceiveChannel<T>.parallel(concurrency: Int = defaultConcurren
 /**
  * Parallel version of [map].
  *
- * [transform] is executed concurrently accordingly to [concurrency].
+ * [transform] is executed concurrently accordingly to [parallelism].
  *
  * Order of elements is not guaranteed.
  */
 @ObsoleteCoroutinesApi
 @UseExperimental(ExperimentalCoroutinesApi::class)
-public fun <T, R> ReceiveChannel<T>.parallelMap(context: CoroutineContext = Dispatchers.Default, concurrency: Int = defaultConcurrency, transform: suspend (T) -> R): ReceiveChannel<R> =
+public fun <T, R> ReceiveChannel<T>.parallelMap(context: CoroutineContext = Dispatchers.Default, parallelism: Int = defaultParallelism, transform: suspend (T) -> R): ReceiveChannel<R> =
     transform { input, output ->
-        repeat(concurrency) {
+        repeat(parallelism) {
             launch(Dispatchers.Default, start = CoroutineStart.ATOMIC) {
                 input.map(context, transform).sendTo(output)
             }
@@ -64,15 +64,15 @@ public fun <T, R> ReceiveChannel<T>.parallelMap(context: CoroutineContext = Disp
 /**
  * Parallel version of [map].
  *
- * [predicate] is executed concurrently accordingly to [concurrency].
+ * [predicate] is executed concurrently accordingly to [parallelism].
  *
  * Order of elements is not guaranteed.
  */
 @ObsoleteCoroutinesApi
 @UseExperimental(ExperimentalCoroutinesApi::class)
-public fun <T> ReceiveChannel<T>.parallelFilter(context: CoroutineContext = Dispatchers.Default, concurrency: Int = defaultConcurrency, predicate: suspend (T) -> Boolean): ReceiveChannel<T> =
+public fun <T> ReceiveChannel<T>.parallelFilter(context: CoroutineContext = Dispatchers.Default, parallelism: Int = defaultParallelism, predicate: suspend (T) -> Boolean): ReceiveChannel<T> =
     transform { input, output ->
-        repeat(concurrency) {
+        repeat(parallelism) {
             launch(Dispatchers.Default, start = CoroutineStart.ATOMIC) {
                 input.filter(context, predicate).sendTo(output)
             }

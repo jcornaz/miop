@@ -1,3 +1,3 @@
 package com.github.jcornaz.miop
 
-internal actual val defaultConcurrency: Int get() = 1
+internal actual val defaultParallelism: Int get() = 1

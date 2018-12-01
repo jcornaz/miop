@@ -20,7 +20,7 @@ class ParallelMapTest : OperatorTest() {
     fun shouldParallelize() = runTest {
         withTimeout(1100) {
             receiveChannelOf(1, 2, 3, 4)
-                .parallelMap(concurrency = 4) {
+                .parallelMap(parallelism = 4) {
                     delay(1000)
                     it
                 }
@@ -32,7 +32,7 @@ class ParallelMapTest : OperatorTest() {
     fun shouldNoExceedGivenConcurrency() = runTest {
         val result = measureTimeMillis {
             receiveChannelOf(1, 2, 3, 4, 5, 6)
-                .parallelMap(concurrency = 2) {
+                .parallelMap(parallelism = 2) {
                     delay(500)
                     it
                 }
@@ -45,7 +45,7 @@ class ParallelMapTest : OperatorTest() {
     @Test
     fun shouldApplyTransform() = runTest {
         val result = receiveChannelOf(1, 2, 3)
-            .parallelMap(concurrency = 3) { (it * 2).toString() }
+            .parallelMap(parallelism = 3) { (it * 2).toString() }
             .toSet()
 
         assertEquals(setOf("2", "4", "6"), result)
