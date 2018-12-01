@@ -4,6 +4,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.filter
 import kotlinx.coroutines.channels.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.CoroutineContext
 
 internal expect val defaultParallelism: Int
@@ -36,11 +38,21 @@ internal expect val defaultParallelism: Int
 @UseExperimental(ExperimentalCoroutinesApi::class)
 public fun <T, R> ReceiveChannel<T>.parallel(parallelism: Int = defaultParallelism, pipeline: ReceiveChannel<T>.() -> ReceiveChannel<R>): ReceiveChannel<R> =
     transform { input, output ->
-        val context = Dispatchers.Default + CoroutineExceptionHandler { _, _ -> /* ignore */ }
+        val exceptions = HashSet<Throwable>()
+        val mutex = Mutex()
 
         repeat(parallelism) { _ ->
-            launch(context, start = CoroutineStart.ATOMIC) {
-                input.map(Dispatchers.Default) { it }.pipeline().sendTo(output)
+            launch(Dispatchers.Default, start = CoroutineStart.ATOMIC) {
+                try {
+                    input.map(Dispatchers.Default) { it }.pipeline().sendTo(output)
+                } catch (error: Throwable) {
+
+                    // Make sure to throw only once each exception
+                    val actualError = (error as? CancellationException)?.cause ?: error
+                    mutex.withLock {
+                        if (exceptions.add(actualError)) throw error
+                    }
+                }
             }
         }
     }
