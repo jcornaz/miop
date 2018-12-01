@@ -1,9 +1,6 @@
 package com.github.jcornaz.miop
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.filter
 import kotlinx.coroutines.channels.map
@@ -36,26 +33,32 @@ internal expect val defaultConcurrency: Int
 @ObsoleteCoroutinesApi
 @UseExperimental(ExperimentalCoroutinesApi::class)
 public fun <T, R> ReceiveChannel<T>.parallel(concurrency: Int = defaultConcurrency, pipeline: ReceiveChannel<T>.() -> ReceiveChannel<R>): ReceiveChannel<R> =
-    GlobalScope.produceAtomic(Dispatchers.Default) {
+    transform { input, output ->
         repeat(concurrency) { _ ->
-            pipe(map(Dispatchers.Default) { it }.pipeline(), channel)
+            launch(Dispatchers.Default, start = CoroutineStart.ATOMIC) {
+                input.map(Dispatchers.Default) { it }.pipeline().sendTo(output)
+            }
         }
     }
 
 @ObsoleteCoroutinesApi
 @UseExperimental(ExperimentalCoroutinesApi::class)
 public fun <T, R> ReceiveChannel<T>.parallelMap(context: CoroutineContext = Dispatchers.Default, concurrency: Int = defaultConcurrency, transform: suspend (T) -> R): ReceiveChannel<R> =
-    GlobalScope.produceAtomic(Dispatchers.Default) {
-        repeat(concurrency) { _ ->
-            pipe(map(context, transform), channel)
+    transform { input, output ->
+        repeat(concurrency) {
+            launch(Dispatchers.Default, start = CoroutineStart.ATOMIC) {
+                input.map(context, transform).sendTo(output)
+            }
         }
     }
 
 @ObsoleteCoroutinesApi
 @UseExperimental(ExperimentalCoroutinesApi::class)
 public fun <T> ReceiveChannel<T>.parallelFilter(context: CoroutineContext = Dispatchers.Default, concurrency: Int = defaultConcurrency, predicate: suspend (T) -> Boolean): ReceiveChannel<T> =
-    GlobalScope.produceAtomic(Dispatchers.Default) {
-        repeat(concurrency) { _ ->
-            pipe(filter(context, predicate), channel)
+    transform { input, output ->
+        repeat(concurrency) {
+            launch(Dispatchers.Default, start = CoroutineStart.ATOMIC) {
+                input.filter(context, predicate).sendTo(output)
+            }
         }
     }

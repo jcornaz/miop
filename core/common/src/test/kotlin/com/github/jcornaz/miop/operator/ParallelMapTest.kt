@@ -44,10 +44,10 @@ class ParallelMapTest : OperatorTest() {
 
     @Test
     fun shouldApplyTransform() = runTest {
-        val result = receiveChannelOf(1, 2, 3, 4, 5, 6)
+        val result = receiveChannelOf(1, 2, 3)
             .parallelMap(concurrency = 3) { (it * 2).toString() }
             .toSet()
 
-        assertEquals(setOf("3", "5", "7"), result)
+        assertEquals(setOf("2", "4", "6"), result)
     }
 }
