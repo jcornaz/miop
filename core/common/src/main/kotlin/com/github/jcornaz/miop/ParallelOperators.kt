@@ -42,13 +42,11 @@ public fun <T, R> ReceiveChannel<T>.parallel(parallelism: Int = defaultParalleli
         val mutex = Mutex()
 
         repeat(parallelism) { _ ->
-            launch(Dispatchers.Default, start = CoroutineStart.ATOMIC) {
+            launch(coroutineContext + Dispatchers.Default, start = CoroutineStart.ATOMIC) {
                 try {
                     input.map(Dispatchers.Default) { it }.pipeline().sendTo(output)
                 } catch (error: Throwable) {
-
-                    // Make sure to throw only once each exception
-                    val actualError = (error as? CancellationException)?.cause ?: error
+                    val actualError = if (error is CancellationException) error.cause ?: return@launch else error
                     mutex.withLock {
                         if (exceptions.add(actualError)) throw error
                     }

@@ -30,7 +30,9 @@ actual abstract class AsyncTest actual constructor() {
         assertEquals(++stepCount, step, "unexpected step count (expected $step, but $stepCount was found)")
     }
 
-    protected actual fun unreachable(createMessage: () -> String) {
-        exception = AssertionError(createMessage())
+    protected actual fun unreachable(createMessage: () -> String): Nothing {
+        val error = AssertionError(createMessage())
+        exception = error
+        throw error
     }
 }
