@@ -5,6 +5,7 @@
 ### Added
 * `produceAtomic` coroutine builder. An alternative to `produce` which guarantee that the block is always invoked.
 * `parallel` operator to easily build parallel pipelines.
+* `parallelMap` and `parallelFilter` operators.
  
 ### Dependencies
 * Update Kotlin from `1.3.0-rc-57` to `1.3.10`

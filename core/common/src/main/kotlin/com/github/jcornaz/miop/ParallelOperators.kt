@@ -29,6 +29,8 @@ internal expect val defaultConcurrency: Int
  *     println(it)
  *   }
  * ```
+ *
+ * Order of elements in the result is not guaranteed.
  */
 @ObsoleteCoroutinesApi
 @UseExperimental(ExperimentalCoroutinesApi::class)
@@ -41,6 +43,13 @@ public fun <T, R> ReceiveChannel<T>.parallel(concurrency: Int = defaultConcurren
         }
     }
 
+/**
+ * Parallel version of [map].
+ *
+ * [transform] is executed concurrently accordingly to [concurrency].
+ *
+ * Order of elements is not guaranteed.
+ */
 @ObsoleteCoroutinesApi
 @UseExperimental(ExperimentalCoroutinesApi::class)
 public fun <T, R> ReceiveChannel<T>.parallelMap(context: CoroutineContext = Dispatchers.Default, concurrency: Int = defaultConcurrency, transform: suspend (T) -> R): ReceiveChannel<R> =
@@ -52,6 +61,13 @@ public fun <T, R> ReceiveChannel<T>.parallelMap(context: CoroutineContext = Disp
         }
     }
 
+/**
+ * Parallel version of [map].
+ *
+ * [predicate] is executed concurrently accordingly to [concurrency].
+ *
+ * Order of elements is not guaranteed.
+ */
 @ObsoleteCoroutinesApi
 @UseExperimental(ExperimentalCoroutinesApi::class)
 public fun <T> ReceiveChannel<T>.parallelFilter(context: CoroutineContext = Dispatchers.Default, concurrency: Int = defaultConcurrency, predicate: suspend (T) -> Boolean): ReceiveChannel<T> =
