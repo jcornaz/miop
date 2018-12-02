@@ -42,7 +42,7 @@ public fun <T, R> ReceiveChannel<T>.parallel(parallelism: Int = defaultParalleli
         val mutex = Mutex()
 
         repeat(parallelism) { _ ->
-            launch(coroutineContext + Dispatchers.Default, start = CoroutineStart.ATOMIC) {
+            launch(Dispatchers.Default, start = CoroutineStart.ATOMIC) {
                 try {
                     input.map(Dispatchers.Default) { it }.pipeline().sendTo(output)
                 } catch (error: Throwable) {
