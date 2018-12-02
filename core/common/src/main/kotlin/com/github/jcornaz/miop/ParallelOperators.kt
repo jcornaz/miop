@@ -2,14 +2,18 @@ package com.github.jcornaz.miop
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.channels.filter
+import kotlinx.coroutines.channels.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlin.coroutines.CoroutineContext
 
-internal expect val defaultConcurrency: Int
+internal expect val defaultParallelism: Int
 
 /**
  * Start a parallel pipeline.
  *
- * This method will concurrently call [pipe] (given the [concurrency]) and return a channel to which all results are merged.
+ * This method will concurrently call [pipeline] (given the [parallelism]) and return a channel to which all results are merged.
  *
  * Usage example:
  * ```kotlin
@@ -27,12 +31,57 @@ internal expect val defaultConcurrency: Int
  *     println(it)
  *   }
  * ```
+ *
+ * Order of elements in the result is not guaranteed.
  */
 @ObsoleteCoroutinesApi
 @UseExperimental(ExperimentalCoroutinesApi::class)
-public fun <T, R> ReceiveChannel<T>.parallel(concurrency: Int = defaultConcurrency, pipe: ReceiveChannel<T>.() -> ReceiveChannel<R>): ReceiveChannel<R> =
-    GlobalScope.produce(Dispatchers.Unconfined) {
-        repeat(concurrency) {
-            launch { pipe().sendTo(channel) }
+public fun <T, R> ReceiveChannel<T>.parallel(parallelism: Int = defaultParallelism, pipeline: ReceiveChannel<T>.() -> ReceiveChannel<R>): ReceiveChannel<R> =
+    transform { input, output ->
+        val exceptions = HashSet<Throwable>()
+        val mutex = Mutex()
+
+        repeat(parallelism) { _ ->
+            launch(Dispatchers.Default, start = CoroutineStart.ATOMIC) {
+                try {
+                    input.pipeline().sendTo(output)
+                } catch (error: Throwable) {
+                    val actualError = if (error is CancellationException) error.cause ?: return@launch else error
+                    mutex.withLock {
+                        if (exceptions.add(actualError)) {
+                            output.close(actualError)
+                            throw actualError
+                        }
+                    }
+                }
+            }
         }
     }
+
+/**
+ * Parallel version of [map].
+ *
+ * [transform] is executed concurrently accordingly to [parallelism].
+ *
+ * Order of elements is not guaranteed.
+ *
+ * @see parallel
+ */
+@ObsoleteCoroutinesApi
+@UseExperimental(ExperimentalCoroutinesApi::class)
+public fun <T, R> ReceiveChannel<T>.parallelMap(context: CoroutineContext = Dispatchers.Default, parallelism: Int = defaultParallelism, transform: suspend (T) -> R): ReceiveChannel<R> =
+    parallel(parallelism) { map(context, transform) }
+
+/**
+ * Parallel version of [map].
+ *
+ * [predicate] is executed concurrently accordingly to [parallelism].
+ *
+ * Order of elements is not guaranteed.
+ *
+ * @see parallel
+ */
+@ObsoleteCoroutinesApi
+@UseExperimental(ExperimentalCoroutinesApi::class)
+public fun <T> ReceiveChannel<T>.parallelFilter(context: CoroutineContext = Dispatchers.Default, parallelism: Int = defaultParallelism, predicate: suspend (T) -> Boolean): ReceiveChannel<T> =
+    parallel(parallelism) { filter(context, predicate) }
