@@ -20,7 +20,7 @@ class ParallelTest : ParallelOperatorTest() {
 
     @Test
     fun shouldParallelize() = runTest {
-        withTimeout(700) {
+        withTimeout(900) {
             receiveChannelOf(1, 2, 3, 4)
                 .parallel(4) {
                     map {
