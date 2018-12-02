@@ -1,47 +1,21 @@
 package com.github.jcornaz.miop.operator
 
-
 import com.github.jcornaz.miop.parallelFilter
 import com.github.jcornaz.miop.receiveChannelOf
-import com.github.jcornaz.miop.test.measureTimeMillis
 import com.github.jcornaz.miop.test.runTest
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.toSet
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class ParallelFilterTest : ParallelOperatorTest() {
-    override fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> =
-        parallelFilter { true }
-
-    @Test
-    fun shouldParallelize() = runTest {
-        withTimeout(700) {
-            receiveChannelOf(1, 2, 3, 4)
-                .parallelFilter(parallelism = 4) {
-                    delay(500)
-                    true
-                }
+    
+    override fun <T> ReceiveChannel<T>.identityDelayedOperation(parallelism: Int, delayTime: Long): ReceiveChannel<T> =
+        parallelFilter(parallelism = parallelism) {
+            delay(delayTime)
+            true
         }
-            .toSet()
-    }
-
-    @Test
-    fun shouldNoExceedGivenParallelism() = runTest {
-        val result = measureTimeMillis {
-            receiveChannelOf(1, 2, 3, 4, 5, 6)
-                .parallelFilter(parallelism = 2) {
-                    delay(500)
-                    true
-                }
-                .toSet()
-        }
-
-        assertTrue(result >= 1500)
-    }
 
     @Test
     fun shouldFilterBasedOnPredicate() = runTest {

@@ -41,7 +41,8 @@ public fun <T, R> ReceiveChannel<T>.parallel(parallelism: Int = defaultParalleli
         val exceptions = HashSet<Throwable>()
         val mutex = Mutex()
 
-        repeat(parallelism) { _ ->
+        repeat(parallelism) { index ->
+            println("start job $index/$parallelism")
             launch(Dispatchers.Default, start = CoroutineStart.ATOMIC) {
                 try {
                     input.map(Dispatchers.Default) { it }.pipeline().sendTo(output)
