@@ -20,6 +20,12 @@ test {
         events "skipped", "failed"
         showStandardStreams = true
         exceptionFormat = 'full'
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                println "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+            }
+        }
     }
 }
 
