@@ -17,7 +17,7 @@ dependencies {
 
 test {
     testLogging {
-        events "started", "passed", "skipped", "failed"
+        events "skipped", "failed"
         showStandardStreams = true
         exceptionFormat = 'full'
     }
