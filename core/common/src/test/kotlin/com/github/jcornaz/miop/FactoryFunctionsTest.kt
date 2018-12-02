@@ -67,33 +67,13 @@ class FactoryFunctionsTest : AsyncTest() {
     @Test
     @Suppress("DEPRECATION")
     fun openSubscriptionOnIterableShouldEmitsAllElementsOfTheIterable() = runTest {
-        val channel = listOf(1, 2, 3).openSubscription(capacity = 3)
-
-        expect(1)
-        launch(Dispatchers.Unconfined) {
-            expect(2)
-            assertEquals(1, channel.receive())
-            assertEquals(2, channel.receive())
-            assertEquals(3, channel.receive())
-            expect(3)
-        }
-        finish(4)
+        assertEquals(listOf(1, 2, 3), listOf(1, 2, 3).openSubscription().toList())
     }
 
     @Test
     @Suppress("DEPRECATION")
     fun openSubscriptionOnSequenceShouldEmitsAllElementsOfTheIterable() = runTest {
-        val channel = sequenceOf(1, 2, 3).openSubscription(capacity = 3)
-
-        expect(1)
-        launch(Dispatchers.Unconfined) {
-            expect(2)
-            assertEquals(1, channel.receive())
-            assertEquals(2, channel.receive())
-            assertEquals(3, channel.receive())
-            expect(3)
-        }
-        finish(4)
+        assertEquals(listOf(1, 2, 3), sequenceOf(1, 2, 3).openSubscription().toList())
     }
 
     @Test
