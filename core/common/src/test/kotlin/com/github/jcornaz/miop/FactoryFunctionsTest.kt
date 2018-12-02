@@ -6,6 +6,7 @@ import com.github.jcornaz.miop.test.runTest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.channels.toList
 import kotlinx.coroutines.launch
 import kotlin.test.*
 
@@ -30,7 +31,7 @@ class FactoryFunctionsTest : AsyncTest() {
         val error = Exception("my exception")
         val channel = failedReceiveChannel<String>(error)
 
-        val thrownError = assertThrows<Exception> { channel.consumeEach {  } }
+        val thrownError = assertThrows<Exception> { channel.consumeEach { } }
 
         assertSame(error, thrownError)
     }
@@ -97,31 +98,11 @@ class FactoryFunctionsTest : AsyncTest() {
 
     @Test
     fun produceIterableShouldEmitsAllElementsOfTheIterable() = runTest {
-        val channel = produce(listOf(1, 2, 3))
-
-        expect(1)
-        launch(Dispatchers.Unconfined) {
-            expect(2)
-            assertEquals(1, channel.receive())
-            assertEquals(2, channel.receive())
-            assertEquals(3, channel.receive())
-            expect(3)
-        }
-        finish(4)
+        assertEquals(listOf(1, 2, 3), produce(listOf(1, 2, 3)).toList())
     }
 
     @Test
     fun produceSequenceShouldEmitsAllElementsOfTheIterable() = runTest {
-        val channel = produce(sequenceOf(1, 2, 3))
-
-        expect(1)
-        launch(Dispatchers.Unconfined) {
-            expect(2)
-            assertEquals(1, channel.receive())
-            assertEquals(2, channel.receive())
-            assertEquals(3, channel.receive())
-            expect(3)
-        }
-        finish(4)
+        assertEquals(listOf(1, 2, 3), produce(sequenceOf(1, 2, 3)).toList())
     }
 }
