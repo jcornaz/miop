@@ -17,4 +17,11 @@ class DistinctUtilChangedTest : DistinctReferenceUntilChangedTest() {
     fun shouldNotEmitLastItemIfEquals() = runTest {
         assertEquals(listOf("a", "b", "a", "b"), receiveChannelOf("a", "a", "b", "b", "a", "b").identityOperation().toList())
     }
+
+    @Test
+    fun shouldNotSendTwiceTheSameValueInARow() = runTest {
+        val receivedValues = receiveChannelOf(1, 2, 2, 2, 3, 2, 1, 1).distinctUntilChanged().toList()
+
+        assertEquals(listOf(1, 2, 3, 2, 1), receivedValues)
+    }
 }
