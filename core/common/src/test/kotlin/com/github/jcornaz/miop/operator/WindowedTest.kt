@@ -1,6 +1,6 @@
 package com.github.jcornaz.miop.operator
 
-import com.github.jcornaz.miop.openSubscription
+import com.github.jcornaz.miop.produce
 import com.github.jcornaz.miop.receiveChannelOf
 import com.github.jcornaz.miop.test.runTest
 import com.github.jcornaz.miop.windowed
@@ -78,7 +78,7 @@ class WindowedTest : OperatorTest() {
 
         // given
         val sequence = generateSequence(0) { it + 1 }.take(42)
-        val source = sequence.openSubscription()
+        val source = produce(sequence)
 
         // when
         val windows = source.windowed(3, 4)
@@ -95,7 +95,7 @@ class WindowedTest : OperatorTest() {
 
         // given
         val sequence = generateSequence(0) { it + 1 }.take(42)
-        val source = sequence.openSubscription()
+        val source = produce(sequence)
 
         // when
         val windows = source.windowed(4, 2)
@@ -112,7 +112,7 @@ class WindowedTest : OperatorTest() {
 
         // given
         val sequence = generateSequence(0) { it + 1 }.take(42)
-        val source = sequence.openSubscription()
+        val source = produce(sequence)
 
         // when
         val windows = source.windowed(4, 2, true)
@@ -129,7 +129,7 @@ class WindowedTest : OperatorTest() {
 
         // given
         val sequence = generateSequence(0) { it + 1 }.take(42)
-        val source = sequence.openSubscription()
+        val source = produce(sequence)
 
         // when
         val windows = source.windowed(4)

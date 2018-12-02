@@ -1,7 +1,7 @@
 package com.github.jcornaz.miop.operator
 
 import com.github.jcornaz.miop.chunked
-import com.github.jcornaz.miop.openSubscription
+import com.github.jcornaz.miop.produce
 import com.github.jcornaz.miop.receiveChannelOf
 import com.github.jcornaz.miop.test.runTest
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -39,7 +39,7 @@ class ChunkedTest : OperatorTest() {
 
         // given
         val sequence = generateSequence(0) { it + 1 }.take(42)
-        val source = sequence.openSubscription()
+        val source = produce(sequence)
 
         // when
         val windows = source.chunked(7)
