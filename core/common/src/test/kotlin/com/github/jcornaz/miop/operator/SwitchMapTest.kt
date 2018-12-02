@@ -1,6 +1,5 @@
 package com.github.jcornaz.miop.operator
 
-import com.github.jcornaz.miop.emptyReceiveChannel
 import com.github.jcornaz.miop.receiveChannelOf
 import com.github.jcornaz.miop.switchMap
 import com.github.jcornaz.miop.test.assertThrows
@@ -19,7 +18,7 @@ class SwitchMapTest : OperatorTest() {
         switchMap { receiveChannelOf(it) }
 
     @Test
-    fun switchMapShouldEmitItemsOfTheNewSourceOnly() = runTest {
+    fun shouldEmitItemsOfTheNewSourceOnly() = runTest {
         val sources = (0..2).map { Channel<Char>(2) }
         val switch = Channel<Int>()
         val result = switch.switchMap { sources[it] }
@@ -67,16 +66,7 @@ class SwitchMapTest : OperatorTest() {
     }
 
     @Test
-    fun switchMapOnAnEmptyChannelShouldReturnAnEmptyChannel() = runTest {
-        val result = emptyReceiveChannel<Int>().switchMap { receiveChannelOf(1, 2, 3) }
-
-        assertTrue(result.isClosedForReceive)
-        assertThrows<Exception> { result.receive() }
-    }
-
-
-    @Test
-    fun ifASourceReturnedBySwitchMapFailsTheResultShouldFailWithTheSameException() = runTest {
+    fun ifAOpenedSourceFailsTheResultShouldFailWithTheSameException() = runTest {
         val source = Channel<Int>()
         val result = receiveChannelOf(1).switchMap { source }
 
@@ -87,7 +77,7 @@ class SwitchMapTest : OperatorTest() {
     }
 
     @Test
-    fun cancellingAChannelCreatedBySwitchMapShouldCancelTheCurrentSource() = runTest {
+    fun cancellingShouldCancelTheCurrentSource() = runTest {
         val source = Channel<Int>()
         val result = receiveChannelOf(1).switchMap { source }
 

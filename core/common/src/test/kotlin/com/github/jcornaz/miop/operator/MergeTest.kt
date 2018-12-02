@@ -1,6 +1,9 @@
 package com.github.jcornaz.miop.operator
 
-import com.github.jcornaz.miop.*
+import com.github.jcornaz.miop.emptyReceiveChannel
+import com.github.jcornaz.miop.failedReceiveChannel
+import com.github.jcornaz.miop.mergeWith
+import com.github.jcornaz.miop.receiveChannelOf
 import com.github.jcornaz.miop.test.assertThrows
 import com.github.jcornaz.miop.test.runTest
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +21,7 @@ class MergeTest : OperatorTest() {
 
 
     @Test
-    fun mergeShouldGiveTheElementsAsSoonAsReceived() = runTest {
+    fun shouldGiveTheElementsAsSoonAsReceived() = runTest {
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
         val result = source1.mergeWith(source2)
@@ -60,7 +63,7 @@ class MergeTest : OperatorTest() {
     }
 
     @Test
-    fun cancellingAChannelMergedByMergeWithShouldCancelAllTheSources() = runTest {
+    fun cancellingASourceShouldCancelAllTheSources() = runTest {
         val source1 = Channel<Int>()
         val source2 = Channel<Int>()
         val result = source1.mergeWith(source2)
@@ -75,7 +78,7 @@ class MergeTest : OperatorTest() {
     }
 
     @Test
-    fun ifASourceMergedByMergeWithFailsTheResultShouldFailAndTheOtherSourcesShouldBeCancelled() = runTest {
+    fun ifASourceFailsTheOtherSourcesShouldBeCancelled() = runTest {
         val source1 = Channel<Int>()
         val source2 = failedReceiveChannel<Int>(Exception("my exception"))
         val result = source1.mergeWith(source2)
