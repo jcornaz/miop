@@ -29,7 +29,10 @@ abstract class ParallelOperatorTest {
 
     @Test
     fun shouldEmitTheUpstreamErrorIfAny() = runTest {
-        val exception = assertThrows<DummyException> { failedReceiveChannel<Int>(DummyException("my exception")).identityDelayedOperation(1, 0).first() }
+        val source = failedReceiveChannel<Int>(DummyException("my exception")).identityDelayedOperation(1, 0)
+
+        val exception = assertThrows<DummyException> { source.count() }
+
         assertEquals("my exception", exception.message)
 
         delayTest()
