@@ -31,16 +31,34 @@ public fun <E> receiveChannelOf(vararg values: E): ReceiveChannel<E> = GlobalSco
 /**
  * Returns a [ReceiveChannel] which emits all elements of this iterable (in the same order)
  */
-@ExperimentalCoroutinesApi
+@Deprecated("Use produce(Iterable) instead", ReplaceWith("GlobalScope.produce(this, context)", "kotlinx.coroutines.GlobalScope", "kotlinx.coroutines.Dispatchers"))
+@Suppress("UNUSED_PARAMETER")
+@UseExperimental(ExperimentalCoroutinesApi::class)
 public fun <T> Iterable<T>.openSubscription(context: CoroutineContext = Dispatchers.Unconfined, capacity: Int = 0): ReceiveChannel<T> =
-    asSequence().openSubscription(context, capacity)
+    GlobalScope.produce(this, context)
+
+/**
+ * Returns a [ReceiveChannel] which emits all elements of this sequence (in the same order)
+ */
+@Deprecated("Use produce(Sequence) instead", ReplaceWith("GlobalScope.produce(this, context)", "kotlinx.coroutines.GlobalScope", "kotlinx.coroutines.Dispatchers"))
+@Suppress("UNUSED_PARAMETER")
+@UseExperimental(ExperimentalCoroutinesApi::class)
+public fun <T> Sequence<T>.openSubscription(context: CoroutineContext = Dispatchers.Unconfined, capacity: Int = 0): ReceiveChannel<T> =
+    GlobalScope.produce(this, context)
+
+/**
+ * Returns a [ReceiveChannel] which emits all elements of this iterable (in the same order)
+ */
+@ExperimentalCoroutinesApi
+public fun <T> CoroutineScope.produce(elements: Iterable<T>, context: CoroutineContext = Dispatchers.Default): ReceiveChannel<T> =
+    produce(context, capacity = if (elements is Collection) elements.size else 0) { elements.forEach { send(it) } }
 
 /**
  * Returns a [ReceiveChannel] which emits all elements of this sequence (in the same order)
  */
 @ExperimentalCoroutinesApi
-public fun <T> Sequence<T>.openSubscription(context: CoroutineContext = Dispatchers.Unconfined, capacity: Int = 0): ReceiveChannel<T> =
-    GlobalScope.produce(context, capacity = capacity) { forEach { send(it) } }
+public fun <T> CoroutineScope.produce(elements: Sequence<T>, context: CoroutineContext = Dispatchers.Default): ReceiveChannel<T> =
+    produce(elements.asIterable(), context)
 
 /**
  * Equivalent of [produce] but starting atomically. (It is guaranteed that [block] is invoked, even if the job is cancelled)
