@@ -48,7 +48,10 @@ public fun <T, R> ReceiveChannel<T>.parallel(parallelism: Int = defaultParalleli
                 } catch (error: Throwable) {
                     val actualError = if (error is CancellationException) error.cause ?: return@launch else error
                     mutex.withLock {
-                        if (exceptions.add(actualError)) throw error
+                        if (exceptions.add(actualError)) {
+                            output.close(actualError)
+                            throw actualError
+                        }
                     }
                 }
             }
