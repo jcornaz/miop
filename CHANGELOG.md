@@ -1,6 +1,9 @@
 # Change log
 
+## 0.3.1-SNAPSHOT (Unreleased)
+
 ## 0.3.0 (2018-12-10)
+Kotlin 1.3 and parallelization 
 
 ### Added
 * `produceAtomic` coroutine builder. An alternative to `produce` which guarantee that the block is always invoked.
@@ -16,7 +19,7 @@
 * **[BREAKING]** Hide dependencies on `collekt-core-*` and publish the dependency on `collekt-api-*` only (in modules `miop-java` and `miop-collekt-*`)
 * Update dependency of collekt from `0.0.2` to `0.0.3`
 
-### Experimental status
+### New xperimental statuses
 * All channel operators have been marked with `ObsoleteCoroutinesApi`
 * Factory functions have been marked with `ExperimentalCoroutinesApi`
    
