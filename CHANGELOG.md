@@ -8,6 +8,7 @@
 * `parallelMap` and `parallelFilter` operators.
 * `produce(Iterable)` and `produce(Sequence)` functions. They replace `Iterable.openSubscription`, `Sequence.openSubscription` which are deprecated.
 * `ReceiveChannel.sendTo(SendChannel)` suspending extension function which allow to pipe a `ReceiveChannel` to a `SendChannel`.
+* `scan` operator allowing to accumulate elements and send the intermediate accumulation results.
  
 ### Dependencies
 * Update Kotlin from `1.3.0-rc-57` to `1.3.10`

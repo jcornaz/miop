@@ -10,7 +10,7 @@ import kotlin.test.assertEquals
 
 open class DistinctReferenceUntilChangedTest : OperatorTest() {
 
-    override fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> =
+    override fun <T : Any> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> =
         distinctReferenceUntilChanged()
 
     @Test

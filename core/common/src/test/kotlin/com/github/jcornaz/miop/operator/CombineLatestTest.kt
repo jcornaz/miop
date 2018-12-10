@@ -16,7 +16,7 @@ import kotlin.test.assertTrue
 
 class CombineLatestTest : OperatorTest() {
 
-    override fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> =
+    override fun <T : Any> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> =
         combineLatestWith(receiveChannelOf(1)) { it, _ -> it }
 
     @Test

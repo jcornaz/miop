@@ -9,7 +9,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ConflateTest : OperatorTest() {
-    override fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> = conflate()
+    override fun <T : Any> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> = conflate()
 
     @Test
     fun shouldConflate() = runTest {

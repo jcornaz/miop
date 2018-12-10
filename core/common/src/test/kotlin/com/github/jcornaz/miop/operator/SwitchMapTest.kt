@@ -14,7 +14,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class SwitchMapTest : OperatorTest() {
-    override fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> =
+    override fun <T : Any> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> =
         switchMap { receiveChannelOf(it) }
 
     @Test

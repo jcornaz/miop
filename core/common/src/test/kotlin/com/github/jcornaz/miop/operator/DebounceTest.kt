@@ -10,7 +10,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DebounceTest : OperatorTest() {
-    override fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> = debounce(0)
+    override fun <T : Any> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> = debounce(0)
 
     @Test
     fun testDebounce() = runTest {
