@@ -1,5 +1,5 @@
 apply from: rootProject.file('gradle/common.gradle')
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-test-common:${Version.KOTLIN}"
 }

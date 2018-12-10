@@ -3,10 +3,10 @@ apply from: rootProject.file('gradle/jvm.gradle')
 dependencies {
     api project(':miop-jvm')
 
-    api "com.github.jcornaz.collekt:collekt-api-jvm:$collekt_version"
-    implementation "com.github.jcornaz.collekt:collekt-core-jvm:$collekt_version"
+    api "com.github.jcornaz.collekt:collekt-api-jvm:${Version.COLLEKT}"
+    implementation "com.github.jcornaz.collekt:collekt-core-jvm:${Version.COLLEKT}"
 
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-javafx:$coroutines_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-javafx:${Version.COROUTINES}"
 
     testCompile project(':miop-internal-test-jvm')
 }

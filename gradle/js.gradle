@@ -1,12 +1,12 @@
 apply plugin: 'kotlin-platform-js'
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutines_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-js:${Version.KOTLIN}"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${Version.COROUTINES}"
 
-    testCompile "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
-    testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlin_version"
-    testCompile "org.amshove.kluent:kluent-js:$kluent_version"
+    testCompile "org.jetbrains.kotlin:kotlin-test-common:${Version.KOTLIN}"
+    testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common:${Version.KOTLIN}"
+    testCompile "org.amshove.kluent:kluent-js:${Version.KLUENT}"
 }
 
 compileKotlin2Js {

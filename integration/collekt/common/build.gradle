@@ -2,10 +2,10 @@ apply from: rootProject.file('gradle/common.gradle')
 
 dependencies {
     compile project(':miop-common')
-    compile "com.github.jcornaz.collekt:collekt-api-common:$collekt_version"
+    compile "com.github.jcornaz.collekt:collekt-api-common:${Version.COLLEKT}"
 
     testCompile project(':miop-internal-test-common')
-    testCompile "com.github.jcornaz.collekt:collekt-core-common:$collekt_version"
+    testCompile "com.github.jcornaz.collekt:collekt-core-common:${Version.COLLEKT}"
 }
 
 compileTestKotlinCommon {

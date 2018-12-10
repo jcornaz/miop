@@ -4,10 +4,10 @@ dependencies {
     expectedBy project(":miop-collekt-common")
 
     compile project(':miop-js')
-    compile "com.github.jcornaz.collekt:collekt-api-js:$collekt_version"
+    compile "com.github.jcornaz.collekt:collekt-api-js:${Version.COLLEKT}"
 
     testCompile project(':miop-internal-test-js')
-    testCompile "com.github.jcornaz.collekt:collekt-core-js:$collekt_version"
+    testCompile "com.github.jcornaz.collekt:collekt-core-js:${Version.COLLEKT}"
 }
 
 compileTestKotlin2Js {

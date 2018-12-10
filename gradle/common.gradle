@@ -1,12 +1,12 @@
 apply plugin: 'kotlin-platform-common'
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$coroutines_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-common:${Version.KOTLIN}"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:${Version.COROUTINES}"
 
-    testCompile "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
-    testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlin_version"
-    testCompile "org.amshove.kluent:kluent-common:$kluent_version"
+    testCompile "org.jetbrains.kotlin:kotlin-test-common:${Version.KOTLIN}"
+    testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common:${Version.KOTLIN}"
+    testCompile "org.amshove.kluent:kluent-common:${Version.KLUENT}"
 }
 
 compileKotlinCommon {
