@@ -7,7 +7,7 @@
 
 Reactive operator collection for coroutines channels.
 
-**ATTENTION:** Version `0.2.0` shall be used with Kotlin `1.3.0-rc-57` only. For Kotlin 1.2.+, use the version `0.0.4`.
+Kotlin version: 1.3
 
 ## Features
 * multi-platform (available modules: `common`, `jvm` and `js`)
@@ -16,8 +16,8 @@ Reactive operator collection for coroutines channels.
 * `emptyReceiveChannel(): ReceiveChannel<T>`
 * `failedReceiveChannel(error: Throwable): ReceiveChannel<T>`
 * `receiveChannelOf(vararg values: T): ReceiveChannel<T>`
-* `Iterable<T>.openSubscription(): ReceiveChannel<T>`
-* `Sequence<T>.openSubscription(): ReceiveChannel<T>`
+* `CoroutineScope.produce(Iterable<T>): ReceiveChannel<T>`
+* `CoroutineScope.produce(Sequence<T>): ReceiveChannel<T>`
 
 ### Operators
 * `merge` and `mergeWith`
@@ -26,6 +26,12 @@ Reactive operator collection for coroutines channels.
 * `buffer` and `conflate`
 * `windowed` and `chunked`
 * `debounce`
+* `scan`
+
+### Parallelization
+* `parallel` operator allowing to parallelize any operator chain
+* `parallelMap` alias for `parallel { map { /*  transform */ } }`
+* `parallelFilter` alias for `parallel { filter { /*  predicate */ } }`
 
 ### Subscribables (Experimental)
 * `SubscribableValue` and `SubscribableVariable`
@@ -52,13 +58,9 @@ Reactive operator collection for coroutines channels.
 ## Incoming features
 Ordered by implementation priority
 * Parallelization
-  * `parallel` operator allowing to parallelize any operator chain
-  * `parallelMap` alias for `parallel { map { /*  transform */ } }`
-  * `parallelFilter` alias for `parallel { filter { /*  predicate */ } }`
   * `parallelMapOrdered`
 * New operators
   * `mergeMap`
-  * `scan`
 * Improved collection events computation/handling
 * Kotlin/Native support
 
@@ -69,21 +71,18 @@ Here is an example with gradle:
 ```groovy
 repositories {
     jcenter()
-    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     maven { url "https://jitpack.io" }
 }
 
 dependencies {
 
     // Replace 'jvm' by 'common' or 'js' according to the platform
-    compile 'com.github.jcornaz.miop:miop-jvm:0.2.0' // Needs Kotlin 1.3.0-rc-57
-    compile 'com.github.jcornaz.miop:miop-jvm:0.0.4' // Needs Kotlin 1.2.0+ a
+    compile 'com.github.jcornaz.miop:miop-jvm:0.3.0'
     
     // JavaFx integration
-    compile 'com.github.jcornaz.miop:miop-jvm:0.2.0' // Needs Kotlin 1.3.0-rc-57
-    compile 'com.github.jcornaz.miop:miop-jvm:0.0.4' // Needs Kotlin 1.2.+ a
+    compile 'com.github.jcornaz.miop:miop-jvm:0.3.0'
    
     // Collekt integration. Replace 'jvm' by 'common' or 'js' according to the platform
-    compile 'com.github.jcornaz.miop:miop-collekt-jvm:0.2.0' // Needs Kotlin 1.3.0-rc-57
+    compile 'com.github.jcornaz.miop:miop-collekt-jvm:0.3.0'
 }
 ```
