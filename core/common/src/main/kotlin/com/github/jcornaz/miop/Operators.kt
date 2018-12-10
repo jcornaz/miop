@@ -341,27 +341,27 @@ public fun <E> ReceiveChannel<E>.windowed(size: Int, step: Int = 1, partialWindo
 public inline fun <E> ReceiveChannel<E>.chunked(size: Int): ReceiveChannel<List<E>> = windowed(size, size, true)
 
 /**
- * Send downstream each intermediate result of accumulating the emitted elements using the given [accumulate] function, and starting with a [seed].
+ * Send downstream each intermediate result of accumulating the emitted elements using the given [operation] function, and starting with a [initial].
  *
  * Example: `receiveChannelOf(1, 2, 3).san(0) { acc, element -> acc + element }` will emit: `[0, 1, 3, 6]`
  */
 @ObsoleteCoroutinesApi
-public fun <T, R> ReceiveChannel<T>.scan(seed: R, accumulate: (acc: R, element: T) -> R): ReceiveChannel<R> = transform { input, output ->
-    output.send(seed)
-    var result = seed
+public fun <T, R> ReceiveChannel<T>.scan(initial: R, operation: (acc: R, T) -> R): ReceiveChannel<R> = transform { input, output ->
+    output.send(initial)
+    var result = initial
     input.consumeEach {
-        result = accumulate(result, it)
+        result = operation(result, it)
         output.send(result)
     }
 }
 
 /**
- * Send downstream each intermediate result of accumulating the emitted elements using the given [accumulate] function.
+ * Send downstream each intermediate result of accumulating the emitted elements using the given [initial] function.
  *
  * Example: `receiveChannelOf(1, 2, 3).san { acc, element -> acc + element }` will emit: `[1, 3, 6]`
  */
 @ObsoleteCoroutinesApi
-public fun <T> ReceiveChannel<T>.scan(accumulate: (acc: T, element: T) -> T): ReceiveChannel<T> = transform { input, output ->
+public fun <T> ReceiveChannel<T>.scan(initial: (acc: T, T) -> T): ReceiveChannel<T> = transform { input, output ->
     var result = try {
         receive()
     } catch (closedChannel: ClosedReceiveChannelException) {
@@ -371,7 +371,7 @@ public fun <T> ReceiveChannel<T>.scan(accumulate: (acc: T, element: T) -> T): Re
     output.send(result)
 
     input.consumeEach {
-        result = accumulate(result, it)
+        result = initial(result, it)
         output.send(result)
     }
 }
