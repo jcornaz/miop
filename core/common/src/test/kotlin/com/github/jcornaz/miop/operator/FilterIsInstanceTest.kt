@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 class FilterIsInstanceTest : OperatorTest() {
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> =
+    override fun <T : Any> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> =
         filterIsInstance<Any?>().map { it as T }
 
     @Test

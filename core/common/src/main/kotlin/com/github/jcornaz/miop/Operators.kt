@@ -356,12 +356,12 @@ public fun <T, R> ReceiveChannel<T>.scan(initial: R, operation: (acc: R, T) -> R
 }
 
 /**
- * Send downstream each intermediate result of accumulating the emitted elements using the given [initial] function.
+ * Send downstream each intermediate result of accumulating the emitted elements using the given [operation] function.
  *
  * Example: `receiveChannelOf(1, 2, 3).san { acc, element -> acc + element }` will emit: `[1, 3, 6]`
  */
 @ObsoleteCoroutinesApi
-public fun <T> ReceiveChannel<T>.scan(initial: (acc: T, T) -> T): ReceiveChannel<T> = transform { input, output ->
+public fun <T> ReceiveChannel<T>.scan(operation: (acc: T, T) -> T): ReceiveChannel<T> = transform { input, output ->
     var result = try {
         receive()
     } catch (closedChannel: ClosedReceiveChannelException) {
@@ -371,7 +371,7 @@ public fun <T> ReceiveChannel<T>.scan(initial: (acc: T, T) -> T): ReceiveChannel
     output.send(result)
 
     input.consumeEach {
-        result = initial(result, it)
+        result = operation(result, it)
         output.send(result)
     }
 }

@@ -13,7 +13,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TransformTest : OperatorTest() {
-    override fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> =
+    override fun <T : Any> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> =
         transform { input, output -> input.consumeEach { output.send(it) } }
 
     @Test

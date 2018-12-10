@@ -16,7 +16,7 @@ import kotlin.test.assertTrue
 
 abstract class OperatorTest : AsyncTest() {
 
-    abstract fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T>
+    abstract fun <T : Any> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T>
 
     @Test
     fun testCancel() = runTest {

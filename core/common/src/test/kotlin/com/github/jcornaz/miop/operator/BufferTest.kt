@@ -10,7 +10,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class BufferTest : OperatorTest() {
-    override fun <T> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> = buffer()
+    override fun <T : Any> ReceiveChannel<T>.identityOperation(): ReceiveChannel<T> = buffer()
 
     @Test
     fun shouldNotSuspendWithEmptyBuffer() = runTest {
