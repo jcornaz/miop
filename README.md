@@ -22,15 +22,24 @@ Reactive operator collection for coroutines channels.
 * `merge` and `mergeWith`
 * `combineLatest` and `combineLatestWith`
 * `switchMap`
+* `filterIsInstance`
+* `distinctUntilChanged` and `distinctReferenceUntilChanged`
 * `buffer` and `conflate`
 * `windowed` and `chunked`
 * `debounce`
 * `scan`
+* `transform`(free-form operator)
+
+#### Terminal operators (suspend)
+* `sendTo` (allow to pipe from `ReceiveChannel` to `SendChannel`)
 
 ### Parallelization
 * `parallel` operator allowing to parallelize any operator chain
 * `parallelMap` alias for `parallel { map { /*  transform */ } }`
 * `parallelFilter` alias for `parallel { filter { /*  predicate */ } }`
+
+### Other coroutine utilities
+* `awaitCancel` suspend until cancellation of the coroutine (and then throws the cancellation exception)
 
 ### Subscribables (Experimental)
 * `SubscribableValue` and `SubscribableVariable`
