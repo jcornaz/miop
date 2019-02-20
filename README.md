@@ -8,6 +8,11 @@
 
 Reactive operator collection for coroutines channels.
 
+## Status
+The API design of this proejct is based on `kotlinx.coroutines`' channels API design. So this project has to be considered experimental as long as channels API remains experimental in `kotlinx.coroutines`.
+
+Moving to a stable version won't be considered before `kotlinx.coroutines` channels' API become stable.
+
 ## Features
 * multi-platform (available modules: `common`, `jvm` and `js`)
 
@@ -17,6 +22,7 @@ Reactive operator collection for coroutines channels.
 * `receiveChannelOf(vararg values: T): ReceiveChannel<T>`
 * `CoroutineScope.produce(Iterable<T>): ReceiveChannel<T>`
 * `CoroutineScope.produce(Sequence<T>): ReceiveChannel<T>`
+* `CoroutineScope.produceAtomic` an equivalent of `CoroutineScope.produce` which guarantees that the producer lambda is always invoked.
 
 ### Operators
 * `merge` and `mergeWith`
@@ -49,27 +55,31 @@ Reactive operator collection for coroutines channels.
 
 ### Event computation for collection (Experimental)
 * `ReceiveChannel<Set<E>>.toSetEvents(): ReceiveChannel<SetEvent<E>>`
-* `ReceiveChannel<Map<K, V>>.toSetEvents(): ReceiveChannel<MapEvent<K, V>>`
+* `ReceiveChannel<Map<K, V>>.toMapEvents(): ReceiveChannel<MapEvent<K, V>>`
+* `+=` operators for mutable collections and accepting related event types in order to apply the events.
 
 ### [Collekt](https://github.com/jcornaz/collekt) Integration
 **modules 'miop-collekt-common', 'miop-collekt-jvm' and 'miop-collekt-js'**
-* `PersistentMap.plus(MapEvent)` operator
-* `PersistentSet.plus(SetEvent)` operator
+* `PersistentMap + MapEvent` operator
+* `PersistentSet + SetEvent` operator
 
 ### JavaFx integration
 **module 'miop-javafx'**
-* `openValueSubscription(): ReceiveChannel<T>` extension function on `ObservableValue<T>` 
+* `ObservableValue<T>.openValueSubscription(): ReceiveChannel<T>` extension function
 * `ObservableValue.asSubscribableValue()` adapter 
 * `Property.asSubscribableVariable()` adapter
-* Launch updaters for JavaFx property and observable value according to a `ReceiveChannel` source 
+* Launch updaters for JavaFx properties and observable values according to a `ReceiveChannel` source 
 
 ## Incoming features
 Ordered by implementation priority
+* Unlimited `BroadcastChannel`
 * Parallelization
   * `parallelMapOrdered`
 * New operators
   * `mergeMap`
 * Improved collection events computation/handling
+  * Batch changes events
+  * JavaFx `openListEventSusbcription` for `ObservableList`
 * Kotlin/Native support
 
 ## Add the library to your project
