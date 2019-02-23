@@ -2,6 +2,11 @@
 
 ## 0.3.1-SNAPSHOT (Unreleased)
 
+### Updated
+* kotlin from `1.3.11` to `1.3.21`
+* kotlinx.coroutines from `1.0.0` to `1.1.1`
+
+
 ## 0.3.0 (2018-12-10)
 Kotlin 1.3 and parallelization 
 
