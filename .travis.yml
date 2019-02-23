@@ -13,7 +13,6 @@ addons:
     organization: "jcornaz-github"
 
 jdk:
-  - oraclejdk8
   - oraclejdk11
 
 before_script:
