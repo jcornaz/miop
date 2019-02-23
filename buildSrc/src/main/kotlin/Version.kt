@@ -3,6 +3,7 @@ object Version {
     const val COROUTINES = "1.0.0"
     const val DOKKA = "0.9.17"
     const val COLLEKT = "0.0.3"
+    const val JAVAFX = "11.0.2"
 
     const val JUNIT = "4.13-beta-1"
     const val KLUENT = "1.44"
