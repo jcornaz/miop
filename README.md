@@ -9,7 +9,7 @@
 Reactive operator collection for coroutines channels.
 
 ## Status
-The API design of this proejct is based on `kotlinx.coroutines`' channels API design. So this project has to be considered experimental as long as channels API remains experimental in `kotlinx.coroutines`.
+The API design of this project is based on `kotlinx.coroutines`' channels API design. So this project has to be considered experimental as long as channels API remains experimental in `kotlinx.coroutines`.
 
 Moving to a stable version won't be considered before `kotlinx.coroutines` channels' API become stable.
 
@@ -98,7 +98,7 @@ dependencies {
     compile 'com.github.jcornaz.miop:miop-jvm:0.3.0'
     
     // JavaFx integration
-    compile 'com.github.jcornaz.miop:miop-jvm:0.3.0'
+    compile 'com.github.jcornaz.miop:miop-javafx:0.3.0'
    
     // Collekt integration. Replace 'jvm' by 'common' or 'js' according to the platform
     compile 'com.github.jcornaz.miop:miop-collekt-jvm:0.3.0'
