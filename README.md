@@ -1,7 +1,7 @@
 # miop
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Kotlin version](https://img.shields.io/badge/kotlin-1.3-blue.svg)
-[![Project status](https://img.shields.io/badge/status-experimental-yellow.svg)](https://gist.githubusercontent.com/jcornaz/46736c3d1f21b4c929bd97549b7406b2/raw/ProjectStatusFlow)
+[![Project status](https://img.shields.io/badge/status-discontinued-lightgray.svg)](https://gist.githubusercontent.com/jcornaz/46736c3d1f21b4c929bd97549b7406b2/raw/ProjectStatusFlow)
 [![JitPack](https://jitpack.io/v/jcornaz/miop.svg)](https://jitpack.io/#jcornaz/miop)
 [![Build status](https://travis-ci.com/jcornaz/miop.svg?branch=master)](https://travis-ci.com/jcornaz/miop)
 [![Quality gate](https://sonarcloud.io/api/project_badges/measure?project=jcornaz_miop&metric=alert_status)](https://sonarcloud.io/dashboard?id=jcornaz_miop)
@@ -9,9 +9,15 @@
 Reactive operator collection for coroutines channels.
 
 ## Status
-The API design of this project is based on `kotlinx.coroutines`' channels API design. So this project has to be considered experimental as long as channels API remains experimental in `kotlinx.coroutines`.
+This project has been designed to allow a reactive approach using the channel API provided by [kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines).
 
-Moving to a stable version won't be considered before `kotlinx.coroutines` channels' API become stable.
+But since the arrival of `Flow` aka *cold-streams* for coroutines, a lot of concerns trying to be solved by `miop` are actually solved by `Flow` in [kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines).
+
+I may write a new library providing operators that I still miss from in kotlinx.coroutines' `Flow` API. But that library will be designed around *flows* instead of *channels* (which is a major philosophy shift). And it is very likely that I will miss less operators, and that they will be safer to use.
+
+Therefore **this project is discontinued** and no improvement nor support will be provided.
+
+Everyone is free to fork and create derivate product. But I would strongly recomand to use the new `Flow` API instead ;-)
 
 ## Features
 * multi-platform (available modules: `common`, `jvm` and `js`)
